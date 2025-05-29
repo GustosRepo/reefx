@@ -34,8 +34,14 @@ export default function HistoryScreen() {
         fetchLogs();
     }, []);
 
-    const goHome = () => {
-        router.push("/");
+    const deleteLog = async (index: number) => {
+        try {
+            const updatedLogs = logs.filter((_, i) => i !== index);
+            setLogs(updatedLogs);
+            await AsyncStorage.setItem("reef_logs", JSON.stringify(updatedLogs));
+        } catch (err) {
+            console.error("Failed to delete log:", err);
+        }
     };
 
     return (
@@ -56,15 +62,13 @@ export default function HistoryScreen() {
                         <Text style={styles.label}>Magnesium: {log.mag} ppm</Text>
                         <Text style={styles.label}>Phosphate: {log.po4} ppm</Text>
                         <Text style={styles.label}>Nitrate: {log.no3} ppm</Text>
+                        <TouchableOpacity onPress={() => deleteLog(index)} style={styles.deleteButton}>
+                          <Text style={styles.deleteText}>Delete</Text>
+                        </TouchableOpacity>
                     </View>
                 ))
             )}
-            <TouchableOpacity
-                onPress={goHome}
-                style={{ backgroundColor: "#334155", padding: 16, borderRadius: 12, marginTop: 12 }}
-            >
-                <Text style={{ textAlign: "center", fontWeight: "bold", color: "#0ff" }}>Go Back Home</Text>
-            </TouchableOpacity>
+
         </ScrollView>
     );
 }
@@ -72,6 +76,8 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
+        backgroundColor: "#000",
+        flexGrow: 1,
     },
     title: {
         fontSize: 24,
@@ -109,5 +115,17 @@ const styles = StyleSheet.create({
     },
     label: {
         color: "#ccc",
+    },
+    deleteButton: {
+        marginTop: 12,
+        backgroundColor: "#ff4d4d",
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        alignSelf: "flex-end",
+    },
+    deleteText: {
+        color: "#fff",
+        fontWeight: "bold",
     },
 });

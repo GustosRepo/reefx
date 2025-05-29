@@ -1,7 +1,7 @@
 // File: app/log.tsx
 
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
@@ -48,12 +48,12 @@ export default function LogScreen() {
     };
 
     const goHome = () => {
-        router.push("/");
+        router.push("/(tabs)/home");
     };
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 12, color: "#0ff" }}>
+        <ScrollView contentContainerStyle={styles.container}>
+            <Text style={styles.title}>
                 Log Today's Parameters
             </Text>
 
@@ -68,9 +68,9 @@ export default function LogScreen() {
                 { label: "Nitrate (ppm)", key: "no3" }
             ].map(({ label, key }) => (
                 <View key={key} style={{ marginBottom: 16 }}>
-                    <Text style={{ color: "#ccc", marginBottom: 4 }}>{label}</Text>
+                    <Text style={styles.label}>{label}</Text>
                     <TextInput
-                        style={{ backgroundColor: "#1e293b", color: "white", padding: 12, borderRadius: 8 }}
+                        style={styles.input}
                         keyboardType="numeric"
                         value={form[key as keyof ReefForm]}
                         onChangeText={(text) => handleChange(key as keyof ReefForm, text)}
@@ -80,17 +80,46 @@ export default function LogScreen() {
 
             <TouchableOpacity
                 onPress={saveLog}
-                style={{ backgroundColor: "#0ff", padding: 16, borderRadius: 12, marginTop: 20 }}
+                style={styles.button}
             >
-                <Text style={{ textAlign: "center", fontWeight: "bold" }}>Save Log</Text>
+                <Text style={styles.buttonText}>Save Log</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-                onPress={goHome}
-                style={{ backgroundColor: "#334155", padding: 16, borderRadius: 12, marginTop: 12 }}
-            >
-                <Text style={{ textAlign: "center", fontWeight: "bold", color: "#0ff" }}>Go Back Home</Text>
-            </TouchableOpacity>
         </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: "#000",
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#0ff",
+  },
+  label: {
+    color: "#ccc",
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: "#1e293b",
+    color: "white",
+    padding: 12,
+    borderRadius: 8,
+  },
+  button: {
+    backgroundColor: "#0ff",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 20,
+  },
+  buttonText: {
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "#000",
+  },
+});
