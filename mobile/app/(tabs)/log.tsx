@@ -1,7 +1,7 @@
 // File: app/log.tsx
 
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet, Keyboard } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
@@ -14,6 +14,7 @@ type ReefForm = {
     mag: string;
     po4: string;
     no3: string;
+    salinity: string;
 };
 
 export default function LogScreen() {
@@ -26,6 +27,8 @@ export default function LogScreen() {
         mag: "",
         po4: "",
         no3: "",
+        salinity: "",
+
     });
 
     const router = useRouter();
@@ -38,11 +41,11 @@ export default function LogScreen() {
         try {
             const existing: string | null = await AsyncStorage.getItem("reef_logs");
             const logs: ReefForm[] = existing ? JSON.parse(existing) : [];
-            const newLogs: ReefForm[] = [...logs, form];
+            const newLogs: ReefForm[] = [...logs.filter(log => log.date !== form.date), form];
             await AsyncStorage.setItem("reef_logs", JSON.stringify(newLogs));
+            console.log("Saved logs:", newLogs);
             Alert.alert("Saved!", "Your reef log was saved.");
-            router.push("/history");
-        } catch (err) {
+            router.push({ pathname: "/history", params: { refresh: Date.now().toString() } });        } catch (err) {
             Alert.alert("Error", "Something went wrong saving your log.");
         }
     };
@@ -60,6 +63,7 @@ export default function LogScreen() {
             {[
                 { label: "Date", key: "date" },
                 { label: "Temperature (°C)", key: "temp" },
+                { label: "Salinity (ppt)", key: "salinity" },
                 { label: "Alkalinity (dKH)", key: "alk" },
                 { label: "pH", key: "ph" },
                 { label: "Calcium (ppm)", key: "cal" },
@@ -72,6 +76,9 @@ export default function LogScreen() {
                     <TextInput
                         style={styles.input}
                         keyboardType="numeric"
+                        returnKeyType="done"
+                        blurOnSubmit={true}
+                        onSubmitEditing={() => Keyboard.dismiss()}
                         value={form[key as keyof ReefForm]}
                         onChangeText={(text) => handleChange(key as keyof ReefForm, text)}
                     />

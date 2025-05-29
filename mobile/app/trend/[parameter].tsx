@@ -36,7 +36,8 @@ export default function ParameterTrend() {
 
       try {
         const logs = JSON.parse(stored);
-        const recent = logs.slice(-range);
+        logs.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const recent = logs;
 
         const values = recent.map((entry: any) =>
           parseFloat(entry[parameter as string])

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -14,13 +16,16 @@ export default function EventsPage() {
   const [events, setEvents] = useState<{ date: string; label: string }[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      const stored = await AsyncStorage.getItem("reef_events");
-      if (stored) setEvents(JSON.parse(stored));
-    };
-    loadEvents();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchEvents = async () => {
+        const stored = await AsyncStorage.getItem("reef_events");
+        if (stored) setEvents(JSON.parse(stored));
+        else setEvents([]);
+      };
+      fetchEvents();
+    }, [])
+  );
 
   const handleDelete = (index: number) => {
     Alert.alert("Delete Event", "Are you sure?", [
@@ -44,6 +49,26 @@ export default function EventsPage() {
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Logged Events</Text>
+      {events.length > 0 && (
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert("Clear All Events", "Are you sure you want to delete all events?", [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Clear All",
+                style: "destructive",
+                onPress: async () => {
+                  await AsyncStorage.removeItem("reef_events");
+                  setEvents([]);
+                },
+              },
+            ])
+          }
+          style={styles.clearAllButton}
+        >
+          <Text style={styles.clearAllText}>🧹 Clear All Events</Text>
+        </TouchableOpacity>
+      )}
       {events.length === 0 ? (
         <Text style={styles.noEvents}>No events logged yet.</Text>
       ) : (
@@ -116,6 +141,17 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: "#7df9ff",
+    fontWeight: "bold",
+  },
+  clearAllButton: {
+    backgroundColor: "#1e293b",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  clearAllText: {
+    color: "#f87171",
     fontWeight: "bold",
   },
 });

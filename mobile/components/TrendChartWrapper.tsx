@@ -21,46 +21,47 @@ const chartConfig = {
 };
 
 type Props = {
-  parameter: "alk" | "ph" | "cal" | "mag" | "po4" | "no3";
+  parameter: "temp" | "salinity" | "alk" | "ph" | "cal" | "mag" | "po4" | "no3";
   labels: string[];
   data: number[];
+  labelStyle?: any;
 };
 
-export default function TrendChartWrapper({ data, labels, parameter }: Props) {
+export default function TrendChartWrapper({ data, labels, parameter, labelStyle }: Props) {
   const [storedData, setStoredData] = useState<number[]>([]);
   const [storedLabels, setStoredLabels] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const savedData = await AsyncStorage.getItem("alkHistory", );
+        const savedData = await AsyncStorage.getItem(`${parameter}History`);
         if (savedData) {
           const parsed = JSON.parse(savedData);
-          const values = parsed.map((entry: any) => parseFloat(entry[parameter])).slice(-7);
+          const values = parsed
+            .map((entry: any) => {
+              const val = parseFloat(entry[parameter]);
+              return isNaN(val) || !isFinite(val) ? 0 : val;
+            })
+            .slice(-7);
           const dates = parsed.map((entry: any) => entry.date).slice(-7);
           setStoredData(values);
           setStoredLabels(dates);
-        } else {
-          setStoredData(data);
-          setStoredLabels(labels);
         }
       } catch (error) {
         console.error("Failed to load chart data from AsyncStorage", error);
-        setStoredData(data);
-        setStoredLabels(labels);
       }
     };
 
     fetchData();
-  }, []);
+  }, [parameter]);
 
   const sanitizedData = storedData.map((val) => {
     const n = Number(val);
     return isFinite(n) && !isNaN(n) ? n : 0;
   });
 
-  const fallbackData = sanitizedData.length ? sanitizedData : [0];
-  const fallbackLabels = storedLabels.length ? storedLabels : ["N/A"];
+  const fallbackData = storedData.length ? sanitizedData : data;
+  const fallbackLabels = storedLabels.length ? storedLabels : labels;
 
   const chartData = {
     labels: fallbackLabels,
@@ -80,7 +81,9 @@ export default function TrendChartWrapper({ data, labels, parameter }: Props) {
         data={chartData}
         width={screenWidth - 40}
         height={200}
-        chartConfig={chartConfig}
+        chartConfig={{
+          ...chartConfig,
+        }}
         bezier
         style={{ borderRadius: 12 }}
       />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import EditLogModal from "../../components/EditLogModal";
 
 // ReefForm type should match the structure used in log.tsx
 export type ReefForm = {
@@ -13,11 +14,15 @@ export type ReefForm = {
     mag: string | number;
     po4: string | number;
     no3: string | number;
+    salinity?: string | number; // Optional if not used in history
 };
 
 export default function HistoryScreen() {
     const [logs, setLogs] = useState<ReefForm[]>([]);
     const router = useRouter();
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [selectedLog, setSelectedLog] = useState<ReefForm | null>(null);
+    const { refresh } = useLocalSearchParams();
 
     useEffect(() => {
         const fetchLogs = async () => {
@@ -25,14 +30,17 @@ export default function HistoryScreen() {
             if (stored) {
                 try {
                     const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed)) setLogs(parsed);
+                    if (Array.isArray(parsed)) {
+                        const sorted = parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                        setLogs(sorted);
+                    }
                 } catch (err) {
                     console.error("Failed to parse logs:", err);
                 }
             }
         };
         fetchLogs();
-    }, []);
+    }, [refresh]);
 
     const deleteLog = async (index: number) => {
         try {
@@ -45,6 +53,7 @@ export default function HistoryScreen() {
     };
 
     return (
+        <>
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Past Reef Logs</Text>
 
@@ -53,23 +62,55 @@ export default function HistoryScreen() {
                 <Text style={styles.empty}>No logs found.</Text>
             ) : (
                 logs.map((log, index) => (
-                    <View key={index} style={styles.card}>
-                        <Text style={styles.date}>{log.date}</Text>
-                        <Text style={styles.label}>Temperature: {log.temp} °C</Text>
-                        <Text style={styles.label}>ALK: {log.alk} dKH</Text>
-                        <Text style={styles.label}>pH: {log.ph}</Text>
-                        <Text style={styles.label}>Calcium: {log.cal} ppm</Text>
-                        <Text style={styles.label}>Magnesium: {log.mag} ppm</Text>
-                        <Text style={styles.label}>Phosphate: {log.po4} ppm</Text>
-                        <Text style={styles.label}>Nitrate: {log.no3} ppm</Text>
-                        <TouchableOpacity onPress={() => deleteLog(index)} style={styles.deleteButton}>
-                          <Text style={styles.deleteText}>Delete</Text>
-                        </TouchableOpacity>
+                  <View key={index} style={styles.card}>
+                    <Text style={styles.date}>{log.date}</Text>
+                    <Text style={styles.label}>Temperature: {log.temp} °C</Text>
+                    <Text style={styles.label}>Salinity: {log.salinity} ppt</Text>
+                    <Text style={styles.label}>ALK: {log.alk} dKH</Text>
+                    <Text style={styles.label}>pH: {log.ph}</Text>
+                    <Text style={styles.label}>Calcium: {log.cal} ppm</Text>
+                    <Text style={styles.label}>Magnesium: {log.mag} ppm</Text>
+                    <Text style={styles.label}>Phosphate: {log.po4} ppm</Text>
+                    <Text style={styles.label}>Nitrate: {log.no3} ppm</Text>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 12 }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSelectedLog(log);
+                          setEditModalVisible(true);
+                        }}
+                        style={[styles.deleteButton, { backgroundColor: "#3b82f6", marginRight: 8 }]}
+                      >
+                        <Text style={styles.deleteText}>Edit</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => deleteLog(index)} style={styles.deleteButton}>
+                        <Text style={styles.deleteText}>Delete</Text>
+                      </TouchableOpacity>
                     </View>
+                  </View>
                 ))
             )}
 
         </ScrollView>
+        {editModalVisible && selectedLog && (
+          <EditLogModal
+            visible={editModalVisible}
+            log={selectedLog}
+            onClose={() => {
+              setEditModalVisible(false);
+              setSelectedLog(null);
+            }}
+            onSave={async (updatedLog) => {
+              const updatedLogs = logs.map((log) =>
+                log.date === updatedLog.date ? updatedLog : log
+              );
+              setLogs(updatedLogs);
+              await AsyncStorage.setItem("reef_logs", JSON.stringify(updatedLogs));
+              setEditModalVisible(false);
+              setSelectedLog(null);
+            }}
+          />
+        )}
+        </>
     );
 }
 
