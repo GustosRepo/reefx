@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import { Linking } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
@@ -15,10 +16,14 @@ export default function HomeScreen() {
   const [warnings, setWarnings] = useState<Record<string, string | null>>({});
   const [overdueMaintenance, setOverdueMaintenance] = useState<any[]>([]);
   const isFocused = useIsFocused();
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLogs, setHasLogs] = useState(false);
+  const [hasCheckedFirstTime, setHasCheckedFirstTime] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       const loadData = async () => {
+        setIsLoading(true);
         try {
           const json = await AsyncStorage.getItem("reef_logs");
           const logs = json ? JSON.parse(json) : [];
@@ -79,12 +84,14 @@ export default function HomeScreen() {
           });
 
           setChartData(newChartData);
+          setHasLogs(recent.length > 0);
+          setHasCheckedFirstTime(true);
 
           const labelSet = recent.map((entry: any) => {
             const d = new Date(entry.date);
             const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
             const date = `${d.getMonth() + 1}/${d.getDate()}`;
-            return `${date}`;
+            return `${weekday}\n${date}`;
           });
 
           setLabels(labelSet);
@@ -120,6 +127,8 @@ export default function HomeScreen() {
           setOverdueMaintenance(overdueItems);
         } catch (err) {
           console.error("Failed to load logs", err);
+        } finally {
+          setIsLoading(false);
         }
       };
 
@@ -137,6 +146,54 @@ export default function HomeScreen() {
     po4: "Phosphate (PO₄)",
     no3: "Nitrate (NO₃)",
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#000", padding: 20 }}>
+        <Text style={{ fontSize: 28, fontWeight: "bold", color: "#7df9ff" }}>REEFX</Text>
+        <Text style={{ color: "#ccc", marginBottom: 20 }}>Loading your reef logs...</Text>
+        {[...Array(5)].map((_, i) => (
+          <View
+            key={i}
+            style={{
+              backgroundColor: "#1f2937",
+              height: 120,
+              borderRadius: 16,
+              marginBottom: 16,
+              overflow: "hidden",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                width: `${(i + 1) * 20}%`,
+                height: "100%",
+                // Note: actual shimmer animation would need Animated API or a library
+              }}
+            />
+          </View>
+        ))}
+      </SafeAreaView>
+    );
+  }
+
+  if (!hasLogs && hasCheckedFirstTime) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#000", justifyContent: "center", alignItems: "center", padding: 24 }}>
+        <Text style={{ color: "#7df9ff", fontSize: 28, fontWeight: "bold", textAlign: "center", marginBottom: 16 }}>Welcome to REEFX</Text>
+        <Text style={{ color: "#ccc", fontSize: 16, textAlign: "center", marginBottom: 32 }}>
+          Start tracking your reef tank with beautiful trend charts and smart reminders.
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/log")}
+          style={{ backgroundColor: "#7df9ff", paddingVertical: 12, paddingHorizontal: 24, borderRadius: 10 }}
+        >
+          <Text style={{ fontWeight: "bold", color: "#000" }}>➕ Add Your First Log</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
@@ -185,7 +242,11 @@ export default function HomeScreen() {
               parameter={key as "temp" | "salinity" | "alk" | "ph" | "cal" | "mag" | "po4" | "no3"}
               data={data}
               labels={labels}
-              labelStyle={{ fontSize: 4, textAlign: "center" }}
+              labelStyle={{
+                fontSize: 10,
+                textAlign: "center",
+                transform: [{ rotate: "-30deg" }],
+              }}
             />
           </View>
         ))}
@@ -256,6 +317,19 @@ export default function HomeScreen() {
             <Text style={{ textAlign: "center", fontWeight: "bold" }}>⚙️ Set Alert Thresholds</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL("mailto:admin@code-wrx.com?subject=REEFX Feedback&body=Hey! I have some thoughts...")
+          }
+          style={{ marginTop: 24 }}
+        >
+          <Text style={{ color: "#7df9ff", fontSize: 14, textAlign: "center", textDecorationLine: "underline" }}>
+            📬 Send Feedback
+          </Text>
+        </TouchableOpacity>
+        <Text style={{ color: "#444", textAlign: "center", fontSize: 12, marginTop: 32 }}>
+          REEFX v0.9.0 Beta
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );

@@ -21,7 +21,7 @@ export default function EditLogModal({ visible, log, onSave, onClose }: Props) {
     if (editedLog && log) {
       setEditedLog({
         ...editedLog,
-        [field]: value || log[field], // fallback to original if empty
+        [field]: value,
       });
     }
   };
