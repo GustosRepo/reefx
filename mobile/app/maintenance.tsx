@@ -28,7 +28,7 @@ export default function MaintenancePage() {
   const [notes, setNotes] = useState("");
   const [cost, setCost] = useState("");
   const [repeatInterval, setRepeatInterval] = useState("");
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
   const router = useRouter();
 
   const refreshEntries = async () => {

@@ -36,7 +36,14 @@ export default function ParameterTrend() {
 
       try {
         const logs = JSON.parse(stored);
-        logs.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        logs.sort((a: any, b: any) => {
+          // Parse "YYYY-MM-DD" into a local Date at midnight
+          const [ay, am, ad] = a.date.split("-").map(Number);
+          const [by, bm, bd] = b.date.split("-").map(Number);
+          const adate = new Date(ay, am - 1, ad);
+          const bdate = new Date(by, bm - 1, bd);
+          return adate.getTime() - bdate.getTime();
+        });
         const recent = logs;
 
         const values = recent.map((entry: any) =>
@@ -44,8 +51,9 @@ export default function ParameterTrend() {
         );
 
         const dateLabels = recent.map((entry: any) => {
-          const d = new Date(entry.date);
-          return `${d.getMonth() + 1}/${d.getDate()}`;
+          const [y, m, dNum] = entry.date.split("-").map(Number);
+          const dLoc = new Date(y, m - 1, dNum);
+          return `${dLoc.getMonth() + 1}/${dLoc.getDate()}`;
         });
 
         setData(values);
@@ -80,7 +88,12 @@ export default function ParameterTrend() {
       return;
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const year = todayDate.getFullYear();
+    const month = (todayDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = todayDate.getDate().toString().padStart(2, "0");
+    const today = `${year}-${month}-${day}`;
     const newEvent = { date: today, label: eventLabel };
     const updated = [...events, newEvent];
     setEvents(updated);
