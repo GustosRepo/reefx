@@ -1,5 +1,7 @@
 {
-  "cli": { "version": ">= 3.17.0" },
+  "cli": {
+    "appVersionSource": "appVersion"
+  },
 
   "build": {
     "preview": {
@@ -10,7 +12,10 @@
     },
     "production": {
       "distribution": "store",
-      "android": { "buildType": "app-bundle" },
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": true
+      },
       "ios":    { "autoIncrement": "buildNumber" }
     }
   }
