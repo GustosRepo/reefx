@@ -4,18 +4,18 @@
     "slug": "reefx",
     "version": "0.9.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/applogo.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "scheme": "reefx",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/applogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
     "ios": {
       "bundleIdentifier": "com.codewerx.reefx",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Take livestock photos",
@@ -28,7 +28,7 @@
       "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/applogo.png",
         "backgroundColor": "#000000"
       },
       "permissions": []
@@ -40,7 +40,7 @@
       "fallbackToCacheTimeout": 0
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/applogo.png"
     },
     "extra": {
       "eas": {

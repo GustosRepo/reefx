@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Modal, Image } from "react-native";
 import { Linking } from "react-native";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
@@ -344,10 +344,11 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-       <Text style={{ fontSize: 28, fontWeight: "bold", color: "#7df9ff" }}>REEFX</Text>
-        <Text style={{ color: "#ccc", marginTop: 4 }}>
-          Smarter Reefkeeping. Beautifully Synced.
-        </Text>
+        <View style={{ alignItems: "center", marginBottom: 12 }}>
+          <Text style={{ color: "#ccc", marginTop: 4 }}>
+            Smarter Reefkeeping. Beautifully Synced.
+          </Text>
+        </View>
 
         {overdueMaintenance.length > 0 && (
           <View

@@ -69,7 +69,7 @@ export default function EventsPage() {
         keyboardVerticalOffset={100}
       >
         <View style={{ flex: 1 }}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => router.push("/home")} style={styles.backBtn}>
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
 
