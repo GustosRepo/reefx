@@ -42,6 +42,7 @@
     "web": {
       "favicon": "./assets/applogo.png"
     },
+    "plugins": ["expo-ads-admob"],
     "extra": {
       "eas": {
         "projectId": "72f1f0e0-1fd7-4bcf-a189-202fd92282ee"
