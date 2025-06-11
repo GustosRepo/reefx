@@ -2,23 +2,30 @@
   "cli": {
     "appVersionSource": "local"
   },
-
   "build": {
     "preview": {
       "distribution": "internal",
       "developmentClient": false,
-      "android": { "buildType": "apk" },
-      "ios":    { "simulator": true }
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
     },
     "production": {
       "distribution": "store",
       "android": {
-        "buildType": "app-bundle",
-        "autoIncrement": true
+        "buildType": "app-bundle"
       },
-      "ios":    { "autoIncrement": "buildNumber" }
+      "ios": {}
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "admin@code-wrx.com"
+      }
     }
   }
-
-
 }

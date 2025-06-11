@@ -2,7 +2,6 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { Image, View } from "react-native";
-import AdBanner from "../../components/AdBanner";
 
 export default function TabLayout() {
   return (
@@ -41,7 +40,6 @@ export default function TabLayout() {
             },
           })}
         />
-        <AdBanner />
 
       </View>
     </>
