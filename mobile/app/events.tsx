@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import AdBanner from "../components/AdBanner";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<{ date: string; label: string }[]>([]);
@@ -115,6 +116,9 @@ export default function EventsPage() {
               <Text style={styles.addText}>+ Add Event</Text>
             </TouchableOpacity>
           </View>
+          <View style={styles.bannerContainer}>
+            <AdBanner />
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -177,5 +181,8 @@ const styles = StyleSheet.create({
   addText: {
     color: "black",
     fontWeight: "bold",
+  },
+  bannerContainer: {
+    marginTop: 20,
   },
 });

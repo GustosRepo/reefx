@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import AdBanner from "../components/AdBanner";
 
 interface MaintenanceEntry {
   date: string;
@@ -186,6 +187,7 @@ export default function MaintenancePage() {
           </View>
         </View>
       </Modal>
+      <AdBanner />
     </View>
   );
 }

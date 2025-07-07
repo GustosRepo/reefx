@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import AdBanner from "../components/AdBanner";
 
 export default function LivestockTracker() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -75,7 +76,8 @@ export default function LivestockTracker() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView>
       <TouchableOpacity
         onPress={() => router.replace("/")}
         style={{
@@ -213,8 +215,9 @@ export default function LivestockTracker() {
             </TouchableOpacity>
           </View>
         ))}
-
-    </ScrollView>
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 

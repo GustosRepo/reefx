@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import AdBanner from "../../components/AdBanner";
 
 const parameters = [
   { key: "alk", label: "ALK (dKH)" },
@@ -52,44 +53,47 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => router.push("/")} style={styles.backButton}>
-        <Text style={styles.backButtonText}>← Home</Text>
-      </TouchableOpacity>
+    <View style={styles.container}>
+      <ScrollView>
+        <TouchableOpacity onPress={() => router.push("/")} style={styles.backButton}>
+          <Text style={styles.backButtonText}>← Home</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.title}>⚙️ Alert Thresholds</Text>
-      <Text style={styles.description}>
-        Set how much change should trigger an alert for each parameter. Leave blank to use defaults.
-      </Text>
+        <Text style={styles.title}>⚙️ Alert Thresholds</Text>
+        <Text style={styles.description}>
+          Set how much change should trigger an alert for each parameter. Leave blank to use defaults.
+        </Text>
 
-      {parameters.map(({ key, label }) => (
-        <View key={key} style={styles.paramBox}>
-          <Text style={styles.label}>{label}</Text>
-          <View style={styles.thresholdRow}>
-            <TextInput
-              keyboardType="decimal-pad"
-              value={thresholds[key]?.min || ""}
-              onChangeText={(val) => handleChange(key, "min", val)}
-              style={[styles.input, styles.inputHalf]}
-              placeholder="Min"
-              placeholderTextColor="#888"
-            />
-            <TextInput
-              keyboardType="decimal-pad"
-              value={thresholds[key]?.max || ""}
-              onChangeText={(val) => handleChange(key, "max", val)}
-              style={[styles.input, styles.inputHalf]}
-              placeholder="Max"
-              placeholderTextColor="#888"
-            />
+        {parameters.map(({ key, label }) => (
+          <View key={key} style={styles.paramBox}>
+            <Text style={styles.label}>{label}</Text>
+            <View style={styles.thresholdRow}>
+              <TextInput
+                keyboardType="decimal-pad"
+                value={thresholds[key]?.min || ""}
+                onChangeText={(val) => handleChange(key, "min", val)}
+                style={[styles.input, styles.inputHalf]}
+                placeholder="Min"
+                placeholderTextColor="#888"
+              />
+              <TextInput
+                keyboardType="decimal-pad"
+                value={thresholds[key]?.max || ""}
+                onChangeText={(val) => handleChange(key, "max", val)}
+                style={[styles.input, styles.inputHalf]}
+                placeholder="Max"
+                placeholderTextColor="#888"
+              />
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
 
-      <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-        <Text style={styles.saveBtnText}>💾 Save Thresholds</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+          <Text style={styles.saveBtnText}>💾 Save Thresholds</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <AdBanner />
+    </View>
   );
 }
 

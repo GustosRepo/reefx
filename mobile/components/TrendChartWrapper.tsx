@@ -1,11 +1,14 @@
-// components/TrendChartWrapper.tsx
-
 import { Dimensions, View, TouchableOpacity, Alert, StyleSheet, Modal, Text } from "react-native";
 // @ts-ignore: chart-kit has broken types with Expo SDK 53
 import { LineChart } from "react-native-chart-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { Circle } from "react-native-svg";
+
+function formatToMonthDay(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return `${m}/${d}`;
+}
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -65,12 +68,19 @@ export default function TrendChartWrapper({
     loadEvents();
   }, [parentLabels]);
 
+  // Raw plotting: nulls become 0 so chart dips, dots colored to distinguish
+  const rawData = parentData.map((v) => (v === null ? 0 : v));
+
+  // Dot colors: transparent for null (now plotted as 0), gray for zero readings, blue for real values
+  const dotColors = parentData.map((v) =>
+    v === null ? "transparent" : v === 0 ? "#888" : "#3b82f6"
+  );
+
   const chartData = {
-    labels: parentLabels,
+    labels: parentLabels.map(formatToMonthDay),
     datasets: [
       {
-        data: parentData,
-        color: () => "#3b82f6",
+        data: rawData as number[],
         strokeWidth: 2,
       },
     ],
@@ -78,6 +88,15 @@ export default function TrendChartWrapper({
 
   return (
     <View>
+      {/* Parameter header with latest value */}
+      <Text style={styles.parameterHeader}>
+        {parameter.toUpperCase()}: {
+          (() => {
+            const latest = parentData.slice().reverse().find((v) => v !== null);
+            return latest !== undefined ? latest : "—";
+          })()
+        }
+      </Text>
       {/* @ts-ignore: type conflict workaround */}
       <LineChart
         data={chartData}
@@ -101,6 +120,7 @@ export default function TrendChartWrapper({
             />
           ) : null
         }
+        getDotColor={(value, index) => dotColors[index]}
         onDataPointClick={({ index }) => {
           AsyncStorage.getItem("reef_events")
             .then((raw) => {
@@ -119,11 +139,14 @@ export default function TrendChartWrapper({
             .catch((err) => console.error(err));
         }}
       />
+      <Text style={[styles.legend, { textAlign: "center", alignSelf: "center" }]}>
+        gray dots indicate parameter was not logged.
+      </Text>
 
       <Modal transparent visible={showModal} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Events on {modalDate}</Text>
+            <Text style={styles.modalTitle}>Events on {formatToMonthDay(modalDate)}</Text>
             {modalEvents.map((ev, idx) => (
               <Text key={idx} style={styles.modalText}>
                 • {ev}
@@ -143,6 +166,12 @@ export default function TrendChartWrapper({
 }
 
 const styles = StyleSheet.create({
+  parameterHeader: { 
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -180,5 +209,11 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#000",
     fontWeight: "bold",
+  },
+  legend: {
+    color: "#94a3b8",
+    fontSize: 12,
+    marginTop: 8,
+    marginLeft: 20,
   },
 });

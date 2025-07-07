@@ -1,5 +1,10 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+
+interface ReefLogEntry {
+  date: string;
+  [key: string]: string | number | undefined;
+}
 import {
   View,
   Text,
@@ -9,18 +14,32 @@ import {
   Modal,
   TextInput,
   Alert,
+  ScrollView,
 } from "react-native";
+import AdBanner from "../../components/AdBanner";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LineChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
+
+// Optional: normalize known parameter keys
+const PARAM_MAP: Record<string, string> = {
+  alk: "alk",
+  cal: "cal",
+  mag: "mag",
+  po4: "po4",
+  no3: "no3",
+  ph: "ph",
+  temp: "temp",
+  salinity: "salinity",
+};
 
 export default function ParameterTrend() {
   const { parameter } = useLocalSearchParams();
   const router = useRouter();
   const [data, setData] = useState<number[]>([]);
   const [labels, setLabels] = useState<string[]>([]);
-  const [range, setRange] = useState(7);
+  const [range, setRange] = useState<number | "all">(7);
   const [change, setChange] = useState<number | null>(null);
   const [min, setMin] = useState<number | null>(null);
   const [max, setMax] = useState<number | null>(null);
@@ -28,6 +47,7 @@ export default function ParameterTrend() {
   const [events, setEvents] = useState<{ date: string; label: string }[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [eventLabel, setEventLabel] = useState("");
+  const [recent, setRecent] = useState<ReefLogEntry[]>([]);
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -37,27 +57,58 @@ export default function ParameterTrend() {
       try {
         const logs = JSON.parse(stored);
         logs.sort((a: any, b: any) => {
-          // Parse "YYYY-MM-DD" into a local Date at midnight
           const [ay, am, ad] = a.date.split("-").map(Number);
           const [by, bm, bd] = b.date.split("-").map(Number);
           const adate = new Date(ay, am - 1, ad);
           const bdate = new Date(by, bm - 1, bd);
           return adate.getTime() - bdate.getTime();
         });
-        const recent = logs;
 
-        const values = recent.map((entry: any) =>
-          parseFloat(entry[parameter as string])
-        );
+        const now = new Date();
+        const recent = range === "all"
+          ? logs
+          : logs.filter((log: any) => {
+              const [y, m, d] = log.date.split("-").map(Number);
+              const logDate = new Date(y, m - 1, d);
+              const diffDays = (now.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24);
+              return diffDays <= range;
+            });
 
-        const dateLabels = recent.map((entry: any) => {
-          const [y, m, dNum] = entry.date.split("-").map(Number);
-          const dLoc = new Date(y, m - 1, dNum);
-          return `${dLoc.getMonth() + 1}/${dLoc.getDate()}`;
-        });
+        const key = PARAM_MAP[parameter as string] || (parameter as string);
+
+        interface ReefLogEntry {
+          date: string;
+          [key: string]: string | number | undefined;
+        }
+
+        const values = (recent as ReefLogEntry[])
+          .map((entry: ReefLogEntry) => {
+            const raw = entry[key];
+            const num = typeof raw === "number" ? raw : parseFloat(raw as string);
+            return isNaN(num) ? null : num;
+          })
+          .filter((v): v is number => v !== null);
+
+        // Simplified date label logic to reduce label density for long ranges
+        const formatDate = (dateStr: string) => {
+          const [y, m, d] = dateStr.split("-").map(Number);
+          return `${m}/${d}`;
+        };
+        const labelInterval = values.length > 90 ? 30
+                              : values.length > 60 ? 30
+                              : values.length > 30 ? 15
+                              : values.length > 14 ? 7
+                              : values.length > 7 ? 3
+                              : 1;
+        const dateLabels = recent
+          .map((entry: any, idx: number) =>
+            idx % labelInterval === 0 ? formatDate(entry.date) : ""
+          )
+          .slice(-values.length);
 
         setData(values);
         setLabels(dateLabels);
+        (setRecent => setRecent(recent))(setRecent);
 
         if (values.length > 1) {
           const delta = values[values.length - 1] - values[0];
@@ -70,6 +121,11 @@ export default function ParameterTrend() {
           setMin(minimum);
           setMax(maximum);
           setAvg(parseFloat(average.toFixed(2)));
+        } else {
+          setChange(null);
+          setMin(null);
+          setMax(null);
+          setAvg(null);
         }
 
         const rawEvents = await AsyncStorage.getItem("reef_events");
@@ -104,6 +160,7 @@ export default function ParameterTrend() {
 
   return (
     <View style={styles.container}>
+      <ScrollView>
       <TouchableOpacity onPress={() => router.replace("/")} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
@@ -123,7 +180,7 @@ export default function ParameterTrend() {
           <Text style={styles.analysisText}>
             Avg: {avg} | Min: {min} | Max: {max}
           </Text>
-          {change !== null && (() => {
+          {(() => {
             const alertThresholds: { [key: string]: number } = {
               alk: 0.5,
               cal: 20,
@@ -133,12 +190,15 @@ export default function ParameterTrend() {
               phosphate: 0.05,
             };
 
-            const threshold = alertThresholds[parameter as string];
+            const key = Array.isArray(parameter)
+              ? parameter[0]
+              : parameter;
+            const threshold = alertThresholds[key as string];
 
             if (threshold && Math.abs(change) > threshold) {
               return (
                 <Text style={styles.alertText}>
-                  ⚠️ Significant {(Array.isArray(parameter) ? parameter[0] : parameter)?.toUpperCase()} change detected
+                  ⚠️ Significant {key?.toUpperCase()} change detected
                 </Text>
               );
             }
@@ -150,7 +210,6 @@ export default function ParameterTrend() {
 
       {data.length > 0 ? (
         <>
-          {/* @ts-ignore */}
           <LineChart
             data={{ labels, datasets: [{ data }] }}
             width={screenWidth - 40}
@@ -169,27 +228,33 @@ export default function ParameterTrend() {
         <Text style={styles.noData}>No data available for {parameter}</Text>
       )}
 
-      {labels.map((label, index) => {
-        const matchingEvents = events.filter((e) => {
-          const [m, d] = label.split("/");
-          const labelDate = new Date();
-          labelDate.setMonth(parseInt(m) - 1);
-          labelDate.setDate(parseInt(d));
-          return (
-            new Date(e.date).getMonth() === labelDate.getMonth() &&
-            new Date(e.date).getDate() === labelDate.getDate()
-          );
-        });
-
-        return matchingEvents.length > 0 ? (
-          <Text key={index} style={styles.eventText}>
-            {label}: {matchingEvents.map((e) => e.label).join(", ")}
+      {/*
+        Display events as a single-line per event in M/D: label format, filtered by range.
+      */}
+      {(() => {
+        const now = new Date();
+        const sortedEvents = [...events]
+          .filter((e) => {
+            if (range === "all") return true;
+            const [y, m, d] = e.date.split("-").map(Number);
+            const eventDate = new Date(y, m - 1, d);
+            const diffDays = (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24);
+            return diffDays <= range;
+          })
+          .sort((a, b) => a.date.localeCompare(b.date));
+        const formatDateLabel = (iso: string) => {
+          const [y, m, d] = iso.split("-").map(Number);
+          return `${m}/${d}`;
+        };
+        return sortedEvents.map((e, i) => (
+          <Text key={i} style={styles.eventText}>
+            {formatDateLabel(e.date)}: {e.label}
           </Text>
-        ) : null;
-      })}
+        ));
+      })()}
 
       <View style={styles.rangeButtons}>
-        {[7, 14, 30].map((r) => (
+        {([7, 14, 30, "all"] as (number | "all")[]).map((r) => (
           <TouchableOpacity
             key={r}
             onPress={() => setRange(r)}
@@ -204,7 +269,7 @@ export default function ParameterTrend() {
                 range === r && styles.rangeButtonTextActive,
               ]}
             >
-              {r}d
+              {r === "all" ? "All" : `${r}d`}
             </Text>
           </TouchableOpacity>
         ))}
@@ -240,12 +305,14 @@ export default function ParameterTrend() {
           </View>
         </View>
       </Modal>
+      </ScrollView>
+      <AdBanner />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000", padding: 20 },
+  container: { flex: 1, backgroundColor: "#000", padding: 20, paddingBottom: 20 },
   backButton: {
     alignSelf: "flex-start",
     paddingVertical: 6,
@@ -311,6 +378,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
+    alignSelf: "center",
+    width: "100%",
   },
   addEventText: {
     color: "#000",

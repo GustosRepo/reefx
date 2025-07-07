@@ -129,10 +129,18 @@ export default function LogScreen() {
       const existing: string | null = await AsyncStorage.getItem("reef_logs");
       const logs: ReefForm[] = existing ? JSON.parse(existing) : [];
 
+      // Clean the form to exclude empty values from being saved to history
+      const cleanedForm: ReefForm = { ...form };
+      (Object.keys(cleanedForm) as (keyof ReefForm)[]).forEach((key) => {
+        if (key !== "date" && cleanedForm[key].trim() === "") {
+          cleanedForm[key] = ""; // explicitly keep it blank instead of zero
+        }
+      });
+
       // Overwrite any existing log with the same date
       const newLogs: ReefForm[] = [
-        ...logs.filter((log) => log.date !== form.date),
-        form,
+        ...logs.filter((log) => log.date !== cleanedForm.date),
+        cleanedForm,
       ];
       await AsyncStorage.setItem("reef_logs", JSON.stringify(newLogs));
 
@@ -154,8 +162,10 @@ export default function LogScreen() {
           ? JSON.parse(existingHistory)
           : [];
 
-        const filteredHistory = historyArray.filter((entry) => entry.date !== form.date);
-        filteredHistory.push({ date: form.date, [param]: form[param] });
+        const filteredHistory = historyArray.filter((entry) => entry.date !== cleanedForm.date);
+        if (cleanedForm[param].trim() !== "") {
+          filteredHistory.push({ date: cleanedForm.date, [param]: cleanedForm[param] });
+        }
         await AsyncStorage.setItem(historyKey, JSON.stringify(filteredHistory));
       }
 

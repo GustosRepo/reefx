@@ -8,6 +8,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import TrendChart from "../../components/TrendChartWrapper";
 import { useIsFocused } from "@react-navigation/native";
 
+import { injectAllTestData } from "../../devtools/injectMockData";
+
+useEffect(() => {
+  if (__DEV__) {
+    injectAllTestData();
+  }
+}, []);
+
 export default function HomeScreen() {
   const router = useRouter();
   const isFocused = useIsFocused();
@@ -430,6 +438,24 @@ export default function HomeScreen() {
                 transform: [{ rotate: "-30deg" }],
               }}
             />
+            <View style={{ marginTop: 12, alignItems: "center" }}>
+              <TouchableOpacity
+                onPress={() => router.push(`/trend/${key}`)}
+                style={{
+                  backgroundColor: "#0ff",
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                  borderRadius: 8,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#000", fontWeight: "bold", marginRight: 6 }}>
+                  View Full Trend
+                </Text>
+                <Text style={{ color: "#000", fontWeight: "bold" }}>→</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ))}
 
@@ -472,40 +498,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text
-          style={{ color: "#aaa", fontSize: 16, textAlign: "center", marginTop: 32 }}
-        >
-          Tap any parameter below to explore its detailed trend chart.
-        </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: 12,
-            marginTop: 24,
-          }}
-        >
-          {["temp", "salinity", "alk", "ph", "cal", "mag", "po4", "no3"].map(
-            (param) => (
-              <TouchableOpacity
-                key={param}
-                style={{
-                  backgroundColor: "#1e293b",
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 10,
-                  margin: 6,
-                }}
-                onPress={() => router.push(`/trend/${param}`)}
-              >
-                <Text style={{ color: "#7df9ff", fontWeight: "600" }}>
-                  {param.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
-        </View>
 
         <View style={{ marginTop: 48 }}>
           <Text
@@ -592,7 +584,9 @@ export default function HomeScreen() {
             📬 Send Feedback
           </Text>
         </TouchableOpacity>
-
+{/* <TouchableOpacity onPress={injectAllTestData} style={{ padding: 12, backgroundColor: "#0ff" }}>
+  <Text style={{ color: "#000" }}>Inject Test Data</Text>
+</TouchableOpacity> */}
         <Text
           style={{
             color: "#444",

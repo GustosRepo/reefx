@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "REEFX",
     slug: "reefx",
-    version: "0.6.0",
+    version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/applogo.png",
     userInterfaceStyle: "dark",
@@ -16,7 +16,7 @@ export default {
     },
     ios: {
       bundleIdentifier: "com.codewerx.reefx",
-      buildNumber: "6",
+      buildNumber: "1",
       supportsTablet: true,
       infoPlist: {
         NSCameraUsageDescription: "Take livestock photos",
@@ -26,7 +26,7 @@ export default {
     },
     android: {
       package: "com.codewerx.reefx",
-      versionCode: 6,
+      versionCode: 1,
       edgeToEdgeEnabled: true,
       adaptiveIcon: {
         foregroundImage: "./assets/applogo.png",

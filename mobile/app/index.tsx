@@ -1,5 +1,11 @@
 import { Redirect } from "expo-router";
+import AdBanner from "../components/AdBanner";
 
 export default function Index() {
-  return <Redirect href="/(tabs)/home" />;
+  return (
+    <>
+      <AdBanner />
+      <Redirect href="/(tabs)/home" />
+    </>
+  );
 }

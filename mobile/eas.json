@@ -18,7 +18,11 @@
       "android": {
         "buildType": "app-bundle"
       },
-      "ios": {}
+      "ios": {
+        "buildConfiguration": "Release",
+        "scheme": "REEFX",
+        "releaseChannel": "prod"
+      }
     }
   },
   "submit": {
