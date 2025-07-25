@@ -2,9 +2,9 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "REEFX",
+    name: "REEFX ONE",
     slug: "reefx",
-    version: "1.0.0",
+    version: "1.0.6",
     orientation: "portrait",
     icon: "./assets/applogo.png",
     userInterfaceStyle: "dark",
@@ -16,17 +16,19 @@ export default {
     },
     ios: {
       bundleIdentifier: "com.codewerx.reefx",
-      buildNumber: "1",
+      buildNumber: "6",
       supportsTablet: true,
       infoPlist: {
         NSCameraUsageDescription: "Take livestock photos",
-        NSUserTrackingUsageDescription: "Used for analytics and crash reporting",
-        ITSAppUsesNonExemptEncryption: false
+        NSUserTrackingUsageDescription: "This identifier is used to deliver personalized ads and measure app performance.",
+        ITSAppUsesNonExemptEncryption: false,
+        NSPrivacyPolicyURL: "https://code-wrx.com/privacy-policy",
+        GADApplicationIdentifier: process.env.IOS_ADMOB_APP_ID, // AdMob App ID for iOS
       }
     },
     android: {
       package: "com.codewerx.reefx",
-      versionCode: 1,
+      versionCode: 6,
       edgeToEdgeEnabled: true,
       adaptiveIcon: {
         foregroundImage: "./assets/applogo.png",

@@ -19,7 +19,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
+    <string>1.0.6</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -39,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>6</string>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-8863066373093222~2728219581</string>
     <key>GADDelayAppMeasurementInit</key>
@@ -59,6 +59,8 @@
     </dict>
     <key>NSCameraUsageDescription</key>
     <string>Take livestock photos</string>
+    <key>NSPrivacyPolicyURL</key>
+    <string>https://code-wrx.com/privacy-policy</string>
     <key>NSUserTrackingUsageDescription</key>
     <string>This identifier will be used to deliver personalized ads to you.</string>
     <key>SKAdNetworkItems</key>

@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Modal, Image } from "react-native";
 import { Linking } from "react-native";
 import { useRouter } from "expo-router";
@@ -7,14 +8,8 @@ import { useCallback, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import TrendChart from "../../components/TrendChartWrapper";
 import { useIsFocused } from "@react-navigation/native";
+ 
 
-import { injectAllTestData } from "../../devtools/injectMockData";
-
-useEffect(() => {
-  if (__DEV__) {
-    injectAllTestData();
-  }
-}, []);
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -33,6 +28,9 @@ export default function HomeScreen() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
   const [isChecklistLoading, setIsChecklistLoading] = useState(true);
+
+  // --- STATE FOR ATT REQUEST ---
+  const [hasRequestedATT, setHasRequestedATT] = useState(false);
 
   // === useEffect → check “hasSeenWelcome” and “seenChecklist” flags on first mount ===
   useEffect(() => {
@@ -61,20 +59,27 @@ export default function HomeScreen() {
       });
   }, []);
 
+  // === Request ATT on mount ===
+  useEffect(() => {
+    const checkATT = async () => {
+      const existing = await AsyncStorage.getItem("attStatus");
+      if (!existing) {
+        const { status } = await requestTrackingPermissionsAsync();
+        await AsyncStorage.setItem("attStatus", status);
+        setHasRequestedATT(true);
+      }
+    };
+    checkATT();
+  }, []);
+
   // === Handler: when user taps “Got it” on the Welcome modal ===
-  const handleDismissWelcome = () => {
-    AsyncStorage.setItem("hasSeenWelcome", "true").catch(() => {});
+  const handleDismissWelcome = async () => {
+    await AsyncStorage.multiSet([
+      ["hasSeenWelcome", "true"],
+      ["seenChecklist", "true"],
+    ]).catch(() => {});
     setShowWelcome(false);
-    // After welcome, show checklist if not yet seen
-    AsyncStorage.getItem("seenChecklist")
-      .then((flag) => {
-        if (flag !== "true") {
-          setShowChecklist(true);
-        }
-      })
-      .finally(() => {
-        setIsChecklistLoading(false);
-      });
+    setShowChecklist(false);
   };
 
   // --- useFocusEffect → load chart data whenever the screen is focused ---
@@ -107,8 +112,10 @@ export default function HomeScreen() {
             return adate.getTime() - bdate.getTime();
           });
 
-          // 2) Take last 7 entries
-          const recent: ReefLogEntry[] = sortedLogs.slice(-7);
+          // 2) Take last 7 entries and filter out incomplete/null logs
+          const recent: ReefLogEntry[] = sortedLogs
+            .slice(-7)
+            .filter((log) => log && log.date && log.temp !== undefined);
 
           // 3) Build number[] arrays
           const newChartData: Record<string, number[]> = {
@@ -123,6 +130,7 @@ export default function HomeScreen() {
           };
 
           recent.forEach((entry) => {
+            if (!entry) return;
             newChartData.temp.push(parseFloat(entry.temp) || 0);
             newChartData.salinity.push(parseFloat(entry.salinity) || 0);
             newChartData.alk.push(parseFloat(entry.alk) || 0);
@@ -150,10 +158,16 @@ export default function HomeScreen() {
             const series = newChartData[param];
             const latest = series[series.length - 1];
             const th = thresholds[param];
-            if (th) {
-              if (latest < th.min) latestWarnings[param] = `⚠️ Too Low (${latest})`;
-              else if (latest > th.max) latestWarnings[param] = `⚠️ Too High (${latest})`;
-              else latestWarnings[param] = null;
+            if (th && typeof th.min !== "undefined" && typeof th.max !== "undefined") {
+              const min = parseFloat(th.min);
+              const max = parseFloat(th.max);
+              if (!isNaN(min) && latest < min) {
+                latestWarnings[param] = `⚠️ Too Low (${latest})`;
+              } else if (!isNaN(max) && latest > max) {
+                latestWarnings[param] = `⚠️ Too High (${latest})`;
+              } else {
+                latestWarnings[param] = null;
+              }
             }
           }
           setWarnings(latestWarnings);
@@ -193,67 +207,69 @@ export default function HomeScreen() {
   // ---- Unified Welcome + Checklist modal ----
   if (showWelcome || showChecklist) {
     return (
-      <Modal transparent animationType="fade">
-        <View style={styles.checklistOverlay}>
-          <View style={styles.checklistBox}>
-            <Text style={styles.welcomeTitle}>Welcome to REEFX</Text>
-            <Text style={styles.welcomeText}>
-              Track your reef’s water parameters, livestock, maintenance, and events—all in one place.
-            </Text>
-
-            <Text style={styles.checklistTitle}>Get Started</Text>
-
-            <View style={styles.checklistItem}>
-              <Text style={styles.checklistItemTitle}>1. Log Screen</Text>
-              <Text style={styles.checklistItemText}>
-                Record today’s parameters: temperature, salinity, alkalinity, pH, calcium, magnesium, phosphate, nitrate.
+      <>
+        <Modal transparent animationType="fade">
+          <View style={styles.checklistOverlay}>
+            <View style={styles.checklistBox}>
+              <Text style={styles.welcomeTitle}>Welcome to REEFX ONE</Text>
+              <Text style={styles.welcomeText}>
+                Track your reef’s water parameters, livestock, maintenance, and events—all in one place.
               </Text>
-            </View>
 
-            <View style={styles.checklistItem}>
-              <Text style={styles.checklistItemTitle}>2. Home (Trends)</Text>
-              <Text style={styles.checklistItemText}>
-                View 7‑day trend charts with red dots for events. Tap a dot to see details.
-              </Text>
-            </View>
+              <Text style={styles.checklistTitle}>Get Started</Text>
 
-            <View style={styles.checklistItem}>
-              <Text style={styles.checklistItemTitle}>3. Livestock</Text>
-              <Text style={styles.checklistItemText}>
-                Track fish, corals, and invertebrates. Monitor growth and health.
-              </Text>
-            </View>
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>1. Log Screen</Text>
+                <Text style={styles.checklistItemText}>
+                  Record today’s parameters: temperature, salinity, alkalinity, pH, calcium, magnesium, phosphate, nitrate.
+                </Text>
+              </View>
 
-            <View style={styles.checklistItem}>
-              <Text style={styles.checklistItemTitle}>4. Maintenance</Text>
-              <Text style={styles.checklistItemText}>
-                Schedule filter changes, water changes, and equipment tasks.
-              </Text>
-            </View>
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>2. Home (Trends)</Text>
+                <Text style={styles.checklistItemText}>
+                  View 7‑day trend charts with red dots for events. Tap a dot to see details.
+                </Text>
+              </View>
 
-            <View style={styles.checklistItem}>
-              <Text style={styles.checklistItemTitle}>5. Settings (Thresholds)</Text>
-              <Text style={styles.checklistItemText}>
-                Set custom alert ranges so REEFX warns you when parameters drift.
-              </Text>
-            </View>
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>3. Livestock</Text>
+                <Text style={styles.checklistItemText}>
+                  Track fish, corals, and invertebrates. Monitor growth and health.
+                </Text>
+              </View>
 
-            <TouchableOpacity
-              onPress={async () => {
-                await AsyncStorage.multiSet([
-                  ["hasSeenWelcome", "true"],
-                  ["seenChecklist", "true"],
-                ]).catch(() => {});
-                setShowWelcome(false);
-                setShowChecklist(false);
-              }}
-              style={styles.checklistBtn}
-            >
-              <Text style={styles.checklistBtnText}>Got it</Text>
-            </TouchableOpacity>
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>4. Maintenance</Text>
+                <Text style={styles.checklistItemText}>
+                  Schedule filter changes, water changes, and equipment tasks.
+                </Text>
+              </View>
+
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>5. Settings (Thresholds)</Text>
+                <Text style={styles.checklistItemText}>
+                  Set custom alert ranges so REEFX ONE warns you when parameters drift.
+                </Text>
+              </View>
+
+              <View style={styles.checklistItem}>
+                <Text style={styles.checklistItemTitle}>📊 Tracking Permission</Text>
+                <Text style={styles.checklistItemText}>
+                  REEFX ONE values your privacy. We don’t track anything unnecessarily. Some features like ads may request limited tracking permissions to improve performance. You're always in control and can allow or deny.
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={handleDismissWelcome}
+                style={styles.checklistBtn}
+              >
+                <Text style={styles.checklistBtnText}>Got it</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </>
     );
   }
   // ---- end unified modal ----
@@ -274,7 +290,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#000", padding: 20 }}>
         <Text style={{ fontSize: 28, fontWeight: "bold", color: "#7df9ff" }}>
-          REEFX
+          REEFX ONE  
         </Text>
         <Text style={{ color: "#ccc", marginBottom: 20 }}>Loading your reef logs...</Text>
         {[...Array(5)].map((_, i) => (
@@ -322,7 +338,7 @@ export default function HomeScreen() {
             marginBottom: 16,
           }}
         >
-          Welcome to REEFX
+          Welcome to REEFX ONE
         </Text>
         <Text
           style={{
@@ -584,19 +600,7 @@ export default function HomeScreen() {
             📬 Send Feedback
           </Text>
         </TouchableOpacity>
-{/* <TouchableOpacity onPress={injectAllTestData} style={{ padding: 12, backgroundColor: "#0ff" }}>
-  <Text style={{ color: "#000" }}>Inject Test Data</Text>
-</TouchableOpacity> */}
-        <Text
-          style={{
-            color: "#444",
-            textAlign: "center",
-            fontSize: 12,
-            marginTop: 32,
-          }}
-        >
-          REEFX v0.9.0 Beta
-        </Text>
+        
       </ScrollView>
     </SafeAreaView>
   );

@@ -91,6 +91,14 @@ export default function SettingsScreen() {
         <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
           <Text style={styles.saveBtnText}>💾 Save Thresholds</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("https://code-wrx.com/privacy-policy")}
+          style={{ marginTop: 20 }}
+        >
+          <Text style={{ color: "#7df9ff", textAlign: "center", textDecorationLine: "underline" }}>
+            Privacy Policy
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
       <AdBanner />
     </View>

@@ -8,7 +8,7 @@ export default function Home() {
       {/* Header */}
       <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur bg-black/70 border-white/10">
         <div className="flex items-center justify-between max-w-6xl px-6 py-4 mx-auto">
-          <div className="text-2xl font-bold text-gradient">REEFX</div>
+          <div className="text-2xl font-bold text-gradient">REEFXONE</div>
           <nav className="space-x-6 text-sm font-medium text-gray-300">
             <a href="#features" className="transition hover:text-white">Features</a>
             <a href="#beta" className="transition hover:text-white">Join Beta</a>
@@ -33,7 +33,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="text-6xl font-bold text-gradient"
           >
-            REEFX
+            REEFXONE
           </motion.h1>
 
           <motion.p
