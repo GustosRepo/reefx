@@ -1,6 +1,6 @@
 "use client";
-import AlkTrendChart from "../app/components/AlkTrendChart";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -9,9 +9,14 @@ export default function Home() {
       <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur bg-black/70 border-white/10">
         <div className="flex items-center justify-between max-w-6xl px-6 py-4 mx-auto">
           <div className="text-2xl font-bold text-gradient">REEFXONE</div>
-          <nav className="space-x-6 text-sm font-medium text-gray-300">
-            <a href="#features" className="transition hover:text-white">Features</a>
-            <a href="#beta" className="transition hover:text-white">Join Beta</a>
+          <nav className="flex items-center gap-4 text-sm font-medium text-gray-300">
+            <Link href="/login" className="transition hover:text-white">Sign In</Link>
+            <Link 
+              href="/register" 
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg transition hover:from-cyan-600 hover:to-blue-600"
+            >
+              Get Started
+            </Link>
           </nav>
         </div>
       </header>
@@ -19,19 +24,21 @@ export default function Home() {
       {/* Hero */}
       <main className="relative min-h-screen px-6 pt-48 pb-24 overflow-hidden text-white bg-black">
         {/* Glowy Reef Background */}
-        <div className="absolute inset-0 z-0 opacity-50 bg-gradient-radial from-cyan-500/10 via-black to-black blur-2xl" />
+        <div className="absolute inset-0 z-0 opacity-50 bg-gradient-radial from-cyan-500/10 via-black to-black blur-2xl animate-pulse-slow" />
 
         {/* Animated Bubbles */}
-        <div className="absolute w-4 h-4 rounded-full bottom-20 left-1/4 bg-cyan-400 blur-sm opacity-60 animate-ping" />
-        <div className="absolute w-3 h-3 bg-blue-500 rounded-full top-32 right-1/3 blur-sm opacity-40 animate-pulse" />
-        <div className="absolute top-1/2 left-[70%] w-2 h-2 bg-lime-300 rounded-full blur-sm opacity-40 animate-ping" />
+        <div className="absolute w-6 h-6 rounded-full bottom-20 left-1/4 bg-cyan-400 blur-sm opacity-60 animate-ping" />
+        <div className="absolute w-4 h-4 bg-blue-500 rounded-full top-32 right-1/3 blur-sm opacity-40 animate-pulse" />
+        <div className="absolute top-1/2 left-[70%] w-3 h-3 bg-lime-300 rounded-full blur-sm opacity-40 animate-ping" />
+        <div className="absolute w-5 h-5 rounded-full top-1/4 left-1/2 bg-purple-400 blur-sm opacity-30 animate-bounce" />
+        <div className="absolute w-2 h-2 bg-cyan-300 rounded-full bottom-1/3 right-1/4 blur-sm opacity-50 animate-ping" />
 
         <div className="relative z-10 max-w-5xl mx-auto space-y-8 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-6xl font-bold text-gradient"
+            className="text-6xl md:text-7xl font-bold text-gradient gradient-animate"
           >
             REEFXONE
           </motion.h1>
@@ -40,27 +47,33 @@ export default function Home() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="max-w-xl mx-auto text-xl text-gray-300"
+            className="max-w-xl mx-auto text-xl md:text-2xl text-gray-300"
           >
             Smarter Reefkeeping. Beautifully Synced.
           </motion.p>
 
-          <motion.a
-            href="#beta"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block px-6 py-3 mt-6 font-semibold text-white shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl"
-          >
-            Join the Beta
-          </motion.a>
-
-          {/* Fake Chart Preview */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <AlkTrendChart />
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                href="/register"
+                className="inline-block px-8 py-4 mt-6 font-semibold text-white shadow-2xl bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl hover:shadow-cyan-500/50 transition-all duration-300"
+              >
+                Get Started Free
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                href="/login"
+                className="inline-block px-8 py-4 mt-6 font-semibold text-cyan-400 border-2 border-cyan-500 rounded-2xl hover:bg-cyan-500/10 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30"
+              >
+                Sign In
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </main>

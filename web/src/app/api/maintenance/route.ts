@@ -1,0 +1,58 @@
+import { createClient } from '@/utils/supabase/server';
+import { NextResponse } from 'next/server';
+
+// GET /api/maintenance - Fetch all maintenance entries for authenticated user
+export async function GET() {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { data, error } = await supabase
+    .from('maintenance')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('date', { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+// POST /api/maintenance - Create new maintenance entry
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await request.json();
+  
+  const { data, error } = await supabase
+    .from('maintenance')
+    .insert({
+      user_id: user.id,
+      tank_id: body.tank_id,
+      task: body.task,
+      date: body.date,
+      status: body.status || 'pending',
+      repeat_interval: body.repeat_interval,
+      notes: body.notes,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
