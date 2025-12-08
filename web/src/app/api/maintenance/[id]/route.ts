@@ -20,10 +20,10 @@ export async function PUT(
     .from('maintenance')
     .update({
       task: body.task,
-      date: body.date,
+      due_date: body.date,
       status: body.status,
       repeat_interval: body.repeat_interval,
-      notes: body.notes,
+      description: body.notes,
     })
     .eq('id', params.id)
     .eq('user_id', user.id)
@@ -34,7 +34,16 @@ export async function PUT(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Map database fields to frontend format
+  const mapped = {
+    ...data,
+    date: data.due_date,
+    type: data.task,
+    notes: data.description,
+    repeatInterval: data.repeat_interval,
+  };
+
+  return NextResponse.json(mapped);
 }
 
 // DELETE /api/maintenance/[id] - Delete maintenance entry

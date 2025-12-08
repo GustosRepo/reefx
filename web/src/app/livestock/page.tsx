@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { hasFeature } from "@/utils/subscription";
+import toast from "react-hot-toast";
+import { useSubscription } from "@/context/SubscriptionContext";
+import { hasFeatureAccess } from "@/utils/subscription";
 import { Livestock, LivestockType, LivestockStatus } from "@/types/livestock";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Link from "next/link";
 
 export default function LivestockPage() {
   return (
@@ -21,6 +24,10 @@ function LivestockPageContent() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<LivestockType | "all">("all");
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLivestockId, setDeleteLivestockId] = useState<string | null>(null);
+  const [userTankId, setUserTankId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<Partial<Livestock>>({
     name: "",
@@ -36,14 +43,29 @@ function LivestockPageContent() {
     temperament: "peaceful",
   });
 
+  const { subscription } = useSubscription();
+
   useEffect(() => {
-    if (!hasFeature("livestockInventory")) {
-      router.push("/subscription");
-      return;
-    }
+    const access = hasFeatureAccess(subscription.tier, 'LIVESTOCK_INVENTORY');
+    setHasAccess(access);
     
-    loadLivestock();
-  }, [router]);
+    if (access) {
+      loadLivestock();
+      loadUserTank();
+    }
+  }, [subscription.tier]);
+
+  const loadUserTank = async () => {
+    try {
+      const response = await fetch('/api/tanks');
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setUserTankId(data[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load tank:', err);
+    }
+  };
 
   const loadLivestock = async () => {
     try {
@@ -59,13 +81,18 @@ function LivestockPageContent() {
     e.preventDefault();
 
     if (!formData.name) {
-      alert("Name is required");
+      toast.error("Name is required");
       return;
     }
 
     try {
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId ? `/api/livestock/${editingId}` : '/api/livestock';
+
+      if (!userTankId) {
+        toast.error('No tank found. Please wait for tank to load.');
+        return;
+      }
 
       const response = await fetch(url, {
         method,
@@ -79,7 +106,7 @@ function LivestockPageContent() {
           purchase_price: formData.cost,
           notes: formData.notes,
           health_status: formData.status || "healthy",
-          tank_id: null,
+          tank_id: userTankId,
         }),
       });
 
@@ -107,7 +134,7 @@ function LivestockPageContent() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save livestock:', err);
-      alert('Failed to save livestock');
+      toast.error('Failed to save livestock');
     }
   };
 
@@ -117,11 +144,16 @@ function LivestockPageContent() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Remove this from inventory?")) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteLivestockId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteLivestockId) return;
     
     try {
-      const response = await fetch(`/api/livestock/${id}`, {
+      const response = await fetch(`/api/livestock/${deleteLivestockId}`, {
         method: 'DELETE',
       });
 
@@ -132,12 +164,43 @@ function LivestockPageContent() {
       await loadLivestock();
     } catch (err) {
       console.error('Failed to delete livestock:', err);
-      alert('Failed to remove livestock');
+      toast.error('Failed to remove livestock');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteLivestockId(null);
     }
   };
 
-  if (!hasFeature("livestockInventory")) {
-    return null;
+  // Show loading state
+  if (hasAccess === null) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Show upgrade prompt if no access
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <div className="text-6xl mb-4">🔒</div>
+          <h1 className="text-3xl font-bold text-white mb-4">Super Premium Feature</h1>
+          <p className="text-gray-400 text-lg mb-8">
+            Livestock inventory is exclusively available for Super Premium members.
+          </p>
+          <Link
+            href="/subscription"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 transition"
+          >
+            Upgrade to Super Premium - $9.99/mo
+          </Link>
+        </div>
+      </AppLayout>
+    );
   }
 
   const filtered = filterType === "all" 
@@ -471,7 +534,7 @@ function LivestockPageContent() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => handleDeleteClick(item.id)}
                     className="px-3 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition"
                   >
                     Remove
@@ -479,6 +542,32 @@ function LivestockPageContent() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Remove from Inventory?</h3>
+                <p className="text-gray-400">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

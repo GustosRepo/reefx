@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { ReefForm, FieldErrors } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -91,7 +92,7 @@ function LogPageContent() {
     e.preventDefault();
     
     if (!isValid) {
-      alert("Please fix the errors before submitting");
+      toast.error("Please fix the errors before submitting");
       return;
     }
 
@@ -124,7 +125,7 @@ function LogPageContent() {
         throw new Error('Failed to save log');
       }
 
-      alert("Log saved successfully!");
+      toast.success("Log saved successfully!");
       
       // Reset form
       setForm({
@@ -142,7 +143,7 @@ function LogPageContent() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Failed to save log:", err);
-      alert("Failed to save log");
+      toast.error("Failed to save log");
     }
   };
 

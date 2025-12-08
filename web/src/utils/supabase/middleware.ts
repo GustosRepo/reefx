@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   // Don't check auth for public routes to avoid redirect loops
-  const publicPaths = ['/', '/login', '/register']
+  const publicPaths = ['/', '/login', '/register', '/api/stripe/webhook']
   const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
   
   // Only refresh session, don't do redirects here

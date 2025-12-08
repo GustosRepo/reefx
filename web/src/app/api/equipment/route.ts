@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       model: body.model,
       purchase_date: body.purchase_date,
       purchase_price: body.purchase_price,
-      warranty_until: body.warranty_until,
+      warranty_expires: body.warranty_until,
       notes: body.notes,
     })
     .select()

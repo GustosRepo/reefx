@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getCurrentUser, logout } from "@/utils/auth";
-import { hasPremium, hasSuperPremium, hasFeature } from "@/utils/subscription";
-import { useState, useEffect } from "react";
+import { useSubscription } from "@/context/SubscriptionContext";
+import { useState, useEffect, useMemo } from "react";
 import type { User } from "@/utils/auth";
 
 export default function AppLayout({
@@ -16,37 +16,33 @@ export default function AppLayout({
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
-  const [isSuperPremium, setIsSuperPremium] = useState(false);
+  const { subscription } = useSubscription();
+  const userTier = subscription.tier;
 
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
-      setIsPremium(hasPremium());
-      setIsSuperPremium(hasSuperPremium());
     };
     loadUser();
   }, []);
 
-  const baseNavItems = [
+  const navItems = [
     { href: "/dashboard", label: "Home", icon: "🏠" },
     { href: "/log", label: "Log", icon: "📝" },
     { href: "/history", label: "History", icon: "📜" },
     { href: "/maintenance", label: "Maintenance", icon: "🔧" },
-  ];
-
-  const superPremiumNavItems = [
-    { href: "/gallery", label: "Gallery", icon: "📸", feature: "photoStorage" },
-    { href: "/equipment", label: "Equipment", icon: "🛠️", feature: "equipmentTracking" },
-    { href: "/livestock", label: "Livestock", icon: "🐠", feature: "livestockInventory" },
-  ];
-
-  const navItems = [
-    ...baseNavItems,
-    ...superPremiumNavItems.filter(item => hasFeature(item.feature as any)),
+    { href: "/equipment", label: "Equipment", icon: "🛠️", requiresTier: 'premium' as const },
+    { href: "/livestock", label: "Livestock", icon: "🐠", requiresTier: 'super-premium' as const },
     { href: "/settings", label: "Settings", icon: "⚙️" },
   ];
+
+  const hasAccess = (requiredTier?: 'premium' | 'super-premium') => {
+    if (!requiredTier) return true;
+    if (requiredTier === 'premium') return userTier === 'premium' || userTier === 'super-premium';
+    if (requiredTier === 'super-premium') return userTier === 'super-premium';
+    return false;
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -64,17 +60,20 @@ export default function AppLayout({
           
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex space-x-6 text-sm font-medium text-gray-300">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`transition hover:text-white ${
-                    pathname === item.href ? "text-cyan-400" : ""
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const locked = item.requiresTier && !hasAccess(item.requiresTier);
+                return (
+                  <Link
+                    key={item.href}
+                    href={locked ? "/subscription" : item.href}
+                    className={`transition hover:text-white ${
+                      pathname === item.href ? "text-cyan-400" : ""
+                    } ${locked ? "opacity-50" : ""}`}
+                  >
+                    {item.label} {locked && "🔒"}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* User Menu - Desktop */}
@@ -95,15 +94,15 @@ export default function AppLayout({
                     <div className="px-4 py-2 border-b border-gray-700">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs text-gray-400">Signed in as</p>
-                        {isSuperPremium ? (
+                        {userTier === 'super-premium' ? (
                           <span className="text-xs bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full font-bold">🚀 SUPER</span>
-                        ) : isPremium ? (
+                        ) : userTier === 'premium' ? (
                           <span className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-0.5 rounded-full font-bold">👑 PRO</span>
                         ) : null}
                       </div>
                       <p className="text-sm text-white truncate">{user.email}</p>
                     </div>
-                    {!isPremium && (
+                    {userTier === 'free' && (
                       <Link
                         href="/subscription"
                         className="block px-4 py-2 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition mx-2 my-2 rounded text-center"
@@ -148,20 +147,23 @@ export default function AppLayout({
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 z-50 w-full md:hidden border-t backdrop-blur bg-black/95 border-white/10 safe-area-bottom">
         <div className="flex justify-around items-center py-3">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center py-3 px-4 transition min-w-[60px] ${
-                pathname === item.href
-                  ? "text-cyan-400"
-                  : "text-gray-400 active:text-white"
-              }`}
-            >
-              <span className="text-2xl mb-1">{item.icon}</span>
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const locked = item.requiresTier && !hasAccess(item.requiresTier);
+            return (
+              <Link
+                key={item.href}
+                href={locked ? "/subscription" : item.href}
+                className={`flex flex-col items-center py-3 px-4 transition min-w-[60px] ${
+                  pathname === item.href
+                    ? "text-cyan-400"
+                    : "text-gray-400 active:text-white"
+                } ${locked ? "opacity-50" : ""}`}
+              >
+                <span className="text-2xl mb-1">{item.icon}</span>
+                <span className="text-[10px] font-medium">{item.label} {locked && "🔒"}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>

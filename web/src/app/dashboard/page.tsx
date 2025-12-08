@@ -28,6 +28,18 @@ function DashboardContent() {
   const [overdueMaintenance, setOverdueMaintenance] = useState<MaintenanceEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLogs, setHasLogs] = useState(false);
+  const [alertsMuted, setAlertsMuted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('reefx_alerts_muted') === 'true';
+    }
+    return false;
+  });
+  const [maintenanceMuted, setMaintenanceMuted] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('reefx_maintenance_muted') === 'true';
+    }
+    return false;
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -244,11 +256,22 @@ function DashboardContent() {
         <AdBanner />
 
         {/* Warnings Section */}
-        {Object.values(warnings).some((w) => w) && (
+        {Object.values(warnings).some((w) => w) && !alertsMuted && (
           <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-500/50 rounded-lg p-4 md:p-6 animate-pulse-slow hover:border-red-400/70 transition-all duration-300">
-            <h2 className="text-lg md:text-xl font-bold text-red-400 mb-3 md:mb-4 flex items-center gap-2">
-              <span className="animate-bounce">⚠️</span> Alerts
-            </h2>
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h2 className="text-lg md:text-xl font-bold text-red-400 flex items-center gap-2">
+                <span className="animate-bounce">⚠️</span> Alerts
+              </h2>
+              <button
+                onClick={() => {
+                  setAlertsMuted(true);
+                  localStorage.setItem('reefx_alerts_muted', 'true');
+                }}
+                className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
+              >
+                🔕 Mute
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               {Object.entries(warnings).map(([param, warning]) =>
                 warning ? (
@@ -262,12 +285,42 @@ function DashboardContent() {
           </div>
         )}
 
+        {/* Muted Alerts Indicator */}
+        {Object.values(warnings).some((w) => w) && alertsMuted && (
+          <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-gray-400 text-sm">
+              <span>🔕</span>
+              <span>Alerts muted ({Object.values(warnings).filter((w) => w).length} warnings hidden)</span>
+            </div>
+            <button
+              onClick={() => {
+                setAlertsMuted(false);
+                localStorage.setItem('reefx_alerts_muted', 'false');
+              }}
+              className="text-sm text-cyan-400 hover:text-cyan-300 transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
+            >
+              Show Alerts
+            </button>
+          </div>
+        )}
+
         {/* Overdue Maintenance */}
-        {overdueMaintenance.length > 0 && (
+        {overdueMaintenance.length > 0 && !maintenanceMuted && (
           <div className="bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/50 rounded-lg p-4 md:p-6 hover:border-yellow-400/70 transition-all duration-300">
-            <h2 className="text-lg md:text-xl font-bold text-yellow-400 mb-3 md:mb-4 flex items-center gap-2">
-              <span className="animate-pulse">🔧</span> Overdue Maintenance
-            </h2>
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h2 className="text-lg md:text-xl font-bold text-yellow-400 flex items-center gap-2">
+                <span className="animate-pulse">🔧</span> Overdue Maintenance
+              </h2>
+              <button
+                onClick={() => {
+                  setMaintenanceMuted(true);
+                  localStorage.setItem('reefx_maintenance_muted', 'true');
+                }}
+                className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
+              >
+                🔕 Mute
+              </button>
+            </div>
             <ul className="space-y-2">
               {overdueMaintenance.map((item, index) => (
                 <li key={index} className="bg-black/40 rounded p-3">
@@ -279,32 +332,51 @@ function DashboardContent() {
           </div>
         )}
 
+        {/* Show Maintenance Button (when muted) */}
+        {overdueMaintenance.length > 0 && maintenanceMuted && (
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+            <p className="text-gray-400 mb-2">🔕 Overdue maintenance muted ({overdueMaintenance.length} {overdueMaintenance.length === 1 ? 'task' : 'tasks'})</p>
+            <button
+              onClick={() => {
+                setMaintenanceMuted(false);
+                localStorage.setItem('reefx_maintenance_muted', 'false');
+              }}
+              className="text-sm bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded border border-yellow-500/30 hover:border-yellow-400/50 transition"
+            >
+              Show Maintenance
+            </button>
+          </div>
+        )}
+
         {/* Parameter Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {Object.keys(labelMap).map((param) => (
-            <div key={param} className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 md:p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">              <h3 className="text-base md:text-lg font-bold text-cyan-400 mb-3 md:mb-4">{labelMap[param]}</h3>
-              <h3 className="text-base md:text-lg font-bold text-cyan-400 mb-3 md:mb-4">{labelMap[param]}</h3>
-              {chartData[param]?.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
-                  <LineChart data={formatChartData(param)}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: 10 }} />
-                    <YAxis stroke="#9ca3af" style={{ fontSize: 10 }} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#1f2937",
-                        border: "1px solid #374151",
-                        borderRadius: 8,
-                        color: "#fff",
-                        fontSize: 12,
-                      }}
-                    />
-                    <Line type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} dot={{ fill: "#06b6d4", r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-gray-500 text-center py-8 text-sm">No data</p>
-              )}
+          {Object.keys(labelMap).map((param, index) => (
+            <div key={param}>
+              <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 md:p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                <h3 className="text-base md:text-lg font-bold text-cyan-400 mb-3 md:mb-4">{labelMap[param]}</h3>
+                {chartData[param]?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={formatChartData(param)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="date" stroke="#9ca3af" style={{ fontSize: 10 }} />
+                      <YAxis stroke="#9ca3af" style={{ fontSize: 10 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1f2937",
+                          border: "1px solid #374151",
+                          borderRadius: 8,
+                          color: "#fff",
+                          fontSize: 12,
+                        }}
+                      />
+                      <Line type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} dot={{ fill: "#06b6d4", r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-gray-500 text-center py-8 text-sm">No data</p>
+                )}
+              </div>
+
             </div>
           ))}
         </div>

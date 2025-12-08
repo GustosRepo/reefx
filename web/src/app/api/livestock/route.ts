@@ -44,11 +44,11 @@ export async function POST(request: Request) {
       type: body.type,
       name: body.name,
       species: body.species,
-      added_date: body.added_date,
-      health_status: body.health_status || 'healthy',
+      date_added: body.added_date,
+      status: body.health_status || 'healthy',
       notes: body.notes,
-      purchase_price: body.purchase_price,
-      vendor: body.vendor,
+      cost: body.purchase_price,
+      source: body.vendor,
     })
     .select()
     .single();

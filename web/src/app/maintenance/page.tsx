@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { MaintenanceEntry } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -22,15 +23,38 @@ function MaintenancePageContent() {
   const [cost, setCost] = useState("");
   const [repeatInterval, setRepeatInterval] = useState("");
   const [showAll, setShowAll] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEntryId, setDeleteEntryId] = useState<string | null>(null);
+  const [userTankId, setUserTankId] = useState<string | null>(null);
 
   useEffect(() => {
     refreshEntries();
+    loadUserTank();
   }, []);
+
+  const loadUserTank = async () => {
+    try {
+      const response = await fetch('/api/tanks');
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setUserTankId(data[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load tank:', err);
+    }
+  };
 
   const refreshEntries = async () => {
     try {
       const response = await fetch('/api/maintenance');
       const stored: MaintenanceEntry[] = await response.json();
+      
+      if (!Array.isArray(stored)) {
+        console.error('Invalid response format:', stored);
+        setEntries([]);
+        return;
+      }
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -49,16 +73,22 @@ function MaintenancePageContent() {
       setEntries(updated);
     } catch (err) {
       console.error('Failed to load maintenance entries:', err);
+      setEntries([]);
     }
   };
 
   const saveEntry = async () => {
     if (!type.trim()) {
-      alert("Please enter the maintenance type.");
+      toast.error("Please enter the maintenance type.");
       return;
     }
 
     try {
+      if (!userTankId) {
+        toast.error('No tank found. Please wait for tank to load.');
+        return;
+      }
+
       const response = await fetch('/api/maintenance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +98,7 @@ function MaintenancePageContent() {
           notes,
           status: 'completed',
           repeat_interval: repeatInterval ? parseInt(repeatInterval) : null,
-          tank_id: null,
+          tank_id: userTankId,
         }),
       });
 
@@ -85,15 +115,20 @@ function MaintenancePageContent() {
       setModalVisible(false);
     } catch (err) {
       console.error('Failed to save entry:', err);
-      alert('Failed to save maintenance entry');
+      toast.error('Failed to save maintenance entry');
     }
   };
 
-  const deleteEntry = async (entryId: string) => {
-    if (!confirm("Are you sure you want to delete this entry?")) return;
+  const handleDeleteClick = (entryId: string) => {
+    setDeleteEntryId(entryId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteEntryId) return;
 
     try {
-      const response = await fetch(`/api/maintenance/${entryId}`, {
+      const response = await fetch(`/api/maintenance/${deleteEntryId}`, {
         method: 'DELETE',
       });
 
@@ -104,7 +139,10 @@ function MaintenancePageContent() {
       await refreshEntries();
     } catch (err) {
       console.error('Failed to delete entry:', err);
-      alert('Failed to delete maintenance entry');
+      toast.error('Failed to delete maintenance entry');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteEntryId(null);
     }
   };
 
@@ -180,7 +218,7 @@ function MaintenancePageContent() {
                     <p className="text-gray-400 text-sm">Last done: {entry.date}</p>
                   </div>
                   <button
-                    onClick={() => deleteEntry((entry as any).id)}
+                    onClick={() => handleDeleteClick((entry as any).id)}
                     className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
                   >
                     Delete
@@ -207,6 +245,33 @@ function MaintenancePageContent() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Entry?</h3>
+                <p className="text-gray-400">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

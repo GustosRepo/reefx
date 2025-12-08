@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { ReefForm } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -18,6 +19,8 @@ function HistoryPageContent() {
   const [logs, setLogs] = useState<ReefForm[]>([]);
   const [editingLog, setEditingLog] = useState<ReefForm | null>(null);
   const [editForm, setEditForm] = useState<ReefForm | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLogId, setDeleteLogId] = useState<string | null>(null);
 
   useEffect(() => {
     loadLogs();
@@ -36,11 +39,16 @@ function HistoryPageContent() {
     }
   };
 
-  const deleteLog = async (logId: string) => {
-    if (!confirm(`Delete this log?`)) return;
+  const handleDeleteClick = (logId: string) => {
+    setDeleteLogId(logId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteLogId) return;
 
     try {
-      const response = await fetch(`/api/logs/${logId}`, {
+      const response = await fetch(`/api/logs/${deleteLogId}`, {
         method: 'DELETE',
       });
       
@@ -49,10 +57,13 @@ function HistoryPageContent() {
       }
       
       await loadLogs();
-      alert('Log deleted successfully!');
+      toast.success('Log deleted successfully!');
     } catch (err) {
       console.error("Failed to delete log:", err);
-      alert("Failed to delete log");
+      toast.error("Failed to delete log");
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteLogId(null);
     }
   };
 
@@ -82,10 +93,10 @@ function HistoryPageContent() {
       
       await loadLogs();
       cancelEdit();
-      alert("Log updated successfully!");
+      toast.success("Log updated successfully!");
     } catch (err) {
       console.error("Failed to update log:", err);
-      alert("Failed to update log");
+      toast.error("Failed to update log");
     }
   };
 
@@ -117,7 +128,7 @@ function HistoryPageContent() {
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteLog((log as any).id)}
+                      onClick={() => handleDeleteClick((log as any).id)}
                       className="flex-1 sm:flex-none px-5 py-2.5 bg-red-600 text-white rounded-lg active:bg-red-700 transition text-sm font-medium"
                     >
                       Delete
@@ -161,6 +172,33 @@ function HistoryPageContent() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Log?</h3>
+                <p className="text-gray-400">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

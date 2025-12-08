@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { hasFeature } from "@/utils/subscription";
+import toast from "react-hot-toast";
+import { useSubscription } from "@/context/SubscriptionContext";
+import { hasFeatureAccess, getTierDisplayName, getTierPrice } from "@/utils/subscription";
 import { Equipment, EquipmentCategory } from "@/types/equipment";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -22,6 +24,10 @@ function EquipmentPageContent() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<EquipmentCategory | "all">("all");
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEquipmentId, setDeleteEquipmentId] = useState<string | null>(null);
+  const [userTankId, setUserTankId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<Partial<Equipment>>({
     name: "",
@@ -35,14 +41,29 @@ function EquipmentPageContent() {
     status: "active",
   });
 
+  const { subscription } = useSubscription();
+
   useEffect(() => {
-    if (!hasFeature("equipmentTracking")) {
-      router.push("/subscription");
-      return;
-    }
+    const access = hasFeatureAccess(subscription.tier, 'EQUIPMENT_TRACKING');
+    setHasAccess(access);
     
-    loadEquipment();
-  }, [router]);
+    if (access) {
+      loadEquipment();
+      loadUserTank();
+    }
+  }, [subscription.tier]);
+
+  const loadUserTank = async () => {
+    try {
+      const response = await fetch('/api/tanks');
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setUserTankId(data[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load tank:', err);
+    }
+  };
 
   const loadEquipment = async () => {
     try {
@@ -58,11 +79,16 @@ function EquipmentPageContent() {
     e.preventDefault();
 
     if (!formData.name) {
-      alert("Equipment name is required");
+      toast.error("Equipment name is required");
       return;
     }
 
     try {
+      if (!userTankId) {
+        toast.error('No tank found. Please wait for tank to load.');
+        return;
+      }
+
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId ? `/api/equipment/${editingId}` : '/api/equipment';
 
@@ -78,7 +104,7 @@ function EquipmentPageContent() {
           purchase_price: formData.purchasePrice,
           warranty_until: formData.warrantyExpires,
           notes: formData.notes,
-          tank_id: null,
+          tank_id: userTankId,
         }),
       });
 
@@ -104,7 +130,7 @@ function EquipmentPageContent() {
       setShowForm(false);
     } catch (err) {
       console.error('Failed to save equipment:', err);
-      alert('Failed to save equipment');
+      toast.error('Failed to save equipment');
     }
   };
 
@@ -114,11 +140,16 @@ function EquipmentPageContent() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this equipment?")) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteEquipmentId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteEquipmentId) return;
     
     try {
-      const response = await fetch(`/api/equipment/${id}`, {
+      const response = await fetch(`/api/equipment/${deleteEquipmentId}`, {
         method: 'DELETE',
       });
 
@@ -129,12 +160,43 @@ function EquipmentPageContent() {
       await loadEquipment();
     } catch (err) {
       console.error('Failed to delete equipment:', err);
-      alert('Failed to delete equipment');
+      toast.error('Failed to delete equipment');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteEquipmentId(null);
     }
   };
 
-  if (!hasFeature("equipmentTracking")) {
-    return null;
+  // Show loading state
+  if (hasAccess === null) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Show upgrade prompt if no access
+  if (!hasAccess) {
+    return (
+      <AppLayout>
+        <div className="max-w-2xl mx-auto text-center py-12">
+          <div className="text-6xl mb-4">🔒</div>
+          <h1 className="text-3xl font-bold text-white mb-4">Premium Feature</h1>
+          <p className="text-gray-400 text-lg mb-8">
+            Equipment tracking is available for Premium and Super Premium members.
+          </p>
+          <Link
+            href="/subscription"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition"
+          >
+            Upgrade to Premium - $4.99/mo
+          </Link>
+        </div>
+      </AppLayout>
+    );
   }
 
   const filtered = filterCategory === "all" 
@@ -432,7 +494,7 @@ function EquipmentPageContent() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(equip.id)}
+                    onClick={() => handleDeleteClick(equip.id)}
                     className="px-3 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition"
                   >
                     Delete
@@ -440,6 +502,32 @@ function EquipmentPageContent() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Equipment?</h3>
+                <p className="text-gray-400">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

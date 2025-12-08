@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Threshold } from "@/utils/warningUtils";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -25,6 +26,9 @@ function SettingsPageContent() {
   const [user, setUser] = useState<User | null>(null);
   const [tempUnit, setTempUnit] = useState<TempUnit>('fahrenheit');
   const [volumeUnit, setVolumeUnit] = useState<VolumeUnit>('gallons');
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [showClearDataModal, setShowClearDataModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [thresholds, setThresholds] = useState<ThresholdSettings>({
     temp: { min: 24, max: 27 },
     salinity: { min: 33, max: 36 },
@@ -97,25 +101,27 @@ function SettingsPageContent() {
         throw new Error('Failed to save thresholds');
       }
       
-      alert("Settings saved successfully!");
+      toast.success("Settings saved successfully!");
     } catch (err) {
       console.error('Failed to save thresholds:', err);
-      alert('Failed to save settings');
+      toast.error('Failed to save settings');
     }
   };
 
   const handleSaveUnits = async () => {
     const result = await updateUnitPreferences(tempUnit, volumeUnit);
     if (result.success) {
-      alert("Unit preferences saved!");
+      toast.success("Unit preferences saved!");
     } else {
-      alert(`Error: ${result.error}`);
+      toast.error(`Error: ${result.error}`);
     }
   };
 
-  const handleReset = async () => {
-    if (!confirm("Reset all thresholds to defaults?")) return;
-    
+  const handleResetClick = () => {
+    setShowResetModal(true);
+  };
+
+  const confirmReset = async () => {
     const defaults: ThresholdSettings = {
       temp: { min: 75, max: 81 },
       salinity: { min: 33, max: 36 },
@@ -152,20 +158,32 @@ function SettingsPageContent() {
           no3_max: defaults.no3.max,
         }),
       });
-      alert("Thresholds reset to defaults!");
+      toast.success("Thresholds reset to defaults!");
     } catch (err) {
       console.error('Failed to reset thresholds:', err);
-      alert('Failed to reset thresholds');
+      toast.error('Failed to reset thresholds');
+    } finally {
+      setShowResetModal(false);
     }
   };
 
-  const handleClearData = () => {
-    if (!confirm("This will delete ALL your data (logs, maintenance, settings). Are you sure?")) return;
-    if (!confirm("Really delete everything? This cannot be undone!")) return;
+  const handleClearDataClick = () => {
+    setShowClearDataModal(true);
+  };
 
+  const confirmClearData = () => {
     localStorage.clear();
-    alert("All data cleared. Refreshing...");
+    toast.success("All data cleared. Refreshing...");
     window.location.reload();
+  };
+
+  const handleDeleteAccountClick = () => {
+    setShowDeleteAccountModal(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    await deleteAccount();
+    router.push("/register");
   };
 
   const parameters = [
@@ -339,7 +357,7 @@ function SettingsPageContent() {
               Save Thresholds
             </button>
             <button
-              onClick={handleReset}
+              onClick={handleResetClick}
               className="sm:flex-none px-6 py-4 bg-gray-700 text-white rounded-lg active:bg-gray-600 transition text-base"
             >
               Reset to Defaults
@@ -388,26 +406,114 @@ function SettingsPageContent() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={handleClearData}
+              onClick={handleClearDataClick}
               className="px-6 py-3 bg-red-600 text-white rounded-lg active:bg-red-700 transition font-semibold"
             >
               Clear All Data
             </button>
             <button
-              onClick={() => {
-                if (confirm("Delete your account and all data? This cannot be undone!")) {
-                  if (confirm("Are you absolutely sure?")) {
-                    deleteAccount();
-                    router.push("/register");
-                  }
-                }
-              }}
+              onClick={handleDeleteAccountClick}
               className="px-6 py-3 bg-red-700 text-white rounded-lg active:bg-red-800 transition font-semibold"
             >
               Delete Account
             </button>
           </div>
         </div>
+
+        {/* Reset Thresholds Modal */}
+        {showResetModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowResetModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-yellow-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">↻</div>
+                <h3 className="text-xl font-bold text-white mb-2">Reset to Defaults?</h3>
+                <p className="text-gray-400">All custom thresholds will be reset to default values.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmReset}
+                  className="flex-1 px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition font-semibold"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Clear All Data Modal */}
+        {showClearDataModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowClearDataModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">⚠️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Clear All Data?</h3>
+                <p className="text-gray-400 mb-2">This will delete ALL your data including:</p>
+                <ul className="text-gray-400 text-sm space-y-1">
+                  <li>• All parameter logs</li>
+                  <li>• Maintenance entries</li>
+                  <li>• Custom settings</li>
+                </ul>
+                <p className="text-red-400 font-semibold mt-3">This cannot be undone!</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowClearDataModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmClearData}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Account Modal */}
+        {showDeleteAccountModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteAccountModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-600/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🛑</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Account?</h3>
+                <p className="text-gray-400 mb-2">Your account and all associated data will be permanently deleted:</p>
+                <ul className="text-gray-400 text-sm space-y-1">
+                  <li>• Account and profile</li>
+                  <li>• All parameter logs</li>
+                  <li>• Equipment & livestock</li>
+                  <li>• Maintenance history</li>
+                  <li>• Subscription data</li>
+                </ul>
+                <p className="text-red-400 font-bold mt-3">THIS CANNOT BE UNDONE!</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteAccountModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteAccount}
+                  className="flex-1 px-6 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg transition font-semibold"
+                >
+                  Delete Forever
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* About Section */}
         <div className="mt-6 text-center text-gray-500 text-sm">

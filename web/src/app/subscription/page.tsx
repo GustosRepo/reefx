@@ -1,10 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { getSubscriptionStatus, activatePremium, activateSuperPremium, cancelPremium, hasSuperPremium } from "@/utils/subscription";
+import toast from "react-hot-toast";
+import { useSubscription } from "@/context/SubscriptionContext";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+
+type SubscriptionTier = 'free' | 'premium' | 'super-premium';
+
+interface UserSubscription {
+  tier: SubscriptionTier;
+  status: string;
+  end_date: string | null;
+}
 
 export default function SubscriptionPage() {
   return (
@@ -15,43 +23,207 @@ export default function SubscriptionPage() {
 }
 
 function SubscriptionPageContent() {
-  const router = useRouter();
-  const [status, setStatus] = useState(getSubscriptionStatus());
+  const { subscription: contextSubscription, refreshSubscription } = useSubscription();
+  const [loading, setLoading] = useState(false);
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const isSuperPremium = hasSuperPremium();
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
-  const handleUpgradePremium = (months: number) => {
-    activatePremium(months);
-    setStatus(getSubscriptionStatus());
-    setSuccessMessage("Successfully upgraded to Premium!");
-    setShowSuccess(true);
-    
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+  const currentTier = contextSubscription.tier;
+
+  useEffect(() => {
+    loadSubscription();
+  }, []);
+
+  const loadSubscription = async () => {
+    try {
+      const response = await fetch('/api/subscription');
+      if (response.ok) {
+        const data = await response.json();
+        setSubscription(data);
+        await refreshSubscription(); // Refresh the context
+      }
+    } catch (err) {
+      console.error('Failed to load subscription:', err);
+    }
   };
 
-  const handleUpgradeSuperPremium = (months: number) => {
-    activateSuperPremium(months);
-    setStatus(getSubscriptionStatus());
-    setSuccessMessage("Successfully upgraded to Super Premium! 🚀");
-    setShowSuccess(true);
-    
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+  const handleSubscribe = async (priceId: string, tier: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, tier }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+      toast.error('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPriceId = (tier: 'premium' | 'super-premium'): string => {
+    // These will be set after creating products in Stripe Dashboard
+    if (tier === 'premium') {
+      return process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || 'price_premium_placeholder';
+    }
+    return process.env.NEXT_PUBLIC_STRIPE_SUPER_PREMIUM_PRICE_ID || 'price_super_premium_placeholder';
   };
 
   const handleCancel = () => {
-    if (confirm("Are you sure you want to cancel your subscription?")) {
-      cancelPremium();
-      setStatus(getSubscriptionStatus());
+    setShowCancelModal(true);
+  };
+
+  const confirmCancel = async () => {
+    setShowCancelModal(false);
+    setLoading(true);
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription');
+      }
+
+      // Show appropriate message based on whether it was already canceled
+      toast.success(data.message);
+      await loadSubscription();
+    } catch (err: any) {
+      console.error('Cancel error:', err);
+      toast.error(err.message || 'Failed to cancel subscription. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Dev tool: Manual tier update
+  const manualUpdateTier = async (tier: string) => {
+    try {
+      const response = await fetch('/api/subscription/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier }),
+      });
+      if (response.ok) {
+        setSuccessMessage(`Successfully updated to ${tier}!`);
+        setShowSuccess(true);
+        await loadSubscription();
+        setTimeout(() => setShowSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+    }
+  };
+
+  const handleUpgradePremium = async (months: number) => {
+    setLoading(true);
+    try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_SUPER_PREMIUM_PRICE_ID;
+      if (!priceId) {
+        toast.error('Stripe Price ID not configured. Please contact support.');
+        return;
+      }
+
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, tier: 'super-premium' }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create checkout');
+
+      const { url } = await response.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error('Upgrade error:', err);
+      toast.error('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpgradeSuperPremium = async (months: number) => {
+    setLoading(true);
+    try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID;
+      if (!priceId) {
+        toast.error('Stripe Price ID not configured. Please contact support.');
+        return;
+      }
+
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, tier: 'premium' }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create checkout');
+
+      const { url } = await response.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error('Upgrade error:', err);
+      toast.error('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Computed values for UI
+  const isSuperPremium = currentTier === 'super-premium';
+  const status = {
+    isPremium: currentTier !== 'free',
+    daysRemaining: null as number | null,
   };
 
   return (
     <AppLayout>
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full animate-fadeIn">
+            <div className="text-center mb-4">
+              <div className="text-5xl mb-3">⚠️</div>
+              <h3 className="text-xl font-bold text-white mb-2">Cancel Subscription?</h3>
+              <p className="text-gray-400">
+                You'll keep access until the end of your billing period. Your subscription won't renew.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+              >
+                Keep Subscription
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12 animate-slideDown">
           <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
@@ -89,9 +261,10 @@ function SubscriptionPageContent() {
               </div>
               <button
                 onClick={handleCancel}
-                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm"
+                disabled={loading}
+                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cancel Subscription
+                {loading ? 'Processing...' : 'Cancel Subscription'}
               </button>
             </div>
           </div>

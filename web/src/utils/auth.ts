@@ -92,6 +92,8 @@ export const login = async (email: string, password: string): Promise<{ success:
 export const logout = async (): Promise<void> => {
   const supabase = createClient();
   await supabase.auth.signOut();
+  // Clear subscription cache
+  localStorage.removeItem('reefx_subscription');
 };
 
 // Update user profile

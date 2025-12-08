@@ -15,13 +15,22 @@ export async function GET() {
     .from('maintenance')
     .select('*')
     .eq('user_id', user.id)
-    .order('date', { ascending: false });
+    .order('due_date', { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Map database fields to frontend format
+  const mapped = data?.map(entry => ({
+    ...entry,
+    date: entry.due_date,
+    type: entry.task,
+    notes: entry.description,
+    repeatInterval: entry.repeat_interval,
+  })) || [];
+
+  return NextResponse.json(mapped);
 }
 
 // POST /api/maintenance - Create new maintenance entry
@@ -42,10 +51,10 @@ export async function POST(request: Request) {
       user_id: user.id,
       tank_id: body.tank_id,
       task: body.task,
-      date: body.date,
+      due_date: body.date,
       status: body.status || 'pending',
       repeat_interval: body.repeat_interval,
-      notes: body.notes,
+      description: body.notes,
     })
     .select()
     .single();
@@ -54,5 +63,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Map database fields to frontend format
+  const mapped = {
+    ...data,
+    date: data.due_date,
+    type: data.task,
+    notes: data.description,
+    repeatInterval: data.repeat_interval,
+  };
+
+  return NextResponse.json(mapped);
 }

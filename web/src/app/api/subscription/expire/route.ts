@@ -1,0 +1,45 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+
+// DEV ONLY - Manually expire subscription for testing
+export async function POST() {
+  try {
+    const supabase = await createClient();
+    
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    console.log('🔥 Manually expiring subscription for user:', user.id);
+
+    // Downgrade to free tier
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        tier: 'free',
+        status: 'expired',
+        stripe_subscription_id: null,
+        start_date: null,
+        end_date: null,
+      })
+      .eq('user_id', user.id)
+      .select();
+
+    if (error) {
+      console.error('❌ Error expiring subscription:', error);
+      return NextResponse.json({ error: 'Failed to expire subscription' }, { status: 500 });
+    }
+
+    console.log('✅ Subscription expired:', data);
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Subscription expired and downgraded to free tier',
+      data 
+    });
+  } catch (error) {
+    console.error('Error expiring subscription:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

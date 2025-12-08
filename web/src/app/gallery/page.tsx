@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { hasFeature, hasSuperPremium, getStorageUsed, getStorageLimit, updateStorageUsed } from "@/utils/subscription";
 import { loadData, saveData } from "@/utils/storage";
 import { GalleryPhoto } from "@/types/gallery";
@@ -24,6 +25,8 @@ function GalleryPageContent() {
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
   const storageUsed = getStorageUsed();
   const storageLimit = getStorageLimit();
   const isSuperPremium = hasSuperPremium();
@@ -45,12 +48,12 @@ function GalleryPageContent() {
     const fileSizeMB = file.size / (1024 * 1024);
     
     if (storageUsed + fileSizeMB > storageLimit) {
-      alert(`Not enough storage space. You have ${(storageLimit - storageUsed).toFixed(1)}MB remaining.`);
+      toast.error(`Not enough storage space. You have ${(storageLimit - storageUsed).toFixed(1)}MB remaining.`);
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      alert("File size must be less than 10MB");
+      toast.error("File size must be less than 10MB");
       return;
     }
 
@@ -84,19 +87,26 @@ function GalleryPageContent() {
     reader.readAsDataURL(file);
   };
 
-  const handleDelete = (photoId: string) => {
-    if (!confirm("Delete this photo?")) return;
+  const handleDeleteClick = (photoId: string) => {
+    setDeletePhotoId(photoId);
+    setShowDeleteModal(true);
+  };
 
-    const photoToDelete = photos.find(p => p.id === photoId);
+  const confirmDelete = () => {
+    if (!deletePhotoId) return;
+
+    const photoToDelete = photos.find(p => p.id === deletePhotoId);
     if (photoToDelete) {
       const fileSizeMB = photoToDelete.size / (1024 * 1024);
       updateStorageUsed(Math.max(0, storageUsed - fileSizeMB));
     }
 
-    const updatedPhotos = photos.filter(p => p.id !== photoId);
+    const updatedPhotos = photos.filter(p => p.id !== deletePhotoId);
     setPhotos(updatedPhotos);
     saveData("gallery_photos", updatedPhotos);
     setSelectedPhoto(null);
+    setShowDeleteModal(false);
+    setDeletePhotoId(null);
   };
 
   if (!hasFeature("photoStorage")) {
@@ -292,7 +302,7 @@ function GalleryPageContent() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleDelete(selectedPhoto.id)}
+                    onClick={() => handleDeleteClick(selectedPhoto.id)}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-semibold"
                   >
                     Delete Photo
@@ -305,6 +315,33 @@ function GalleryPageContent() {
                     Close
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Photo?</h3>
+                <p className="text-gray-400">This action cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>

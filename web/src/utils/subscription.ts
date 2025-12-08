@@ -1,204 +1,92 @@
-// Subscription utilities
-import { loadData, saveData } from "./storage";
+// Subscription feature enforcement utilities
 
-export type SubscriptionTier = "free" | "premium" | "super-premium";
+export type SubscriptionTier = 'free' | 'premium' | 'super-premium';
 
 export interface Subscription {
   tier: SubscriptionTier;
-  startDate: string;
-  endDate?: string;
-  isActive: boolean;
-  storageUsed?: number; // in MB
-  storageLimit?: number; // in MB
+  status: string;
+  end_date: string | null;
 }
 
-// Storage limits per tier
-export const STORAGE_LIMITS = {
-  free: 0, // No photo storage
-  premium: 500, // 500MB
-  "super-premium": 5120, // 5GB (5120MB)
-};
-
-// Feature flags per tier
-export const FEATURES = {
-  free: {
-    photoStorage: false,
-    multiTank: false,
-    equipmentTracking: false,
-    livestockInventory: false,
-    smsAlerts: false,
-    communityProfiles: false,
-    dataExport: false,
-  },
-  premium: {
-    photoStorage: true,
-    multiTank: false,
-    equipmentTracking: false,
-    livestockInventory: false,
-    smsAlerts: false,
-    communityProfiles: false,
-    dataExport: true,
-  },
-  "super-premium": {
-    photoStorage: true,
-    multiTank: true,
-    equipmentTracking: true,
-    livestockInventory: true,
-    smsAlerts: true,
-    communityProfiles: true,
-    dataExport: true,
-  },
-};
-
-// Check if user has premium subscription (premium or super-premium)
-export const hasPremium = (): boolean => {
-  const subscription = loadData<Subscription>("subscription");
+// Feature availability by tier
+const FEATURE_ACCESS: Record<string, SubscriptionTier[]> = {
+  // Free tier - everyone has access
+  BASIC_LOGGING: ['free', 'premium', 'super-premium'],
+  DASHBOARD: ['free', 'premium', 'super-premium'],
+  MAINTENANCE: ['free', 'premium', 'super-premium'],
+  HISTORY: ['free', 'premium', 'super-premium'],
+  SETTINGS: ['free', 'premium', 'super-premium'],
   
-  if (!subscription || subscription.tier === "free") {
-    return false;
-  }
-
-  // Check if subscription is still active
-  if (subscription.endDate) {
-    const endDate = new Date(subscription.endDate);
-    const now = new Date();
-    return now < endDate;
-  }
-
-  return subscription.isActive;
-};
-
-// Check if user has super-premium subscription
-export const hasSuperPremium = (): boolean => {
-  const subscription = loadData<Subscription>("subscription");
+  // Premium tier and above
+  EQUIPMENT_TRACKING: ['premium', 'super-premium'],
+  SMS_ALERTS: ['premium', 'super-premium'],
   
-  if (!subscription || subscription.tier !== "super-premium") {
-    return false;
+  // Super Premium only
+  LIVESTOCK_INVENTORY: ['super-premium'],
+  PHOTO_GALLERY: ['super-premium'],
+  MULTI_TANK: ['super-premium'],
+};
+
+export type Feature = keyof typeof FEATURE_ACCESS;
+
+/**
+ * Check if user's subscription tier has access to a feature
+ */
+export function hasFeatureAccess(userTier: SubscriptionTier, feature: Feature): boolean {
+  return FEATURE_ACCESS[feature].includes(userTier);
+}
+
+/**
+ * Get user's subscription from API
+ */
+export async function getUserSubscription(): Promise<Subscription> {
+  try {
+    const response = await fetch('/api/subscription');
+    if (!response.ok) {
+      return { tier: 'free', status: 'active', end_date: null };
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    return { tier: 'free', status: 'active', end_date: null };
   }
+}
 
-  // Check if subscription is still active
-  if (subscription.endDate) {
-    const endDate = new Date(subscription.endDate);
-    const now = new Date();
-    return now < endDate;
+/**
+ * Get the minimum tier required for a feature
+ */
+export function getRequiredTier(feature: Feature): SubscriptionTier {
+  const tiers = FEATURE_ACCESS[feature];
+  if (tiers.includes('free')) return 'free';
+  if (tiers.includes('premium')) return 'premium';
+  return 'super-premium';
+}
+
+/**
+ * Get tier display name
+ */
+export function getTierDisplayName(tier: SubscriptionTier): string {
+  switch (tier) {
+    case 'free': return 'Free';
+    case 'premium': return 'Premium';
+    case 'super-premium': return 'Super Premium';
   }
+}
 
-  return subscription.isActive;
-};
-
-// Check if user has access to a specific feature
-export const hasFeature = (feature: keyof typeof FEATURES.free): boolean => {
-  const subscription = loadData<Subscription>("subscription");
-  const tier = subscription?.tier || "free";
-  return FEATURES[tier][feature];
-};
-
-// Get storage limit for current tier
-export const getStorageLimit = (): number => {
-  const subscription = loadData<Subscription>("subscription");
-  const tier = subscription?.tier || "free";
-  return STORAGE_LIMITS[tier];
-};
-
-// Get storage usage
-export const getStorageUsed = (): number => {
-  const subscription = loadData<Subscription>("subscription");
-  return subscription?.storageUsed || 0;
-};
-
-// Update storage usage
-export const updateStorageUsed = (usedMB: number): void => {
-  const subscription = getSubscription();
-  subscription.storageUsed = usedMB;
-  saveData("subscription", subscription);
-};
-
-// Activate premium subscription
-export const activatePremium = (durationMonths: number = 1): Subscription => {
-  const now = new Date();
-  const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + durationMonths);
-
-  const subscription: Subscription = {
-    tier: "premium",
-    startDate: now.toISOString(),
-    endDate: endDate.toISOString(),
-    isActive: true,
-    storageUsed: 0,
-    storageLimit: STORAGE_LIMITS.premium,
-  };
-
-  saveData("subscription", subscription);
-  return subscription;
-};
-
-// Activate super-premium subscription
-export const activateSuperPremium = (durationMonths: number = 1): Subscription => {
-  const now = new Date();
-  const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + durationMonths);
-
-  const subscription: Subscription = {
-    tier: "super-premium",
-    startDate: now.toISOString(),
-    endDate: endDate.toISOString(),
-    isActive: true,
-    storageUsed: 0,
-    storageLimit: STORAGE_LIMITS["super-premium"],
-  };
-
-  saveData("subscription", subscription);
-  return subscription;
-};
-
-// Cancel premium subscription (revert to free)
-export const cancelPremium = (): void => {
-  const subscription: Subscription = {
-    tier: "free",
-    startDate: new Date().toISOString(),
-    isActive: true,
-  };
-  saveData("subscription", subscription);
-};
-
-// Get current subscription
-export const getSubscription = (): Subscription => {
-  const subscription = loadData<Subscription>("subscription");
-  
-  if (!subscription) {
-    const freeSubscription: Subscription = {
-      tier: "free",
-      startDate: new Date().toISOString(),
-      isActive: true,
-    };
-    saveData("subscription", freeSubscription);
-    return freeSubscription;
+/**
+ * Get tier price
+ */
+export function getTierPrice(tier: SubscriptionTier): string {
+  switch (tier) {
+    case 'free': return '$0';
+    case 'premium': return '$4.99/mo';
+    case 'super-premium': return '$9.99/mo';
   }
+}
 
-  return subscription;
-};
-
-// Get subscription status details
-export const getSubscriptionStatus = (): {
-  isPremium: boolean;
-  daysRemaining?: number;
-  subscription: Subscription;
-} => {
-  const subscription = getSubscription();
-  const isPremium = hasPremium();
-
-  let daysRemaining: number | undefined;
-  
-  if (isPremium && subscription.endDate) {
-    const endDate = new Date(subscription.endDate);
-    const now = new Date();
-    const diffTime = endDate.getTime() - now.getTime();
-    daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  }
-
-  return {
-    isPremium,
-    daysRemaining,
-    subscription,
-  };
-};
+/**
+ * Check if user needs to upgrade for a feature
+ */
+export function needsUpgrade(userTier: SubscriptionTier, feature: Feature): boolean {
+  return !hasFeatureAccess(userTier, feature);
+}
