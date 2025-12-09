@@ -11,7 +11,7 @@ interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'reefx_subscription';
+const STORAGE_KEY = 'reefxone_subscription';
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   // Initialize from localStorage immediately - no flicker!

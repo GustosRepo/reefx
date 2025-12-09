@@ -169,7 +169,7 @@ export default function Home() {
               <div className="absolute inset-0 z-0 bg-gradient-to-br from-cyan-400/20 to-blue-500/10 blur-2xl" />
               <img
                 src="/mock.png"
-                alt="REEFX App Mobile Preview"
+                alt="REEFXONE App Mobile Preview"
                 className="relative z-10 object-cover object-top w-full h-full"
               />
             </div>
@@ -184,10 +184,10 @@ export default function Home() {
             Be the first to experience smarter reefkeeping.
           </h2>
           <p className="text-gray-400">
-            Sign up now to join the REEFX beta and track your tank like never before.
+            Sign up now to join the REEFXONE beta and track your tank like never before.
           </p>
           <a
-            href="mailto:admin@code-wrx.com?subject=REEFX%20Beta%20Signup&body=Hi%20there%2C%0A%0AI%E2%80%99d%20love%20to%20join%20the%20REEFX%20beta!%20Let%20me%20know%20what%20you%20need%20from%20me.%0A%0AThanks%20so%20much%2C%0A%5Byour%20name%5D"
+            href="mailto:admin@code-wrx.com?subject=REEFXONE%20Beta%20Signup&body=Hi%20there%2C%0A%0AI%E2%80%99d%20love%20to%20join%20the%20REEFXONE%20beta!%20Let%20me%20know%20what%20you%20need%20from%20me.%0A%0AThanks%20so%20much%2C%0A%5Byour%20name%5D"
             className="inline-block px-6 py-3 mt-6 font-semibold text-white transition-transform rounded-md shadow-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-105"
           >
             Email Us to Join Beta
@@ -201,7 +201,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-6 text-sm text-center text-gray-500 bg-black">
-        &copy; {new Date().getFullYear()} REEFX. Built for reefers, by reefers.
+        &copy; {new Date().getFullYear()} REEFXONE. Built for reefers, by reefers.
       </footer>
     </>
   );

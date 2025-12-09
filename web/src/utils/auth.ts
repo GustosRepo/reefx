@@ -93,7 +93,7 @@ export const logout = async (): Promise<void> => {
   const supabase = createClient();
   await supabase.auth.signOut();
   // Clear subscription cache
-  localStorage.removeItem('reefx_subscription');
+  localStorage.removeItem('reefxone_subscription');
 };
 
 // Update user profile

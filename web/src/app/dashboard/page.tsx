@@ -30,13 +30,13 @@ function DashboardContent() {
   const [hasLogs, setHasLogs] = useState(false);
   const [alertsMuted, setAlertsMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefx_alerts_muted') === 'true';
+      return localStorage.getItem('reefxone_alerts_muted') === 'true';
     }
     return false;
   });
   const [maintenanceMuted, setMaintenanceMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefx_maintenance_muted') === 'true';
+      return localStorage.getItem('reefxone_maintenance_muted') === 'true';
     }
     return false;
   });
@@ -218,7 +218,7 @@ function DashboardContent() {
     <AppLayout>
       <div className="space-y-8 animate-fadeIn">
         <div className="animate-slideDown">
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-2">REEFX ONE</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-2">REEFXONE</h1>
           <p className="text-gray-400 text-lg">Your reef parameters at a glance</p>
         </div>
 
@@ -265,7 +265,7 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setAlertsMuted(true);
-                  localStorage.setItem('reefx_alerts_muted', 'true');
+                  localStorage.setItem('reefxone_alerts_muted', 'true');
                 }}
                 className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
               >
@@ -295,7 +295,7 @@ function DashboardContent() {
             <button
               onClick={() => {
                 setAlertsMuted(false);
-                localStorage.setItem('reefx_alerts_muted', 'false');
+                localStorage.setItem('reefxone_alerts_muted', 'false');
               }}
               className="text-sm text-cyan-400 hover:text-cyan-300 transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
             >
@@ -314,7 +314,7 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setMaintenanceMuted(true);
-                  localStorage.setItem('reefx_maintenance_muted', 'true');
+                  localStorage.setItem('reefxone_maintenance_muted', 'true');
                 }}
                 className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded bg-black/40 hover:bg-black/60"
               >
@@ -339,7 +339,7 @@ function DashboardContent() {
             <button
               onClick={() => {
                 setMaintenanceMuted(false);
-                localStorage.setItem('reefx_maintenance_muted', 'false');
+                localStorage.setItem('reefxone_maintenance_muted', 'false');
               }}
               className="text-sm bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 px-4 py-2 rounded border border-yellow-500/30 hover:border-yellow-400/50 transition"
             >
