@@ -19,7 +19,6 @@ export default function LivestockPage() {
 }
 
 function LivestockPageContent() {
-  const router = useRouter();
   const [livestock, setLivestock] = useState<Livestock[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -8,7 +8,7 @@ import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import StatCard from "@/components/StatCard";
 import AdBanner from "@/components/AdBanner";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { getCurrentUser, User } from "@/utils/auth";
 import { fahrenheitToCelsius } from "@/utils/conversions";
 
@@ -350,7 +350,7 @@ function DashboardContent() {
 
         {/* Parameter Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {Object.keys(labelMap).map((param, index) => (
+          {Object.keys(labelMap).map((param) => (
             <div key={param}>
               <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 md:p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
                 <h3 className="text-base md:text-lg font-bold text-cyan-400 mb-3 md:mb-4">{labelMap[param]}</h3>

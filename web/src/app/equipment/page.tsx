@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSubscription } from "@/context/SubscriptionContext";
-import { hasFeatureAccess, getTierDisplayName, getTierPrice } from "@/utils/subscription";
+import { hasFeatureAccess } from "@/utils/subscription";
 import { Equipment, EquipmentCategory } from "@/types/equipment";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -19,7 +19,6 @@ export default function EquipmentPage() {
 }
 
 function EquipmentPageContent() {
-  const router = useRouter();
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
