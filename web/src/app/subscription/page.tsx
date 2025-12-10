@@ -135,7 +135,9 @@ function SubscriptionPageContent() {
   const handleUpgradePremium = async (months: number) => {
     setLoading(true);
     try {
-      const priceId = process.env.NEXT_PUBLIC_STRIPE_SUPER_PREMIUM_PRICE_ID;
+      const priceId = months === 12 
+        ? process.env.NEXT_PUBLIC_STRIPE_PREMIUM_ANNUAL_PRICE_ID
+        : process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID;
       if (!priceId) {
         toast.error('Stripe Price ID not configured. Please contact support.');
         return;
@@ -144,7 +146,7 @@ function SubscriptionPageContent() {
       const response = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, tier: 'super-premium' }),
+        body: JSON.stringify({ priceId, tier: 'premium' }),
       });
 
       if (!response.ok) throw new Error('Failed to create checkout');
@@ -162,7 +164,9 @@ function SubscriptionPageContent() {
   const handleUpgradeSuperPremium = async (months: number) => {
     setLoading(true);
     try {
-      const priceId = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID;
+      const priceId = months === 12
+        ? process.env.NEXT_PUBLIC_STRIPE_SUPER_PREMIUM_ANNUAL_PRICE_ID
+        : process.env.NEXT_PUBLIC_STRIPE_SUPER_PREMIUM_PRICE_ID;
       if (!priceId) {
         toast.error('Stripe Price ID not configured. Please contact support.');
         return;
@@ -171,7 +175,7 @@ function SubscriptionPageContent() {
       const response = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, tier: 'premium' }),
+        body: JSON.stringify({ priceId, tier: 'super-premium' }),
       });
 
       if (!response.ok) throw new Error('Failed to create checkout');
