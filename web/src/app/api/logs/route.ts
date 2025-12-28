@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
-// GET /api/logs - Fetch all logs for authenticated user
-export async function GET() {
+// GET /api/logs - Fetch all logs for authenticated user (filtered by tank if provided)
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -11,11 +11,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data, error } = await supabase
+  // Get tank_id from query params
+  const { searchParams } = new URL(request.url);
+  const tankId = searchParams.get('tank_id');
+
+  let query = supabase
     .from('reef_logs')
     .select('*')
     .eq('user_id', user.id)
     .order('log_date', { ascending: true });
+
+  // Filter by tank if specified
+  if (tankId) {
+    query = query.eq('tank_id', tankId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -38,22 +49,27 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   
-  // Get user's first tank (created by trigger on signup)
-  const { data: tanks } = await supabase
-    .from('tanks')
-    .select('id')
-    .eq('user_id', user.id)
-    .limit(1);
+  // Use provided tank_id or fall back to user's first tank
+  let tankId = body.tank_id;
   
-  if (!tanks || tanks.length === 0) {
-    return NextResponse.json({ error: 'No tank found. Please create a tank first.' }, { status: 400 });
+  if (!tankId) {
+    const { data: tanks } = await supabase
+      .from('tanks')
+      .select('id')
+      .eq('user_id', user.id)
+      .limit(1);
+    
+    if (!tanks || tanks.length === 0) {
+      return NextResponse.json({ error: 'No tank found. Please create a tank first.' }, { status: 400 });
+    }
+    tankId = tanks[0].id;
   }
   
   const { data, error } = await supabase
     .from('reef_logs')
     .insert({
       user_id: user.id,
-      tank_id: tanks[0].id,
+      tank_id: tankId,
       log_date: body.date,
       temp: body.temp,
       salinity: body.salinity,

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { hasFeature, hasSuperPremium, getStorageUsed, getStorageLimit, updateStorageUsed } from "@/utils/subscription";
-import { loadData, saveData } from "@/utils/storage";
+import { useSubscription } from "@/context/SubscriptionContext";
+import { hasFeatureAccess, getStorageLimit as getStorageLimitForTier, isSuperPremium as checkSuperPremium } from "@/utils/subscription";
 import { GalleryPhoto } from "@/types/gallery";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -20,6 +20,8 @@ export default function GalleryPage() {
 
 function GalleryPageContent() {
   const router = useRouter();
+  const { subscription, isLoading: subscriptionLoading, refreshSubscription } = useSubscription();
+  const tier = subscription.tier;
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [uploading, setUploading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhoto | null>(null);
@@ -27,19 +29,46 @@ function GalleryPageContent() {
   const [tags, setTags] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
-  const storageUsed = getStorageUsed();
-  const storageLimit = getStorageLimit();
-  const isSuperPremium = hasSuperPremium();
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const storageUsed = subscription.storage_used_mb || 0;
+  const storageLimit = getStorageLimitForTier(tier);
+  const isSuperPremiumUser = checkSuperPremium(tier);
 
   useEffect(() => {
-    if (!hasFeature("photoStorage")) {
+    if (subscriptionLoading) return;
+    
+    if (!hasFeatureAccess(tier, 'PHOTO_STORAGE')) {
       router.push("/subscription");
       return;
     }
     
-    const savedPhotos = loadData<GalleryPhoto[]>("gallery_photos") || [];
-    setPhotos(savedPhotos.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-  }, [router]);
+    loadPhotos();
+  }, [router, tier, subscriptionLoading]);
+
+  const loadPhotos = async () => {
+    try {
+      const response = await fetch('/api/gallery');
+      if (response.ok) {
+        const data = await response.json();
+        // Map API response to GalleryPhoto format
+        const mappedPhotos = data.map((photo: any) => ({
+          id: photo.id,
+          tankId: photo.tank_id || 'main',
+          url: photo.url,
+          caption: photo.caption || 'Untitled',
+          date: photo.created_at,
+          size: (photo.file_size_mb || 0) * 1024 * 1024,
+          tags: photo.tags || [],
+        }));
+        setPhotos(mappedPhotos);
+      }
+    } catch (err) {
+      console.error('Failed to load photos:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,32 +88,35 @@ function GalleryPageContent() {
 
     setUploading(true);
 
-    // Convert to base64 (in production, upload to Supabase Storage)
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const newPhoto: GalleryPhoto = {
-        id: Date.now().toString(),
-        tankId: "main", // TODO: Support multi-tank
-        url: reader.result as string,
-        caption: caption || "Untitled",
-        date: new Date().toISOString(),
-        size: file.size,
-        tags: tags ? tags.split(",").map(t => t.trim()) : [],
-      };
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('caption', caption || 'Untitled');
+      formData.append('tags', tags);
 
-      const updatedPhotos = [newPhoto, ...photos];
-      setPhotos(updatedPhotos);
-      saveData("gallery_photos", updatedPhotos);
+      const response = await fetch('/api/gallery', {
+        method: 'POST',
+        body: formData,
+      });
 
-      // Update storage usage
-      updateStorageUsed(storageUsed + fileSizeMB);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload');
+      }
 
+      toast.success('Photo uploaded successfully!');
       setCaption("");
       setTags("");
+      await loadPhotos();
+      await refreshSubscription(); // Update storage used in context
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      toast.error(err.message || 'Failed to upload photo');
+    } finally {
       setUploading(false);
-    };
-
-    reader.readAsDataURL(file);
+      // Reset file input
+      e.target.value = '';
+    }
   };
 
   const handleDeleteClick = (photoId: string) => {
@@ -92,24 +124,43 @@ function GalleryPageContent() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deletePhotoId) return;
 
-    const photoToDelete = photos.find(p => p.id === deletePhotoId);
-    if (photoToDelete) {
-      const fileSizeMB = photoToDelete.size / (1024 * 1024);
-      updateStorageUsed(Math.max(0, storageUsed - fileSizeMB));
-    }
+    try {
+      const response = await fetch(`/api/gallery?id=${deletePhotoId}`, {
+        method: 'DELETE',
+      });
 
-    const updatedPhotos = photos.filter(p => p.id !== deletePhotoId);
-    setPhotos(updatedPhotos);
-    saveData("gallery_photos", updatedPhotos);
-    setSelectedPhoto(null);
-    setShowDeleteModal(false);
-    setDeletePhotoId(null);
+      if (!response.ok) {
+        throw new Error('Failed to delete photo');
+      }
+
+      toast.success('Photo deleted');
+      setPhotos(photos.filter(p => p.id !== deletePhotoId));
+      setSelectedPhoto(null);
+      await refreshSubscription(); // Update storage used in context
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast.error('Failed to delete photo');
+    } finally {
+      setShowDeleteModal(false);
+      setDeletePhotoId(null);
+    }
   };
 
-  if (!hasFeature("photoStorage")) {
+  // Show loading while subscription or photos are loading
+  if (subscriptionLoading || isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-gray-400">Loading gallery...</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasFeatureAccess(tier, 'PHOTO_STORAGE')) {
     return null;
   }
 
@@ -122,11 +173,11 @@ function GalleryPageContent() {
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-2">Photo Gallery</h1>
             <p className="text-gray-400 text-sm">
-              Document your reef's journey {isSuperPremium && "🚀"}
+              Document your reef's journey {isSuperPremiumUser && "🚀"}
             </p>
           </div>
           
-          {!isSuperPremium && (
+          {!isSuperPremiumUser && (
             <Link
               href="/subscription"
               className="px-4 py-2 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white rounded-lg text-sm font-semibold hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 transition"
@@ -346,13 +397,6 @@ function GalleryPageContent() {
             </div>
           </div>
         )}
-
-        {/* Demo Note */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 italic">
-            Demo: Photos stored in browser localStorage. In production, use Supabase Storage.
-          </p>
-        </div>
       </div>
     </AppLayout>
   );

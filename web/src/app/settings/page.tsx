@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { Threshold } from "@/utils/warningUtils";
 import AppLayout from "@/components/AppLayout";
@@ -8,6 +9,19 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { getCurrentUser, logout, updateProfile, deleteAccount, updateUnitPreferences, User } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import type { TempUnit, VolumeUnit } from "@/utils/conversions";
+import { exportLogs, exportMaintenance, exportEquipment, exportLivestock, exportAllData } from "@/utils/export";
+import { useSubscription } from "@/context/SubscriptionContext";
+import { useTank } from "@/context/TankContext";
+import { TANK_LIMITS } from "@/utils/subscription";
+
+interface Tank {
+  id: string;
+  name: string;
+  size_gallons?: number;
+  type?: string;
+  setup_date?: string;
+  notes?: string;
+}
 
 interface ThresholdSettings {
   [key: string]: { min: number; max: number };
@@ -29,6 +43,19 @@ function SettingsPageContent() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showClearDataModal, setShowClearDataModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  
+  // Tank management state
+  const [showTankForm, setShowTankForm] = useState(false);
+  const [editingTank, setEditingTank] = useState<Tank | null>(null);
+  const [tankForm, setTankForm] = useState({ name: '', size_gallons: '', type: '', setup_date: '', notes: '' });
+  const [showDeleteTankModal, setShowDeleteTankModal] = useState(false);
+  const [deleteTankId, setDeleteTankId] = useState<string | null>(null);
+  const { subscription } = useSubscription();
+  const { tanks, refreshTanks } = useTank();
+  const tankLimit = TANK_LIMITS[subscription.tier];
+  
   const [thresholds, setThresholds] = useState<ThresholdSettings>({
     temp: { min: 24, max: 27 },
     salinity: { min: 33, max: 36 },
@@ -186,6 +213,84 @@ function SettingsPageContent() {
     router.push("/register");
   };
 
+  // Tank management functions
+  const handleAddTank = () => {
+    setEditingTank(null);
+    setTankForm({ name: '', size_gallons: '', type: '', setup_date: '', notes: '' });
+    setShowTankForm(true);
+  };
+
+  const handleEditTank = (tank: Tank) => {
+    setEditingTank(tank);
+    setTankForm({
+      name: tank.name,
+      size_gallons: tank.size_gallons?.toString() || '',
+      type: tank.type || '',
+      setup_date: tank.setup_date || '',
+      notes: tank.notes || '',
+    });
+    setShowTankForm(true);
+  };
+
+  const handleSaveTank = async () => {
+    if (!tankForm.name.trim()) {
+      toast.error('Tank name is required');
+      return;
+    }
+
+    try {
+      const method = editingTank ? 'PUT' : 'POST';
+      const body = editingTank
+        ? { ...tankForm, id: editingTank.id, size_gallons: tankForm.size_gallons ? parseFloat(tankForm.size_gallons) : null }
+        : { ...tankForm, size_gallons: tankForm.size_gallons ? parseFloat(tankForm.size_gallons) : null };
+
+      const response = await fetch('/api/tanks', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save tank');
+      }
+
+      toast.success(editingTank ? 'Tank updated!' : 'Tank created!');
+      setShowTankForm(false);
+      setEditingTank(null);
+      setTankForm({ name: '', size_gallons: '', type: '', setup_date: '', notes: '' });
+      refreshTanks();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save tank');
+    }
+  };
+
+  const handleDeleteTankClick = (tankId: string) => {
+    setDeleteTankId(tankId);
+    setShowDeleteTankModal(true);
+  };
+
+  const confirmDeleteTank = async () => {
+    if (!deleteTankId) return;
+
+    try {
+      const response = await fetch(`/api/tanks?id=${deleteTankId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete tank');
+      }
+
+      toast.success('Tank deleted');
+      setShowDeleteTankModal(false);
+      setDeleteTankId(null);
+      refreshTanks();
+    } catch (err) {
+      toast.error('Failed to delete tank');
+    }
+  };
+
   const parameters = [
     { key: "temp", label: "Temperature (°C)", unit: "°C" },
     { key: "salinity", label: "Salinity", unit: "ppt" },
@@ -283,6 +388,169 @@ function SettingsPageContent() {
           </button>
         </div>
 
+        {/* Tank Management */}
+        <div id="tanks" className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-cyan-400 flex items-center gap-2">
+                <span>🐠</span> Tank Management
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">
+                {tanks.length} of {tankLimit} tanks • {subscription.tier === 'super-premium' ? 'Super Premium' : subscription.tier === 'premium' ? 'Premium' : 'Free'}
+              </p>
+            </div>
+            {tanks.length < tankLimit && (
+              <button
+                onClick={handleAddTank}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition text-sm"
+              >
+                + Add Tank
+              </button>
+            )}
+          </div>
+
+          {/* Tank limit warning */}
+          {tanks.length >= tankLimit && subscription.tier !== 'super-premium' && (
+            <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-400 text-sm">
+                🔒 Tank limit reached! <a href="/subscription" className="underline hover:text-yellow-300">Upgrade to Super Premium</a> to manage up to 10 tanks.
+              </p>
+            </div>
+          )}
+
+          {/* Tank List */}
+          <div className="space-y-3">
+            {tanks.map((tank) => (
+              <div
+                key={tank.id}
+                className="bg-black/40 rounded-lg p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🐠</span>
+                  <div>
+                    <p className="font-semibold text-white">{tank.name}</p>
+                    <p className="text-xs text-gray-400">
+                      {tank.volume && `${tank.volume} gal`}
+                      {tank.volume && tank.type && ' • '}
+                      {tank.type}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditTank({
+                      id: tank.id,
+                      name: tank.name,
+                      size_gallons: tank.volume,
+                      type: tank.type,
+                    })}
+                    className="px-3 py-1.5 bg-purple-600 text-white rounded text-xs font-semibold hover:bg-purple-700 transition"
+                  >
+                    Edit
+                  </button>
+                  {tanks.length > 1 && (
+                    <button
+                      onClick={() => handleDeleteTankClick(tank.id)}
+                      className="px-3 py-1.5 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add/Edit Tank Form Modal */}
+          {showTankForm && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowTankForm(false)}>
+              <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  {editingTank ? 'Edit Tank' : 'Add New Tank'}
+                </h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Tank Name *</label>
+                    <input
+                      type="text"
+                      value={tankForm.name}
+                      onChange={(e) => setTankForm({ ...tankForm, name: e.target.value })}
+                      placeholder="e.g., Display Tank, Frag Tank"
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Size (gallons)</label>
+                      <input
+                        type="number"
+                        value={tankForm.size_gallons}
+                        onChange={(e) => setTankForm({ ...tankForm, size_gallons: e.target.value })}
+                        placeholder="0"
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                      <select
+                        value={tankForm.type}
+                        onChange={(e) => setTankForm({ ...tankForm, type: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      >
+                        <option value="">Select type...</option>
+                        <option value="reef">Reef</option>
+                        <option value="fowlr">FOWLR</option>
+                        <option value="frag">Frag</option>
+                        <option value="quarantine">Quarantine</option>
+                        <option value="nano">Nano</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Setup Date</label>
+                    <input
+                      type="date"
+                      value={tankForm.setup_date}
+                      onChange={(e) => setTankForm({ ...tankForm, setup_date: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Notes</label>
+                    <textarea
+                      value={tankForm.notes}
+                      onChange={(e) => setTankForm({ ...tankForm, notes: e.target.value })}
+                      placeholder="Any additional notes..."
+                      rows={2}
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={handleSaveTank}
+                    className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition"
+                  >
+                    {editingTank ? 'Update Tank' : 'Create Tank'}
+                  </button>
+                  <button
+                    onClick={() => setShowTankForm(false)}
+                    className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
           <h2 className="text-xl font-bold text-cyan-400 mb-4">
             Parameter Thresholds
@@ -366,7 +634,7 @@ function SettingsPageContent() {
         </div>
 
         {/* Account Section */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
+        <div className="glass-card rounded-xl p-6 mb-6">
           <h2 className="text-xl font-bold text-cyan-400 mb-4">Account</h2>
           <div className="space-y-3">
             <div>
@@ -381,7 +649,7 @@ function SettingsPageContent() {
           <div className="flex flex-col sm:flex-row gap-3 mt-4">
             <button
               onClick={() => router.push("/profile")}
-              className="flex-1 sm:flex-none px-6 py-3 bg-cyan-600 text-white rounded-lg active:bg-cyan-700 transition font-semibold"
+              className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition font-semibold"
             >
               Edit Profile
             </button>
@@ -390,16 +658,136 @@ function SettingsPageContent() {
                 logout();
                 router.push("/login");
               }}
-              className="flex-1 sm:flex-none px-6 py-3 bg-gray-700 text-white rounded-lg active:bg-gray-600 transition font-semibold"
+              className="flex-1 sm:flex-none px-6 py-3 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition font-semibold"
             >
               Sign Out
             </button>
           </div>
         </div>
 
+        {/* Data Export Section */}
+        <div className="glass-card rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+            <span>📦</span> Export Your Data
+          </h2>
+          <p className="text-gray-400 mb-6 text-sm">
+            Download your reef data as CSV files. Your data belongs to you.
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/logs');
+                  const data = await res.json();
+                  if (Array.isArray(data) && data.length > 0) {
+                    exportLogs(data);
+                    toast.success('Logs exported!');
+                  } else {
+                    toast.error('No logs to export');
+                  }
+                } catch (err) {
+                  toast.error('Export failed');
+                }
+              }}
+              className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-cyan-500/30 transition text-center"
+            >
+              <span className="text-2xl block mb-2">📊</span>
+              <span className="text-sm text-gray-300">Logs</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/maintenance');
+                  const data = await res.json();
+                  if (Array.isArray(data) && data.length > 0) {
+                    exportMaintenance(data);
+                    toast.success('Maintenance exported!');
+                  } else {
+                    toast.error('No maintenance data to export');
+                  }
+                } catch (err) {
+                  toast.error('Export failed');
+                }
+              }}
+              className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-cyan-500/30 transition text-center"
+            >
+              <span className="text-2xl block mb-2">🔧</span>
+              <span className="text-sm text-gray-300">Maintenance</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/equipment');
+                  const data = await res.json();
+                  if (Array.isArray(data) && data.length > 0) {
+                    exportEquipment(data);
+                    toast.success('Equipment exported!');
+                  } else {
+                    toast.error('No equipment data to export');
+                  }
+                } catch (err) {
+                  toast.error('Export failed');
+                }
+              }}
+              className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-cyan-500/30 transition text-center"
+            >
+              <span className="text-2xl block mb-2">🛠️</span>
+              <span className="text-sm text-gray-300">Equipment</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/livestock');
+                  const data = await res.json();
+                  if (Array.isArray(data) && data.length > 0) {
+                    exportLivestock(data);
+                    toast.success('Livestock exported!');
+                  } else {
+                    toast.error('No livestock data to export');
+                  }
+                } catch (err) {
+                  toast.error('Export failed');
+                }
+              }}
+              className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-cyan-500/30 transition text-center"
+            >
+              <span className="text-2xl block mb-2">🐠</span>
+              <span className="text-sm text-gray-300">Livestock</span>
+            </button>
+          </div>
+
+          <button
+            onClick={async () => {
+              setExporting(true);
+              try {
+                await exportAllData();
+                toast.success('All data exported!');
+              } catch (err) {
+                toast.error('Export failed');
+              } finally {
+                setExporting(false);
+              }
+            }}
+            disabled={exporting}
+            className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {exporting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>📥 Export All Data</>
+            )}
+          </button>
+        </div>
+
         {/* Danger Zone */}
-        <div className="bg-gradient-to-br from-red-900/30 to-red-900/20 border border-red-500/50 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-red-400 mb-2">Danger Zone</h2>
+        <div className="glass-card rounded-xl p-6 border-red-500/30">
+          <h2 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2">
+            <span>⚠️</span> Danger Zone
+          </h2>
           <p className="text-gray-400 mb-4 text-sm">
             These actions cannot be undone. Proceed with caution.
           </p>
@@ -407,13 +795,13 @@ function SettingsPageContent() {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleClearDataClick}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg active:bg-red-700 transition font-semibold"
+              className="px-6 py-3 bg-red-500/20 border border-red-500/50 text-red-400 rounded-xl hover:bg-red-500/30 transition font-semibold"
             >
               Clear All Data
             </button>
             <button
               onClick={handleDeleteAccountClick}
-              className="px-6 py-3 bg-red-700 text-white rounded-lg active:bg-red-800 transition font-semibold"
+              className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold"
             >
               Delete Account
             </button>
@@ -509,6 +897,33 @@ function SettingsPageContent() {
                   className="flex-1 px-6 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg transition font-semibold"
                 >
                   Delete Forever
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Tank Modal */}
+        {showDeleteTankModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteTankModal(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-3">🗑️</div>
+                <h3 className="text-xl font-bold text-white mb-2">Delete Tank?</h3>
+                <p className="text-gray-400">This will delete the tank and all associated logs, maintenance, and data. This cannot be undone.</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteTankModal(false)}
+                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteTank}
+                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                >
+                  Delete Tank
                 </button>
               </div>
             </div>

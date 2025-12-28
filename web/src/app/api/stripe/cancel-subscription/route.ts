@@ -24,6 +24,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (!subscription.stripe_subscription_id) {
+      // In dev mode without Stripe, just downgrade directly
+      if (process.env.NODE_ENV !== 'production') {
+        await supabase
+          .from('subscriptions')
+          .update({
+            tier: 'free',
+            status: 'canceled',
+            end_date: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
+
+        return NextResponse.json({ 
+          success: true,
+          message: 'Subscription canceled (dev mode - no Stripe).',
+        });
+      }
       return NextResponse.json({ error: 'No active Stripe subscription' }, { status: 400 });
     }
 

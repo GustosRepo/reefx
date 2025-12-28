@@ -2,6 +2,7 @@
 export interface Equipment {
   id: string;
   tankId: string;
+  tankName?: string;
   name: string;
   category: "lighting" | "filtration" | "heating" | "controller" | "pump" | "skimmer" | "other";
   brand?: string;

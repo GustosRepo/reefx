@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
         if (session.mode === 'subscription' && session.subscription) {
           const userId = session.metadata?.user_id;
           const tier = session.metadata?.tier;
+          const promoCode = session.metadata?.promo_code; // Track which promo code was used
 
           if (!userId || !tier) {
             console.error('❌ Missing user_id or tier in session metadata');
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
             break;
           }
 
-          console.log(`✅ Processing subscription for user ${userId}, tier: ${tier}`);
+          console.log(`✅ Processing subscription for user ${userId}, tier: ${tier}, promo: ${promoCode || 'none'}`);
 
           // Get subscription details
           const subscriptionResponse = await stripe.subscriptions.retrieve(
@@ -74,6 +75,21 @@ export async function POST(request: NextRequest) {
             end: (subscription as any).current_period_end
           });
 
+          // If promo code was used, look up the promo_code_id for affiliate tracking
+          let promoCodeId = null;
+          if (promoCode) {
+            const { data: promoData } = await supabase
+              .from('promo_codes')
+              .select('id')
+              .eq('code', promoCode.toUpperCase())
+              .single();
+            
+            if (promoData) {
+              promoCodeId = promoData.id;
+              console.log(`✅ Found promo code ID: ${promoCodeId} for code: ${promoCode}`);
+            }
+          }
+
           // Upsert subscription in database (create if doesn't exist, update if does)
           const { data, error } = await supabase
             .from('subscriptions')
@@ -85,6 +101,7 @@ export async function POST(request: NextRequest) {
               stripe_customer_id: session.customer as string,
               start_date: new Date((subscription as any).current_period_start * 1000).toISOString(),
               end_date: new Date((subscription as any).current_period_end * 1000).toISOString(),
+              referred_by_promo_code_id: promoCodeId, // Track affiliate referral
             }, {
               onConflict: 'user_id'
             })
@@ -172,7 +189,47 @@ export async function POST(request: NextRequest) {
 
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice;
-        console.log(`Invoice paid: ${invoice.id}`);
+        console.log(`💰 Invoice paid: ${invoice.id}, amount: ${invoice.amount_paid} cents`);
+        
+        // Track affiliate earnings if this subscription was referred
+        if (invoice.subscription && invoice.amount_paid > 0) {
+          // Find the subscription and check if it was referred by a promo code
+          const { data: subData } = await supabase
+            .from('subscriptions')
+            .select('user_id, tier, referred_by_promo_code_id')
+            .eq('stripe_subscription_id', invoice.subscription as string)
+            .single();
+          
+          if (subData?.referred_by_promo_code_id) {
+            // Calculate 5% commission
+            const commissionRate = 0.05;
+            const commissionAmount = Math.round(invoice.amount_paid * commissionRate);
+            
+            // Record the affiliate earning
+            const { error: earningError } = await supabase
+              .from('affiliate_earnings')
+              .insert({
+                promo_code_id: subData.referred_by_promo_code_id,
+                user_id: subData.user_id,
+                stripe_invoice_id: invoice.id,
+                stripe_payment_intent_id: invoice.payment_intent as string,
+                payment_amount_cents: invoice.amount_paid,
+                commission_rate: commissionRate,
+                commission_amount_cents: commissionAmount,
+                subscription_tier: subData.tier,
+                status: 'pending',
+              });
+            
+            if (earningError) {
+              // Might fail if duplicate - that's OK
+              if (earningError.code !== '23505') { // Not a duplicate
+                console.error('❌ Error recording affiliate earning:', earningError);
+              }
+            } else {
+              console.log(`✅ Affiliate earning recorded: $${(commissionAmount / 100).toFixed(2)} for promo code ${subData.referred_by_promo_code_id}`);
+            }
+          }
+        }
         break;
       }
 

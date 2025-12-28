@@ -3,6 +3,11 @@ import { createClient } from '@/utils/supabase/server';
 
 // DEV ONLY - Manually expire subscription for testing
 export async function POST() {
+  // Block in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not available in production' }, { status: 403 });
+  }
+
   try {
     const supabase = await createClient();
     

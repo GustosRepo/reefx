@@ -38,10 +38,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch('/api/subscription');
       if (response.ok) {
-        const data = await response.json();
-        // Update state and cache
-        setSubscription(data);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          console.warn('Expected JSON response from /api/subscription but got:', contentType);
+        } else {
+          const data = await response.json();
+          // Update state and cache
+          setSubscription(data);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
       }
     } catch (error) {
       console.error('Error fetching subscription:', error);

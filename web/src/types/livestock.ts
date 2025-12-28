@@ -2,6 +2,7 @@
 export interface Livestock {
   id: string;
   tankId: string;
+  tankName?: string;
   name: string;
   type: "fish" | "coral" | "invert";
   species?: string;

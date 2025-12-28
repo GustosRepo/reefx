@@ -6,6 +6,7 @@ import { ReefForm } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdBanner from "@/components/AdBanner";
+import { useTank } from "@/context/TankContext";
 
 export default function HistoryPage() {
   return (
@@ -21,14 +22,17 @@ function HistoryPageContent() {
   const [editForm, setEditForm] = useState<ReefForm | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null);
+  const { currentTank } = useTank();
 
   useEffect(() => {
-    loadLogs();
-  }, []);
+    if (currentTank) {
+      loadLogs(currentTank.id);
+    }
+  }, [currentTank?.id]);
 
-  const loadLogs = async () => {
+  const loadLogs = async (tankId: string) => {
     try {
-      const response = await fetch('/api/logs');
+      const response = await fetch(`/api/logs?tank_id=${tankId}`);
       const data: ReefForm[] = await response.json();
       const sorted = data.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -56,7 +60,7 @@ function HistoryPageContent() {
         throw new Error('Failed to delete log');
       }
       
-      await loadLogs();
+      if (currentTank) await loadLogs(currentTank.id);
       toast.success('Log deleted successfully!');
     } catch (err) {
       console.error("Failed to delete log:", err);
@@ -91,7 +95,7 @@ function HistoryPageContent() {
         throw new Error('Failed to update log');
       }
       
-      await loadLogs();
+      if (currentTank) await loadLogs(currentTank.id);
       cancelEdit();
       toast.success("Log updated successfully!");
     } catch (err) {

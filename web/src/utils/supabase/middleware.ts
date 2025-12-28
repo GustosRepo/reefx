@@ -6,9 +6,17 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_ANON) {
+    console.warn('Supabase env vars missing - skipping session update in middleware');
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON,
     {
       cookies: {
         getAll() {
@@ -34,15 +42,17 @@ export async function updateSession(request: NextRequest) {
   // Don't check auth for public routes to avoid redirect loops
   const publicPaths = ['/', '/login', '/register', '/api/stripe/webhook']
   const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
-  
-  // Only refresh session, don't do redirects here
-  // Let the pages handle their own auth checks
-  if (!isPublicPath) {
+  const isApiPath = request.nextUrl.pathname.startsWith('/api')
+
+  // Only refresh session and redirect for non-public, non-API routes.
+  // API routes should not be redirected to login because they need to
+  // return JSON error responses for unauthenticated callers.
+  if (!isPublicPath && !isApiPath) {
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // Only redirect to login if accessing protected route without auth
+    // Only redirect to login if accessing protected page route without auth
     if (!user) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'

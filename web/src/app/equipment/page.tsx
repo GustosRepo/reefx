@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSubscription } from "@/context/SubscriptionContext";
+import { useTank } from "@/context/TankContext";
 import { hasFeatureAccess } from "@/utils/subscription";
 import { Equipment, EquipmentCategory } from "@/types/equipment";
 import AppLayout from "@/components/AppLayout";
@@ -26,7 +27,7 @@ function EquipmentPageContent() {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEquipmentId, setDeleteEquipmentId] = useState<string | null>(null);
-  const [userTankId, setUserTankId] = useState<string | null>(null);
+  const { currentTank, tanks } = useTank();
   
   const [formData, setFormData] = useState<Partial<Equipment>>({
     name: "",
@@ -48,30 +49,46 @@ function EquipmentPageContent() {
     
     if (access) {
       loadEquipment();
-      loadUserTank();
     }
   }, [subscription.tier]);
-
-  const loadUserTank = async () => {
-    try {
-      const response = await fetch('/api/tanks');
-      const data = await response.json();
-      if (data && data.length > 0) {
-        setUserTankId(data[0].id);
-      }
-    } catch (err) {
-      console.error('Failed to load tank:', err);
-    }
-  };
 
   const loadEquipment = async () => {
     try {
       const response = await fetch('/api/equipment');
       const data = await response.json();
-      setEquipment(data);
+      // Map snake_case from API to camelCase for frontend
+      const mapped = data.map((item: Record<string, unknown>) => ({
+        id: item.id,
+        tankId: item.tank_id,
+        tankName: item.tank_name,
+        name: item.name,
+        category: item.category,
+        brand: item.brand,
+        model: item.model,
+        purchaseDate: item.purchase_date,
+        purchasePrice: item.purchase_price,
+        warrantyExpires: item.warranty_expires,
+        notes: item.notes,
+        status: item.status,
+        lastMaintenance: item.last_maintenance,
+        nextMaintenance: item.next_maintenance,
+      }));
+      setEquipment(mapped);
     } catch (err) {
       console.error('Failed to load equipment:', err);
     }
+  };
+
+  // Check warranty status
+  const getWarrantyStatus = (warrantyDate?: string) => {
+    if (!warrantyDate) return null;
+    const warranty = new Date(warrantyDate);
+    const now = new Date();
+    const daysLeft = Math.ceil((warranty.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysLeft < 0) return { status: 'expired', label: 'Expired', color: 'text-red-400 bg-red-900/30' };
+    if (daysLeft <= 30) return { status: 'expiring', label: `${daysLeft}d left`, color: 'text-yellow-400 bg-yellow-900/30' };
+    return { status: 'valid', label: 'Valid', color: 'text-green-400 bg-green-900/30' };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,8 +100,8 @@ function EquipmentPageContent() {
     }
 
     try {
-      if (!userTankId) {
-        toast.error('No tank found. Please wait for tank to load.');
+      if (!currentTank) {
+        toast.error('No tank selected. Please select a tank first.');
         return;
       }
 
@@ -103,7 +120,7 @@ function EquipmentPageContent() {
           purchase_price: formData.purchasePrice,
           warranty_until: formData.warrantyExpires,
           notes: formData.notes,
-          tank_id: userTankId,
+          tank_id: currentTank.id,
         }),
       });
 
@@ -215,6 +232,14 @@ function EquipmentPageContent() {
 
   const totalValue = equipment.reduce((sum, e) => sum + (e.purchasePrice || 0), 0);
 
+  // Count warranty statuses
+  const warrantyStats = equipment.reduce((acc, e) => {
+    const status = getWarrantyStatus(e.warrantyExpires);
+    if (status?.status === 'expired') acc.expired++;
+    else if (status?.status === 'expiring') acc.expiring++;
+    return acc;
+  }, { expired: 0, expiring: 0 });
+
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto">
@@ -223,6 +248,12 @@ function EquipmentPageContent() {
             <h1 className="text-3xl font-bold text-gradient mb-2">Equipment</h1>
             <p className="text-gray-400 text-sm">
               Track all your reef gear • Total Value: ${totalValue.toFixed(2)}
+              {warrantyStats.expired > 0 && (
+                <span className="ml-2 text-red-400">• {warrantyStats.expired} expired warranty</span>
+              )}
+              {warrantyStats.expiring > 0 && (
+                <span className="ml-2 text-yellow-400">• {warrantyStats.expiring} expiring soon</span>
+              )}
             </p>
           </div>
           
@@ -447,6 +478,9 @@ function EquipmentPageContent() {
                     <div>
                       <h3 className="font-bold text-white">{equip.name}</h3>
                       <p className="text-xs text-gray-400">{equip.brand} {equip.model}</p>
+                      {tanks.length > 1 && equip.tankName && (
+                        <p className="text-xs text-cyan-400 mt-0.5">🐠 {equip.tankName}</p>
+                      )}
                     </div>
                   </div>
                   
@@ -473,11 +507,21 @@ function EquipmentPageContent() {
                   </p>
                 )}
 
-                {equip.warrantyExpires && (
-                  <p className="text-xs text-gray-400 mb-2">
-                    🛡️ Warranty: {new Date(equip.warrantyExpires).toLocaleDateString()}
-                  </p>
-                )}
+                {equip.warrantyExpires && (() => {
+                  const warranty = getWarrantyStatus(equip.warrantyExpires);
+                  return (
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs text-gray-400">
+                        🛡️ Warranty: {new Date(equip.warrantyExpires).toLocaleDateString()}
+                      </p>
+                      {warranty && (
+                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${warranty.color}`}>
+                          {warranty.label}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {equip.notes && (
                   <p className="text-xs text-gray-400 mb-3 line-clamp-2">

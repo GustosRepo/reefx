@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
 // GET /api/maintenance - Fetch all maintenance entries for authenticated user
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser();
@@ -11,11 +11,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data, error } = await supabase
+  // Get tank_id from query params
+  const { searchParams } = new URL(request.url);
+  const tankId = searchParams.get('tank_id');
+
+  let query = supabase
     .from('maintenance')
     .select('*')
     .eq('user_id', user.id)
     .order('due_date', { ascending: false });
+
+  // Filter by tank if specified
+  if (tankId) {
+    query = query.eq('tank_id', tankId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

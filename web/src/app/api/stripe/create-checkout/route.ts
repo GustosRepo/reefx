@@ -12,11 +12,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { priceId, tier } = await request.json();
+    const { priceId, tier, promoCode } = await request.json();
 
     console.log('🛒 Creating checkout for user:', user.id);
     console.log('Price ID:', priceId);
     console.log('Tier:', tier);
+    console.log('Promo Code:', promoCode || 'none');
 
     // Validate price ID
     if (!priceId || !priceId.startsWith('price_')) {
@@ -65,8 +66,48 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id);
     }
 
+    // Check for promo code and get trial days if applicable
+    let trialDays = 0;
+    let stripeCouponId: string | undefined;
+    
+    if (promoCode) {
+      const { data: promo } = await supabase
+        .from('promo_codes')
+        .select('*')
+        .eq('code', promoCode.toUpperCase().trim())
+        .eq('is_active', true)
+        .single();
+
+      if (promo) {
+        // Check if code applies to this tier
+        const appliesTo = promo.applies_to;
+        if (appliesTo === 'both' || appliesTo === tier) {
+          if (promo.discount_type === 'free_trial') {
+            trialDays = promo.discount_value; // days of free trial
+          } else if (promo.stripe_coupon_id) {
+            stripeCouponId = promo.stripe_coupon_id;
+          }
+          console.log('✅ Promo code valid:', promo.code, 'Trial days:', trialDays);
+        }
+      }
+    }
+
     // Create Checkout Session
-    console.log('Creating Stripe checkout session with metadata:', { user_id: user.id, tier });
+    console.log('Creating Stripe checkout session with metadata:', { user_id: user.id, tier, promoCode });
+    
+    // Build subscription data with optional trial
+    const subscriptionData: { trial_period_days?: number; metadata: Record<string, string> } = {
+      metadata: {
+        user_id: user.id,
+        tier,
+        promo_code: promoCode || '',
+      },
+    };
+    
+    if (trialDays > 0) {
+      subscriptionData.trial_period_days = trialDays;
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
@@ -77,7 +118,9 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?success=true`,
+      ...(stripeCouponId && { discounts: [{ coupon: stripeCouponId }] }),
+      subscription_data: subscriptionData,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?success=true${promoCode ? `&promo=${promoCode}` : ''}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?canceled=true`,
       metadata: {
         user_id: user.id,

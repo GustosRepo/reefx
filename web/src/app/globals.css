@@ -3,6 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Ocean Color Palette */
+  --reef-deep: #0a1628;
+  --reef-ocean: #0c1e35;
+  --reef-surface: #0f2942;
+  --reef-coral: #ff6b6b;
+  --reef-anemone: #f472b6;
+  --reef-biolum: #a855f7;
+  --reef-cyan: #06b6d4;
+  --reef-teal: #14b8a6;
+  --reef-lime: #a3e635;
+  
+  /* Parameter Colors */
+  --param-temp: #f97316;
+  --param-salinity: #3b82f6;
+  --param-alk: #8b5cf6;
+  --param-ph: #10b981;
+  --param-cal: #06b6d4;
+  --param-mag: #ec4899;
+  --param-po4: #f59e0b;
+  --param-no3: #ef4444;
 }
 
 @theme inline {
@@ -20,7 +41,7 @@
 }
 
 body {
-  background: var(--background);
+  background: var(--reef-deep);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -28,9 +49,31 @@ body {
   touch-action: manipulation;
 }
 
+/* Gradient Mesh Background */
+.reef-bg {
+  background: var(--reef-deep);
+  background-image: 
+    radial-gradient(ellipse at 20% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+}
+
 .text-gradient {
   color: transparent;
-  background-image: linear-gradient(to right, #a3e635, #22d3ee, #3b82f6);
+  background-image: linear-gradient(135deg, #a3e635 0%, #22d3ee 50%, #3b82f6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.text-gradient-gold {
+  color: transparent;
+  background-image: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.text-gradient-premium {
+  color: transparent;
+  background-image: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%);
   background-clip: text;
   -webkit-background-clip: text;
 }
@@ -177,4 +220,202 @@ button:not(:disabled):active {
 .gradient-animate {
   background-size: 200% 200%;
   animation: gradientShift 3s ease infinite;
+}
+
+/* Parameter-specific colors */
+.param-temp { --param-color: var(--param-temp); }
+.param-salinity { --param-color: var(--param-salinity); }
+.param-alk { --param-color: var(--param-alk); }
+.param-ph { --param-color: var(--param-ph); }
+.param-cal { --param-color: var(--param-cal); }
+.param-mag { --param-color: var(--param-mag); }
+.param-po4 { --param-color: var(--param-po4); }
+.param-no3 { --param-color: var(--param-no3); }
+
+/* Glassmorphism cards */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-card:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 
+    0 8px 40px rgba(6, 182, 212, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Glow effects */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.4), 0 0 40px rgba(6, 182, 212, 0.2);
+}
+
+.glow-warning {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 40px rgba(245, 158, 11, 0.2);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.glow-danger {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), 0 0 40px rgba(239, 68, 68, 0.2);
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Premium shimmer effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Ripple effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Success animation */
+@keyframes successPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-success {
+  animation: successPop 0.4s ease-out;
+}
+
+/* Floating action button */
+.fab {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+  z-index: 40;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(6, 182, 212, 0.6);
+}
+
+/* Water ripple animation */
+@keyframes waterRipple {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.water-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+  animation: waterRipple 3s ease-out infinite;
+}
+
+/* Coral reef bubble animation */
+@keyframes bubbleFloat {
+  0%, 100% { 
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  50% { 
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.bubble {
+  animation: bubbleFloat 4s ease-in-out infinite;
+}
+
+/* Number counter animation */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count {
+  animation: countUp 0.5s ease-out;
+}
+
+/* Confetti animation for success states */
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  animation: confetti 1s ease-out forwards;
 }

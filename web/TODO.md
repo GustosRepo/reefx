@@ -11,6 +11,8 @@
 - [x] API routes for all data operations
 - [x] Unit preferences (Fahrenheit/Celsius, Gallons/Liters)
 - [x] Conversion utilities
+- [x] Password reset flow (Supabase-native)
+- [x] Feedback system
 
 ### Phase 2: Core Features
 - [x] Dashboard with charts
@@ -21,51 +23,38 @@
 - [x] Livestock inventory
 - [x] Settings (thresholds, profile)
 - [x] Multi-tank database support
+- [x] Multi-tank UI (tank selector, per-tank data filtering)
+- [x] Photo Gallery page
+- [x] Landing page with pricing
+
+### Phase 3: Payments & Subscriptions
+- [x] Stripe checkout integration
+- [x] Stripe webhook handling
+- [x] Subscription page
+- [x] Feature access control (equipment, livestock, gallery)
+- [x] Upgrade prompts on locked features
 
 ---
 
-## 🚀 CRITICAL (Must-Have for Launch)
+## 🚀 CRITICAL (Before Production Deploy)
 
-### 1. Stripe Payment Integration
+### 1. Stripe Setup
 **Priority: HIGHEST** 💰
-- [ ] Create Stripe account
-- [ ] Add Stripe secret keys to `.env.local`
-- [ ] Create Stripe products:
+- [ ] Create Stripe account (if not done)
+- [ ] Add real Stripe keys to production env
+- [ ] Create Stripe products in Stripe Dashboard:
   - Premium ($4.99/month)
   - Super Premium ($9.99/month)
-- [ ] API route: `/api/stripe/create-checkout`
-- [ ] API route: `/api/stripe/webhook` (handle subscription events)
-- [ ] Update subscription page with Stripe checkout buttons
-- [ ] Test payment flow in Stripe test mode
-- [ ] Handle subscription status updates (active/canceled/expired)
+- [ ] Add `STRIPE_PREMIUM_PRICE_ID` and `STRIPE_SUPER_PREMIUM_PRICE_ID` to `.env.local`
+- [ ] Set up Stripe webhook endpoint in Stripe Dashboard
+- [ ] Test full payment flow in Stripe test mode
 
-### 2. Subscription Enforcement
-**Priority: HIGH** 🔒
-- [ ] Create middleware to check subscription tier
-- [ ] Lock equipment tracking behind Premium tier
-- [ ] Lock livestock inventory behind Super Premium tier
-- [ ] Lock photo gallery behind Super Premium tier
-- [ ] Add "Upgrade" prompts on locked features
-- [ ] Update hasFeature() utility to check database subscription
-
-### 3. Landing Page
-**Priority: HIGH** 📣
-- [ ] Create `/` landing page (replace current)
-- [ ] Hero section with value proposition
-- [ ] Feature comparison table (Free vs Premium vs Super Premium)
-- [ ] Pricing section with Stripe checkout buttons
-- [ ] Testimonials section
-- [ ] CTA buttons throughout
-- [ ] Mobile-responsive design
-- [ ] SEO meta tags
-
-### 4. Email Verification
+### 2. Email Verification
 **Priority: MEDIUM** 📧
 - [ ] Enable email confirmation in Supabase settings
 - [ ] Create email confirmation page
 - [ ] Handle email confirmation redirect
 - [ ] Resend confirmation email button
-- [ ] Block unverified users from accessing app
 
 ---
 
@@ -147,24 +136,26 @@
 
 ## 🐛 KNOWN ISSUES
 
-- [ ] Need to add email field validation in registration
-- [ ] History page edit modal needs better styling
-- [ ] Dashboard should show "No data" message better
-- [ ] Mobile menu animation needs polish
-- [ ] Need favicon
+- [x] ~~Need to add email field validation in registration~~ (implemented)
+- [ ] History page needs loading skeleton
+- [ ] History page should use user's temp_unit preference
+- [ ] Settings page has temperature unit confusion (label says °C but defaults are °F values)
+- [ ] Some pages missing proper empty state components
+- [ ] Need real favicon (placeholder icons exist)
 
 ---
 
 ## 📦 DEPLOYMENT CHECKLIST
 
 ### Pre-Launch
+- [x] Create privacy policy page
+- [x] Create terms of service page
+- [x] SEO meta tags and OpenGraph
 - [ ] Set up Vercel project
 - [ ] Add production environment variables
 - [ ] Configure custom domain
-- [ ] Set up SSL certificate
+- [ ] Set up SSL certificate (auto with Vercel)
 - [ ] Add Google Analytics
-- [ ] Create privacy policy page
-- [ ] Create terms of service page
 - [ ] Set up error monitoring (Sentry)
 - [ ] Run Lighthouse audit
 - [ ] Test on multiple browsers

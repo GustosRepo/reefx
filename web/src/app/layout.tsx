@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
+import { TankProvider } from "@/context/TankContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,15 +15,61 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "REEFXONE - Reef Aquarium Tracking",
-  description: "Track your reef aquarium parameters, maintenance, and trends",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
   themeColor: "#06b6d4",
+};
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://reefxone.app"),
+  title: "REEFXONE - Reef Aquarium Tracking",
+  description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts. The ultimate app for reef hobbyists.",
+  keywords: ["reef aquarium", "coral tracking", "water parameters", "reef tank", "alkalinity", "calcium", "magnesium"],
+  authors: [
+    { name: "REEFXONE" },
+    { name: "CODEWERX", url: "https://www.code-werx.com/" },
+  ],
+  creator: "CODEWERX",
+  publisher: "CODEWERX",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "REEFXONE",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://reefxone.app",
+    siteName: "REEFXONE",
+    title: "REEFXONE - Reef Aquarium Tracking",
+    description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "REEFXONE - Reef Aquarium Tracking",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "REEFXONE - Reef Aquarium Tracking",
+    description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icon-192.svg", sizes: "180x180", type: "image/svg+xml" },
+    ],
   },
 };
 
@@ -67,7 +114,9 @@ export default function RootLayout({
           }}
         />
         <SubscriptionProvider>
-          {children}
+          <TankProvider>
+            {children}
+          </TankProvider>
         </SubscriptionProvider>
       </body>
     </html>

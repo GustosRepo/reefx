@@ -6,6 +6,7 @@ import { MaintenanceEntry } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdBanner from "@/components/AdBanner";
+import { useTank } from "@/context/TankContext";
 
 export default function MaintenancePage() {
   return (
@@ -25,28 +26,17 @@ function MaintenancePageContent() {
   const [showAll, setShowAll] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEntryId, setDeleteEntryId] = useState<string | null>(null);
-  const [userTankId, setUserTankId] = useState<string | null>(null);
+  const { currentTank } = useTank();
 
   useEffect(() => {
-    refreshEntries();
-    loadUserTank();
-  }, []);
-
-  const loadUserTank = async () => {
-    try {
-      const response = await fetch('/api/tanks');
-      const data = await response.json();
-      if (data && data.length > 0) {
-        setUserTankId(data[0].id);
-      }
-    } catch (err) {
-      console.error('Failed to load tank:', err);
+    if (currentTank) {
+      refreshEntries(currentTank.id);
     }
-  };
+  }, [currentTank?.id]);
 
-  const refreshEntries = async () => {
+  const refreshEntries = async (tankId: string) => {
     try {
-      const response = await fetch('/api/maintenance');
+      const response = await fetch(`/api/maintenance?tank_id=${tankId}`);
       const stored: MaintenanceEntry[] = await response.json();
       
       if (!Array.isArray(stored)) {
@@ -84,8 +74,8 @@ function MaintenancePageContent() {
     }
 
     try {
-      if (!userTankId) {
-        toast.error('No tank found. Please wait for tank to load.');
+      if (!currentTank) {
+        toast.error('No tank found. Please select a tank.');
         return;
       }
 
@@ -98,7 +88,7 @@ function MaintenancePageContent() {
           notes,
           status: 'completed',
           repeat_interval: repeatInterval ? parseInt(repeatInterval) : null,
-          tank_id: userTankId,
+          tank_id: currentTank.id,
         }),
       });
 
@@ -106,7 +96,7 @@ function MaintenancePageContent() {
         throw new Error('Failed to save maintenance entry');
       }
 
-      await refreshEntries();
+      if (currentTank) await refreshEntries(currentTank.id);
 
       setType("");
       setNotes("");
@@ -136,7 +126,7 @@ function MaintenancePageContent() {
         throw new Error('Failed to delete entry');
       }
 
-      await refreshEntries();
+      if (currentTank) await refreshEntries(currentTank.id);
     } catch (err) {
       console.error('Failed to delete entry:', err);
       toast.error('Failed to delete maintenance entry');
