@@ -19,6 +19,7 @@ export default function AppLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showTankMenu, setShowTankMenu] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -30,6 +31,19 @@ export default function AppLayout({
     const loadUser = async () => {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
+      
+      // Check if user is admin
+      if (currentUser) {
+        try {
+          const res = await fetch('/api/admin/check');
+          if (res.ok) {
+            const data = await res.json();
+            setIsAdmin(data.isAdmin);
+          }
+        } catch {
+          // Silently fail
+        }
+      }
     };
     loadUser();
   }, []);
@@ -51,6 +65,11 @@ export default function AppLayout({
     { href: "/livestock", label: "Stock", icon: "🐠", requiresTier: 'super-premium' as const },
     { href: "/learn", label: "Guides", icon: "📚" },
     { href: "/settings", label: "Settings", icon: "⚙️" },
+  ];
+
+  const adminNavItems = [
+    { href: "/admin/promo-codes", label: "Promos", icon: "🎟️" },
+    { href: "/admin/affiliates", label: "Affiliates", icon: "🤝" },
   ];
 
   const hasAccess = (requiredTier?: 'premium' | 'super-premium') => {
@@ -158,6 +177,20 @@ export default function AppLayout({
                   </Link>
                 );
               })}
+              {/* Admin nav items */}
+              {isAdmin && adminNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-2 rounded-lg transition ${
+                    pathname === item.href 
+                      ? "bg-amber-500/20 text-amber-400" 
+                      : "text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10"
+                  }`}
+                >
+                  {item.icon} {item.label}
+                </Link>
+              ))}
             </nav>
 
             {/* User Menu - Desktop */}
@@ -297,6 +330,24 @@ export default function AppLayout({
             <span className={`text-xl mb-0.5 ${pathname === "/settings" ? 'scale-110' : ''} transition-transform`}>⚙️</span>
             <span className="text-[10px] font-medium">Settings</span>
           </Link>
+          {/* Admin items on mobile */}
+          {isAdmin && adminNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center py-2 px-3 rounded-xl transition min-w-[56px] ${
+                  isActive
+                    ? "text-amber-400 bg-amber-500/10"
+                    : "text-amber-400/60 active:text-amber-400 active:bg-amber-500/5"
+                }`}
+              >
+                <span className={`text-xl mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>{item.icon}</span>
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>
