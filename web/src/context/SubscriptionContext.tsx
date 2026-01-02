@@ -37,6 +37,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const fetchSubscription = useCallback(async () => {
     try {
       const response = await fetch('/api/subscription');
+      // Silently ignore 401 (not logged in) - this is expected on landing page
+      if (response.status === 401) {
+        setIsLoading(false);
+        return;
+      }
       if (response.ok) {
         const contentType = response.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
@@ -49,7 +54,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('Error fetching subscription:', error);
+      // Only log non-network errors
+      if (error instanceof Error && !error.message.includes('fetch')) {
+        console.error('Error fetching subscription:', error);
+      }
     } finally {
       setIsLoading(false);
     }

@@ -28,7 +28,8 @@ export function TankProvider({ children }: { children: ReactNode }) {
   const loadTanks = async () => {
     try {
       const response = await fetch('/api/tanks');
-      if (!response.ok) {
+      // Silently ignore 401 (not logged in) - this is expected on landing page
+      if (response.status === 401 || !response.ok) {
         setLoading(false);
         return;
       }
