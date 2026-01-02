@@ -63,14 +63,6 @@ export const metadata: Metadata = {
     description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts.",
     images: ["/og-image.png"],
   },
-  icons: {
-    icon: [
-      { url: "/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
-    ],
-    apple: [
-      { url: "/icon-192.svg", sizes: "180x180", type: "image/svg+xml" },
-    ],
-  },
 };
 
 export default function RootLayout({
