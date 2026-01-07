@@ -30,7 +30,11 @@ export async function isRequestAdmin() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return false;
     return await isAdminByUserId(user.id);
-  } catch (err) {
+  } catch (err: any) {
+    // Ignore dynamic server usage errors during static generation
+    if (err?.digest === 'DYNAMIC_SERVER_USAGE') {
+      return false;
+    }
     console.error('isRequestAdmin error', err);
     return false;
   }

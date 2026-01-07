@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import AdminPromoClient from '../AdminPromoClient';
 import { isRequestAdmin } from '@/utils/admin';
 
+// Force dynamic rendering since we use cookies for auth
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPromoPage() {
   const allowed = await isRequestAdmin();
   if (!allowed) {

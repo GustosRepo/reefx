@@ -1,69 +1,32 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { createBrowserClient } from "@supabase/ssr";
 
 function ResetPasswordContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [isRecoverySession, setIsRecoverySession] = useState(false);
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  
+  // Get token and email from URL params
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   useEffect(() => {
-    // Supabase sends recovery tokens in the URL hash
-    // The supabase client automatically detects and handles the auth callback
-    const checkSession = async () => {
-      try {
-        // Check for hash params (Supabase recovery tokens come as hash fragments)
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get("access_token");
-        const type = hashParams.get("type");
-
-        if (accessToken && type === "recovery") {
-          // Set session from recovery token
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: hashParams.get("refresh_token") || "",
-          });
-
-          if (sessionError) {
-            console.error("Session error:", sessionError);
-            setError("Invalid or expired reset link. Please request a new one.");
-          } else {
-            setIsRecoverySession(true);
-          }
-        } else {
-          // Check if already in a recovery session
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            setIsRecoverySession(true);
-          } else {
-            setError("Invalid or missing reset token. Please request a new password reset link.");
-          }
-        }
-      } catch (err) {
-        console.error("Error checking session:", err);
-        setError("Something went wrong. Please try again.");
-      } finally {
-        setInitializing(false);
-      }
-    };
-
-    checkSession();
-  }, [supabase.auth]);
+    // Validate that we have the required params
+    if (!token || !email) {
+      setError("Invalid or missing reset token. Please request a new password reset link.");
+    }
+    setInitializing(false);
+  }, [token, email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,20 +48,22 @@ function ResetPasswordContent() {
 
     setLoading(true);
     try {
-      // Update password using the authenticated session
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, email, password }),
       });
 
-      if (updateError) {
-        throw new Error(updateError.message || "Failed to reset password");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password");
       }
 
       setSuccess(true);
       toast.success("Password reset successfully!");
       
-      // Sign out and redirect to login after 3 seconds
-      await supabase.auth.signOut();
+      // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push("/login");
       }, 3000);
