@@ -141,14 +141,21 @@ function AdminAffiliatesContent() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-white">💰 Partner Affiliates</h1>
-            <Link
-              href="/admin/promo-codes"
-              className="text-sm text-cyan-400 hover:text-cyan-300 transition"
+          <div className="flex items-center gap-3 mb-2">
+            <Link 
+              href="/admin" 
+              className="text-gray-400 hover:text-white transition"
             >
-              ← Manage Promo Codes
+              ← Admin Dashboard
             </Link>
+          </div>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+              <span>🤝</span> Partner Affiliates
+            </h1>
+            <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
+              Admin Mode
+            </span>
           </div>
           <p className="text-gray-400">Track partner earnings and process payouts (5% commission)</p>
         </motion.div>

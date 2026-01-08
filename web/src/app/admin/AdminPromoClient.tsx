@@ -156,18 +156,29 @@ export default function AdminPromoClient() {
     <AppLayout>
       <div className="max-w-4xl mx-auto">
         <motion.div 
-          className="text-center mb-8"
+          className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-bold text-white mb-2">🎟️ Partner Promo Codes</h1>
-          <p className="text-gray-400 mb-4">Create codes for stores, YouTubers, and partners</p>
-          <Link
-            href="/admin/affiliates"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 text-purple-400 rounded-xl hover:bg-purple-500/30 transition text-sm font-semibold"
-          >
-            💰 View Partner Earnings & Payouts →
-          </Link>
+          <div className="flex items-center gap-3 mb-4">
+            <Link 
+              href="/admin" 
+              className="text-gray-400 hover:text-white transition"
+            >
+              ← Admin Dashboard
+            </Link>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+                <span>🎟️</span> Partner Promo Codes
+              </h1>
+              <p className="text-gray-400">Create codes for stores, YouTubers, and partners</p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
+              Admin Mode
+            </span>
+          </div>
         </motion.div>
 
         {/* Create New Code */}

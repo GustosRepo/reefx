@@ -144,31 +144,22 @@ function AdminUsersContent() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Link 
-                href="/dashboard" 
+                href="/admin" 
                 className="text-gray-400 hover:text-white transition"
               >
-                ← Back
+                ← Admin Dashboard
               </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">User Management</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+              <span>👥</span> User Management
+            </h1>
             <p className="text-gray-400 mt-1">
               Manage and delete user accounts
             </p>
           </div>
-          <div className="flex gap-2">
-            <Link 
-              href="/admin/promo-codes"
-              className="px-4 py-2 text-sm text-gray-400 hover:text-white transition"
-            >
-              Promo Codes
-            </Link>
-            <Link 
-              href="/admin/affiliates"
-              className="px-4 py-2 text-sm text-gray-400 hover:text-white transition"
-            >
-              Affiliates
-            </Link>
-          </div>
+          <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
+            Admin Mode
+          </span>
         </div>
 
         {/* Stats */}
