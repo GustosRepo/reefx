@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { createClient } from "@/utils/supabase/client";
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -15,18 +16,39 @@ function ResetPasswordContent() {
   const [initializing, setInitializing] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [isSupabaseRecovery, setIsSupabaseRecovery] = useState(false);
   
-  // Get token and email from URL params
+  // Get params - supports both custom flow (token/email) and Supabase flow (type=recovery)
   const token = searchParams.get("token");
   const email = searchParams.get("email");
+  const type = searchParams.get("type");
 
   useEffect(() => {
-    // Validate that we have the required params
-    if (!token || !email) {
-      setError("Invalid or missing reset token. Please request a new password reset link.");
-    }
-    setInitializing(false);
-  }, [token, email]);
+    const checkSession = async () => {
+      // Check if this is a Supabase recovery flow
+      if (type === "recovery") {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          // User has a valid session from the recovery link
+          setIsSupabaseRecovery(true);
+          setInitializing(false);
+          return;
+        }
+      }
+      
+      // Custom flow - validate that we have the required params
+      if (!token || !email) {
+        if (type !== "recovery") {
+          setError("Invalid or missing reset token. Please request a new password reset link.");
+        }
+      }
+      setInitializing(false);
+    };
+    
+    checkSession();
+  }, [token, email, type]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,16 +70,32 @@ function ResetPasswordContent() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, email, password }),
-      });
+      if (isSupabaseRecovery) {
+        // Use Supabase's updateUser for recovery flow
+        const supabase = createClient();
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password,
+        });
 
-      const data = await response.json();
+        if (updateError) {
+          throw new Error(updateError.message);
+        }
+        
+        // Sign out after password reset so they can log in fresh
+        await supabase.auth.signOut();
+      } else {
+        // Use custom API for token-based flow
+        const response = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, email, password }),
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to reset password");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to reset password");
+        }
       }
 
       setSuccess(true);
@@ -85,7 +123,7 @@ function ResetPasswordContent() {
     );
   }
 
-  if (error) {
+  if (error && !isSupabaseRecovery) {
     return (
       <div className="min-h-screen reef-bg flex items-center justify-center px-4">
         <motion.div
