@@ -49,8 +49,6 @@ const FEATURE_ACCESS: Record<string, SubscriptionTier[]> = {
   EQUIPMENT_TRACKING: ['super-premium'],
   LIVESTOCK_INVENTORY: ['super-premium'],
   MULTI_TANK: ['super-premium'],
-  SMS_ALERTS: ['super-premium'],
-  COMMUNITY_PROFILES: ['super-premium'],
 };
 
 export type Feature = keyof typeof FEATURE_ACCESS;

@@ -1,8 +1,10 @@
 "use client";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroStats = [
     { label: "7d stability", value: "98.2%", icon: "✨" },
     { label: "Last test", value: "Today, 8:15 AM", icon: "🧪" },
@@ -15,10 +17,13 @@ export default function Home() {
     <>
       {/* Header */}
       <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur bg-black/70 border-white/10">
-        <div className="flex items-center justify-between max-w-6xl px-6 py-4 mx-auto">
-          <div className="text-2xl font-bold text-gradient">REEFXONE</div>
-          <nav className="flex items-center gap-4 text-sm font-medium text-gray-300">
+        <div className="flex items-center justify-between max-w-6xl px-4 sm:px-6 py-4 mx-auto">
+          <div className="text-xl sm:text-2xl font-bold text-gradient">REEFXONE</div>
+          
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-4 text-sm font-medium text-gray-300">
             <a href="#pricing" className="transition hover:text-white">Pricing</a>
+            <Link href="/pricing" className="transition hover:text-white">Compare Plans</Link>
             <Link href="/learn" className="transition hover:text-white">📚 Guides</Link>
             <Link href="/login" className="transition hover:text-white">Sign In</Link>
             <Link 
@@ -28,7 +33,44 @@ export default function Home() {
               Get Started
             </Link>
           </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-lg bg-white/5 border border-white/10"
+            aria-label="Toggle menu"
+          >
+            <span className={`block w-5 h-0.5 bg-white transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-white my-1 transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-white transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`} />
+          </button>
         </div>
+
+        {/* Mobile Nav Dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.nav
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-white/10 bg-black/90 backdrop-blur overflow-hidden"
+            >
+              <div className="flex flex-col px-4 py-4 space-y-3 text-sm font-medium text-gray-300">
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 transition hover:text-white">Pricing</a>
+                <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 transition hover:text-white">Compare Plans</Link>
+                <Link href="/learn" onClick={() => setMobileMenuOpen(false)} className="py-2 transition hover:text-white">📚 Guides</Link>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="py-2 transition hover:text-white">Sign In</Link>
+                <Link 
+                  href="/register" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-4 py-3 text-center bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg transition hover:from-cyan-600 hover:to-blue-600"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Hero */}
@@ -331,6 +373,9 @@ export default function Home() {
                   <span className="text-purple-400">✓</span> Unlimited history
                 </li>
                 <li className="flex items-center gap-2 text-white">
+                  <span className="text-purple-400">✓</span> Up to 3 tanks
+                </li>
+                <li className="flex items-center gap-2 text-white">
                   <span className="text-purple-400">✓</span> 500MB photo storage
                 </li>
                 <li className="flex items-center gap-2 text-white">
@@ -374,16 +419,13 @@ export default function Home() {
                   <span className="text-pink-400">✓</span> 5GB photo storage
                 </li>
                 <li className="flex items-center gap-2 text-white font-semibold">
-                  <span className="text-pink-400">✓</span> Up to 10 tanks
+                  <span className="text-pink-400">✓</span> Up to 5 tanks
                 </li>
                 <li className="flex items-center gap-2 text-white">
                   <span className="text-pink-400">✓</span> Equipment tracking
                 </li>
                 <li className="flex items-center gap-2 text-white">
                   <span className="text-pink-400">✓</span> Livestock inventory
-                </li>
-                <li className="flex items-center gap-2 text-white">
-                  <span className="text-pink-400">✓</span> SMS alerts
                 </li>
               </ul>
               <Link
