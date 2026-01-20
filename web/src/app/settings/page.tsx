@@ -13,6 +13,8 @@ import { exportLogs, exportMaintenance, exportEquipment, exportLivestock, export
 import { useSubscription } from "@/context/SubscriptionContext";
 import { useTank } from "@/context/TankContext";
 import { TANK_LIMITS } from "@/utils/subscription";
+import { useAquaMode, MODE_CONFIG } from "@/context/AquaModeContext";
+import ModeSwitch from "@/components/ModeSwitch";
 
 interface Tank {
   id: string;
@@ -307,12 +309,38 @@ function SettingsPageContent() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gradient mb-6">Settings</h1>
 
+        {/* Aquarium Mode Selection */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 mb-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">🌊</span>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                Aquarium Mode
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
+                Choose your aquarium type to see relevant parameters and features
+              </p>
+            </div>
+          </div>
+          
+          <ModeSwitch variant="full" className="mt-4" />
+          
+          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              <strong className="text-slate-800 dark:text-slate-200">Reef Mode:</strong> Optimized for saltwater reef aquariums with corals. Tracks salinity, alkalinity, calcium, magnesium, and more.
+            </p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+              <strong className="text-slate-800 dark:text-slate-200">Freshwater Mode:</strong> Perfect for freshwater and planted tanks. Tracks GH, KH, CO₂, iron, and plant-friendly parameters.
+            </p>
+          </div>
+        </div>
+
         {/* Unit Preferences */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold text-cyan-400 mb-4">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 mb-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-4">
             Unit Preferences
           </h2>
-          <p className="text-gray-400 mb-6 text-sm">
+          <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
             Choose your preferred units for measurements
           </p>
 
