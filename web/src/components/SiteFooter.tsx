@@ -17,7 +17,7 @@ export default function SiteFooter() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm">
         <div className="text-slate-600">
           <div className="font-semibold text-gradient flex items-center gap-2">
-            <span>🌊</span>
+            <span>🫧</span>
             AQUAXONE
           </div>
           <p className="text-xs text-slate-500 mt-1">Track. Protect. Enjoy your aquarium.</p>

@@ -19,7 +19,7 @@ export default function Home() {
       <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur bg-white/80 border-slate-200">
         <div className="flex items-center justify-between max-w-6xl px-4 sm:px-6 py-4 mx-auto">
           <div className="text-xl sm:text-2xl font-bold text-gradient flex items-center gap-2">
-            <span>🌊</span>
+            <span>🫧</span>
             AQUAXONE
           </div>
           

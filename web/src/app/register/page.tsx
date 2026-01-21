@@ -112,7 +112,7 @@ export default function RegisterPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2 flex items-center justify-center gap-3">
-            <span>🌊</span>
+            <span>🫧</span>
             AQUAXONE
           </h1>
           <p className="text-slate-500 text-lg">Create your account</p>
