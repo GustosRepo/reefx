@@ -144,16 +144,16 @@ export default function AdminFeedbackPage() {
   };
 
   return (
-    <div className="min-h-screen reef-bg">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-gray-400 hover:text-white transition">
+            <Link href="/admin" className="text-slate-500 hover:text-slate-900 transition">
               ← Admin Dashboard
             </Link>
-            <div className="h-6 w-px bg-white/10" />
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <div className="h-6 w-px bg-slate-200" />
+            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <span className="text-2xl">💬</span>
               User Feedback
             </h1>
@@ -173,8 +173,8 @@ export default function AdminFeedbackPage() {
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                 filter === status 
-                  ? "bg-cyan-500 text-white" 
-                  : "bg-white/5 text-gray-400 hover:bg-white/10"
+                  ? "bg-[var(--aqua-accent-primary)] text-white" 
+                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
               }`}
             >
               {status === "all" ? "All" : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -189,33 +189,33 @@ export default function AdminFeedbackPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <div className="glass-card rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-white">{feedback.length}</p>
-            <p className="text-gray-400 text-sm">Total</p>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-slate-900">{feedback.length}</p>
+            <p className="text-slate-500 text-sm">Total</p>
           </div>
-          <div className="glass-card rounded-xl p-4 text-center">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-blue-400">
               {feedback.filter(f => f.status === 'new').length}
             </p>
-            <p className="text-gray-400 text-sm">New</p>
+            <p className="text-slate-500 text-sm">New</p>
           </div>
-          <div className="glass-card rounded-xl p-4 text-center">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-yellow-400">
               {feedback.filter(f => f.status === 'in-review').length}
             </p>
-            <p className="text-gray-400 text-sm">In Review</p>
+            <p className="text-slate-500 text-sm">In Review</p>
           </div>
-          <div className="glass-card rounded-xl p-4 text-center">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-purple-400">
               {feedback.filter(f => f.status === 'planned').length}
             </p>
-            <p className="text-gray-400 text-sm">Planned</p>
+            <p className="text-slate-500 text-sm">Planned</p>
           </div>
-          <div className="glass-card rounded-xl p-4 text-center">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-green-400">
               {feedback.filter(f => f.status === 'completed').length}
             </p>
-            <p className="text-gray-400 text-sm">Completed</p>
+            <p className="text-slate-500 text-sm">Completed</p>
           </div>
         </div>
 
@@ -225,8 +225,8 @@ export default function AdminFeedbackPage() {
             <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
           </div>
         ) : filteredFeedback.length === 0 ? (
-          <div className="glass-card rounded-xl p-8 text-center">
-            <p className="text-gray-400">No feedback found</p>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
+            <p className="text-slate-500">No feedback found</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -235,7 +235,7 @@ export default function AdminFeedbackPage() {
                 key={item.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card rounded-xl p-4 hover:bg-white/5 transition cursor-pointer"
+                className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 hover:bg-slate-100 transition cursor-pointer"
                 onClick={() => {
                   setSelectedFeedback(item);
                   setAdminNotes(item.admin_notes || "");
@@ -245,12 +245,12 @@ export default function AdminFeedbackPage() {
                   <div className="flex items-start gap-3">
                     <div className="text-2xl">{typeIcons[item.type] || "📝"}</div>
                     <div>
-                      <h3 className="font-medium text-white">{item.subject}</h3>
-                      <p className="text-gray-400 text-sm line-clamp-2">{item.message}</p>
+                      <h3 className="font-medium text-slate-900">{item.subject}</h3>
+                      <p className="text-slate-500 text-sm line-clamp-2">{item.message}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-gray-500">{item.user.email}</span>
-                        <span className="text-gray-600">•</span>
-                        <span className="text-xs text-gray-500">{formatDate(item.created_at)}</span>
+                        <span className="text-xs text-slate-400">{item.user.email}</span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-xs text-slate-400">{formatDate(item.created_at)}</span>
                       </div>
                     </div>
                   </div>
@@ -258,7 +258,7 @@ export default function AdminFeedbackPage() {
                     <span className={`text-xs px-2 py-1 rounded-full border ${statusColors[item.status]}`}>
                       {item.status}
                     </span>
-                    <span className="text-xs text-gray-500 capitalize">{item.type}</span>
+                    <span className="text-xs text-slate-400 capitalize">{item.type}</span>
                   </div>
                 </div>
               </motion.div>
@@ -273,7 +273,7 @@ export default function AdminFeedbackPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
               onClick={() => setSelectedFeedback(null)}
             >
               <motion.div
@@ -281,40 +281,40 @@ export default function AdminFeedbackPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="glass-card rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+                className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{typeIcons[selectedFeedback.type] || "📝"}</div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">{selectedFeedback.subject}</h2>
-                      <p className="text-gray-400 text-sm capitalize">{selectedFeedback.type}</p>
+                      <h2 className="text-xl font-bold text-slate-900">{selectedFeedback.subject}</h2>
+                      <p className="text-slate-500 text-sm capitalize">{selectedFeedback.type}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedFeedback(null)}
-                    className="text-gray-400 hover:text-white transition text-2xl"
+                    className="text-slate-500 hover:text-slate-900 transition text-2xl"
                   >
                     ×
                   </button>
                 </div>
 
                 {/* User Info */}
-                <div className="bg-white/5 rounded-lg p-3 mb-4">
-                  <p className="text-white">{selectedFeedback.user.name}</p>
-                  <p className="text-gray-400 text-sm">{selectedFeedback.user.email}</p>
-                  <p className="text-gray-500 text-xs mt-1">{formatDate(selectedFeedback.created_at)}</p>
+                <div className="bg-slate-50 rounded-lg p-3 mb-4">
+                  <p className="text-slate-900">{selectedFeedback.user.name}</p>
+                  <p className="text-slate-500 text-sm">{selectedFeedback.user.email}</p>
+                  <p className="text-slate-400 text-xs mt-1">{formatDate(selectedFeedback.created_at)}</p>
                 </div>
 
                 {/* Message */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Message</h3>
-                  <p className="text-white whitespace-pre-wrap">{selectedFeedback.message}</p>
+                  <h3 className="text-sm font-medium text-slate-500 mb-2">Message</h3>
+                  <p className="text-slate-900 whitespace-pre-wrap">{selectedFeedback.message}</p>
                 </div>
 
                 {/* Status */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Status</h3>
+                  <h3 className="text-sm font-medium text-slate-500 mb-2">Status</h3>
                   <div className="flex flex-wrap gap-2">
                     {["new", "in-review", "planned", "completed", "declined"].map((status) => (
                       <button
@@ -324,7 +324,7 @@ export default function AdminFeedbackPage() {
                         className={`px-3 py-1.5 rounded-lg text-sm transition ${
                           selectedFeedback.status === status
                             ? statusColors[status]
-                            : "bg-white/5 text-gray-400 hover:bg-white/10"
+                            : "bg-slate-50 text-slate-500 hover:bg-slate-100"
                         }`}
                       >
                         {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -335,13 +335,13 @@ export default function AdminFeedbackPage() {
 
                 {/* Admin Notes */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Admin Notes</h3>
+                  <h3 className="text-sm font-medium text-slate-500 mb-2">Admin Notes</h3>
                   <textarea
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
                     placeholder="Add internal notes about this feedback..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition resize-none"
                   />
                   <button
                     onClick={saveNotes}

@@ -1,13 +1,14 @@
 
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
 export interface Tank {
   id: string;
   name: string;
   type: string;
   volume: number;
+  aqua_mode?: "reef" | "freshwater";
 }
 
 interface TankContextValue {
@@ -19,6 +20,13 @@ interface TankContextValue {
 }
 
 const TankContext = createContext<TankContextValue | null>(null);
+
+// We'll use a callback to sync with AquaMode - this avoids circular imports
+let onTankModeChange: ((mode: "reef" | "freshwater") => void) | null = null;
+
+export function setTankModeChangeCallback(callback: (mode: "reef" | "freshwater") => void) {
+  onTankModeChange = callback;
+}
 
 export function TankProvider({ children }: { children: ReactNode }) {
   const [tanks, setTanks] = useState<Tank[]>([]);
@@ -48,7 +56,13 @@ export function TankProvider({ children }: { children: ReactNode }) {
         const savedTankId = localStorage.getItem('reefxone_current_tank');
         const savedTank = savedTankId ? data.find((t: Tank) => t.id === savedTankId) : null;
         
-        setCurrentTankState(savedTank || data[0]);
+        const tankToSet = savedTank || data[0];
+        setCurrentTankState(tankToSet);
+        
+        // Sync aqua mode with the tank's mode
+        if (tankToSet.aqua_mode && onTankModeChange) {
+          onTankModeChange(tankToSet.aqua_mode);
+        }
       }
     } catch (err) {
       console.error('Failed to load tanks:', err);
@@ -61,10 +75,15 @@ export function TankProvider({ children }: { children: ReactNode }) {
     loadTanks();
   }, []);
 
-  const setCurrentTank = (tank: Tank) => {
+  const setCurrentTank = useCallback((tank: Tank) => {
     setCurrentTankState(tank);
     localStorage.setItem('reefxone_current_tank', tank.id);
-  };
+    
+    // Sync aqua mode when tank changes
+    if (tank.aqua_mode && onTankModeChange) {
+      onTankModeChange(tank.aqua_mode);
+    }
+  }, []);
 
   const refreshTanks = async () => {
     await loadTanks();

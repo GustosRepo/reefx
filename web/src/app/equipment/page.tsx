@@ -188,7 +188,7 @@ function EquipmentPageContent() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-gray-400">Loading...</p>
+          <p className="text-slate-500">Loading...</p>
         </div>
       </AppLayout>
     );
@@ -200,8 +200,8 @@ function EquipmentPageContent() {
       <AppLayout>
         <div className="max-w-2xl mx-auto text-center py-12">
           <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-3xl font-bold text-white mb-4">Premium Feature</h1>
-          <p className="text-gray-400 text-lg mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">Premium Feature</h1>
+          <p className="text-slate-500 text-lg mb-8">
             Equipment tracking is available for Premium and Super Premium members.
           </p>
           <Link
@@ -246,7 +246,7 @@ function EquipmentPageContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 animate-slideDown">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-2">Equipment</h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Track all your reef gear • Total Value: ${totalValue.toFixed(2)}
               {warrantyStats.expired > 0 && (
                 <span className="ml-2 text-red-400">• {warrantyStats.expired} expired warranty</span>
@@ -283,15 +283,15 @@ function EquipmentPageContent() {
 
         {/* Add/Edit Form */}
         {showForm && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6 animate-slideDown">
-            <h2 className="text-xl font-bold text-white mb-4">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6 mb-6 animate-slideDown">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">
               {editingId ? "Edit Equipment" : "Add New Equipment"}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Equipment Name *
                   </label>
                   <input
@@ -299,19 +299,19 @@ function EquipmentPageContent() {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     placeholder="e.g., AI Prime 16HD"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Category
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value as EquipmentCategory})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="lighting">Lighting</option>
                     <option value="filtration">Filtration</option>
@@ -324,7 +324,7 @@ function EquipmentPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Brand
                   </label>
                   <input
@@ -332,12 +332,12 @@ function EquipmentPageContent() {
                     value={formData.brand}
                     onChange={(e) => setFormData({...formData, brand: e.target.value})}
                     placeholder="e.g., AquaIllumination"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Model
                   </label>
                   <input
@@ -345,24 +345,24 @@ function EquipmentPageContent() {
                     value={formData.model}
                     onChange={(e) => setFormData({...formData, model: e.target.value})}
                     placeholder="e.g., Prime 16HD"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Purchase Date
                   </label>
                   <input
                     type="date"
                     value={formData.purchaseDate}
                     onChange={(e) => setFormData({...formData, purchaseDate: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Purchase Price
                   </label>
                   <input
@@ -371,30 +371,30 @@ function EquipmentPageContent() {
                     value={formData.purchasePrice || ""}
                     onChange={(e) => setFormData({...formData, purchasePrice: parseFloat(e.target.value) || undefined})}
                     placeholder="0.00"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Warranty Expires
                   </label>
                   <input
                     type="date"
                     value={formData.warrantyExpires}
                     onChange={(e) => setFormData({...formData, warrantyExpires: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({...formData, status: e.target.value as Equipment["status"]})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -404,7 +404,7 @@ function EquipmentPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -412,7 +412,7 @@ function EquipmentPageContent() {
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
                   placeholder="Additional notes, settings, maintenance history..."
                   rows={3}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
               </div>
 
@@ -430,7 +430,7 @@ function EquipmentPageContent() {
                     setShowForm(false);
                     setEditingId(null);
                   }}
-                  className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                  className="px-6 py-2 bg-slate-100 text-slate-900 rounded-lg hover:bg-slate-200 transition"
                 >
                   Cancel
                 </button>
@@ -448,7 +448,7 @@ function EquipmentPageContent() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                 filterCategory === cat.value
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {cat.icon} {cat.label}
@@ -458,17 +458,17 @@ function EquipmentPageContent() {
 
         {/* Equipment List */}
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg">
+          <div className="text-center py-16 bg-white border border-slate-200 shadow-sm rounded-lg">
             <div className="text-6xl mb-4">🔧</div>
-            <p className="text-gray-400 mb-2">No equipment tracked yet</p>
-            <p className="text-sm text-gray-500">Add your first piece of equipment to get started</p>
+            <p className="text-slate-500 mb-2">No equipment tracked yet</p>
+            <p className="text-sm text-slate-400">Add your first piece of equipment to get started</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((equip) => (
               <div
                 key={equip.id}
-                className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-5 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] animate-fadeIn"
+                className="bg-white border border-slate-200 shadow-sm rounded-lg p-5 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] animate-fadeIn"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -476,10 +476,10 @@ function EquipmentPageContent() {
                       {categories.find(c => c.value === equip.category)?.icon || "🔧"}
                     </span>
                     <div>
-                      <h3 className="font-bold text-white">{equip.name}</h3>
-                      <p className="text-xs text-gray-400">{equip.brand} {equip.model}</p>
+                      <h3 className="font-bold text-slate-900">{equip.name}</h3>
+                      <p className="text-xs text-slate-500">{equip.brand} {equip.model}</p>
                       {tanks.length > 1 && equip.tankName && (
-                        <p className="text-xs text-cyan-400 mt-0.5">🐠 {equip.tankName}</p>
+                        <p className="text-xs text-[var(--aqua-accent-primary)] mt-0.5">🐠 {equip.tankName}</p>
                       )}
                     </div>
                   </div>
@@ -489,20 +489,20 @@ function EquipmentPageContent() {
                       ? "bg-green-900/30 text-green-400"
                       : equip.status === "maintenance"
                       ? "bg-yellow-900/30 text-yellow-400"
-                      : "bg-gray-700 text-gray-400"
+                      : "bg-slate-100 text-slate-500"
                   }`}>
                     {equip.status}
                   </div>
                 </div>
 
                 {equip.purchasePrice && (
-                  <p className="text-sm text-gray-300 mb-2">
+                  <p className="text-sm text-slate-600 mb-2">
                     💰 ${equip.purchasePrice.toFixed(2)}
                   </p>
                 )}
 
                 {equip.purchaseDate && (
-                  <p className="text-xs text-gray-400 mb-2">
+                  <p className="text-xs text-slate-500 mb-2">
                     📅 Purchased: {new Date(equip.purchaseDate).toLocaleDateString()}
                   </p>
                 )}
@@ -511,7 +511,7 @@ function EquipmentPageContent() {
                   const warranty = getWarrantyStatus(equip.warrantyExpires);
                   return (
                     <div className="flex items-center gap-2 mb-2">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-slate-500">
                         🛡️ Warranty: {new Date(equip.warrantyExpires).toLocaleDateString()}
                       </p>
                       {warranty && (
@@ -524,7 +524,7 @@ function EquipmentPageContent() {
                 })()}
 
                 {equip.notes && (
-                  <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+                  <p className="text-xs text-slate-500 mb-3 line-clamp-2">
                     {equip.notes}
                   </p>
                 )}
@@ -549,17 +549,17 @@ function EquipmentPageContent() {
         )}
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-white shadow-2xl border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">🗑️</div>
-                <h3 className="text-xl font-bold text-white mb-2">Delete Equipment?</h3>
-                <p className="text-gray-400">This action cannot be undone.</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Equipment?</h3>
+                <p className="text-slate-500">This action cannot be undone.</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                  className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg transition font-semibold"
                 >
                   Cancel
                 </button>

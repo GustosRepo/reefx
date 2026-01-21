@@ -231,7 +231,7 @@ function LivestockPageContent() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <p className="text-gray-400">Loading...</p>
+          <p className="text-slate-500">Loading...</p>
         </div>
       </AppLayout>
     );
@@ -243,8 +243,8 @@ function LivestockPageContent() {
       <AppLayout>
         <div className="max-w-2xl mx-auto text-center py-12">
           <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-3xl font-bold text-white mb-4">Super Premium Feature</h1>
-          <p className="text-gray-400 text-lg mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">Super Premium Feature</h1>
+          <p className="text-slate-500 text-lg mb-8">
             Livestock inventory is exclusively available for Super Premium members.
           </p>
           <Link
@@ -281,7 +281,7 @@ function LivestockPageContent() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4 animate-slideDown">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-2">Livestock Inventory</h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-sm">
               {stats.fish} Fish • {stats.coral} Corals • {stats.invert} Inverts
             </p>
           </div>
@@ -314,15 +314,15 @@ function LivestockPageContent() {
 
         {/* Add/Edit Form */}
         {showForm && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6 animate-slideDown">
-            <h2 className="text-xl font-bold text-white mb-4">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-lg p-6 mb-6 animate-slideDown">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">
               {editingId ? "Edit Livestock" : "Add New Livestock"}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Name *
                   </label>
                   <input
@@ -330,19 +330,19 @@ function LivestockPageContent() {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     placeholder="e.g., Nemo, Blue Acro"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Type
                   </label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({...formData, type: e.target.value as LivestockType})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="fish">🐠 Fish</option>
                     <option value="coral">🪸 Coral</option>
@@ -351,7 +351,7 @@ function LivestockPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Common Species
                   </label>
                   <input
@@ -359,12 +359,12 @@ function LivestockPageContent() {
                     value={formData.species}
                     onChange={(e) => setFormData({...formData, species: e.target.value})}
                     placeholder="e.g., Clownfish, Acropora"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Scientific Name
                   </label>
                   <input
@@ -372,24 +372,24 @@ function LivestockPageContent() {
                     value={formData.scientificName}
                     onChange={(e) => setFormData({...formData, scientificName: e.target.value})}
                     placeholder="e.g., Amphiprion ocellaris"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Date Added
                   </label>
                   <input
                     type="date"
                     value={formData.dateAdded}
                     onChange={(e) => setFormData({...formData, dateAdded: e.target.value})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Source
                   </label>
                   <input
@@ -397,12 +397,12 @@ function LivestockPageContent() {
                     value={formData.source}
                     onChange={(e) => setFormData({...formData, source: e.target.value})}
                     placeholder="e.g., LFS, Online, Frag Swap"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Cost
                   </label>
                   <input
@@ -411,18 +411,18 @@ function LivestockPageContent() {
                     value={formData.cost || ""}
                     onChange={(e) => setFormData({...formData, cost: parseFloat(e.target.value) || undefined})}
                     placeholder="0.00"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({...formData, status: e.target.value as LivestockStatus})}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="healthy">Healthy</option>
                     <option value="quarantine">Quarantine</option>
@@ -434,7 +434,7 @@ function LivestockPageContent() {
                 {formData.type === "fish" && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Size
                       </label>
                       <input
@@ -442,18 +442,18 @@ function LivestockPageContent() {
                         value={formData.size}
                         onChange={(e) => setFormData({...formData, size: e.target.value})}
                         placeholder="e.g., 2 inches"
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-slate-600 mb-2">
                         Temperament
                       </label>
                       <select
                         value={formData.temperament}
                         onChange={(e) => setFormData({...formData, temperament: e.target.value as Livestock["temperament"]})}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                       >
                         <option value="peaceful">Peaceful</option>
                         <option value="semi-aggressive">Semi-Aggressive</option>
@@ -465,7 +465,7 @@ function LivestockPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -473,7 +473,7 @@ function LivestockPageContent() {
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
                   placeholder="Feeding habits, behavior, special care notes..."
                   rows={3}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
               </div>
 
@@ -491,7 +491,7 @@ function LivestockPageContent() {
                     setShowForm(false);
                     setEditingId(null);
                   }}
-                  className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                  className="px-6 py-2 bg-slate-100 text-slate-900 rounded-lg hover:bg-slate-200 transition"
                 >
                   Cancel
                 </button>
@@ -509,7 +509,7 @@ function LivestockPageContent() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                 filterType === type
                   ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {type === "all" ? "📦 All" : `${typeIcons[type]} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
@@ -519,22 +519,22 @@ function LivestockPageContent() {
 
         {/* Livestock Grid */}
         {filtered.length === 0 ? (
-          <div className="text-center py-16 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg">
+          <div className="text-center py-16 bg-white border border-slate-200 shadow-sm rounded-lg">
             <div className="text-6xl mb-4">🐠</div>
-            <p className="text-gray-400 mb-2">No livestock in inventory</p>
-            <p className="text-sm text-gray-500">Add your first fish, coral, or invert to get started</p>
+            <p className="text-slate-500 mb-2">No livestock in inventory</p>
+            <p className="text-sm text-slate-500">Add your first fish, coral, or invert to get started</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] animate-fadeIn"
+                className="bg-white border border-slate-200 shadow-sm rounded-lg overflow-hidden hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] animate-fadeIn"
               >
                 {/* Photo Section */}
                 {item.photoUrl ? (
                   <div 
-                    className="relative h-40 bg-gray-800 cursor-pointer group"
+                    className="relative h-40 bg-slate-100 cursor-pointer group"
                     onClick={() => setViewingPhoto(item.id)}
                   >
                     <Image
@@ -550,7 +550,7 @@ function LivestockPageContent() {
                     </div>
                   </div>
                 ) : (
-                  <label className="relative h-32 bg-gray-800/50 border-b border-gray-700 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-800 transition group">
+                  <label className="relative h-32 bg-slate-50 border-b border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition group">
                     <input
                       type="file"
                       accept="image/*"
@@ -577,15 +577,15 @@ function LivestockPageContent() {
                     <div className="flex items-center gap-2">
                       <span className="text-3xl">{typeIcons[item.type]}</span>
                       <div>
-                        <h3 className="font-bold text-white">{item.name}</h3>
+                        <h3 className="font-bold text-slate-900">{item.name}</h3>
                         {item.species && (
-                          <p className="text-xs text-gray-400">{item.species}</p>
+                          <p className="text-xs text-slate-500">{item.species}</p>
                         )}
                         {item.scientificName && (
-                          <p className="text-xs text-gray-500 italic">{item.scientificName}</p>
+                          <p className="text-xs text-slate-500 italic">{item.scientificName}</p>
                         )}
                         {tanks.length > 1 && item.tankName && (
-                          <p className="text-xs text-cyan-400 mt-0.5">🐠 {item.tankName}</p>
+                          <p className="text-xs text-[var(--aqua-accent-primary)] mt-0.5">🐠 {item.tankName}</p>
                         )}
                       </div>
                     </div>
@@ -597,13 +597,13 @@ function LivestockPageContent() {
                         ? "bg-yellow-900/30 text-yellow-400"
                         : item.status === "sick"
                         ? "bg-red-900/30 text-red-400"
-                        : "bg-gray-700 text-gray-400"
+                        : "bg-slate-100 text-slate-500"
                     }`}>
                       {item.status}
                     </div>
                   </div>
 
-                  <div className="space-y-1 mb-3 text-sm text-gray-300">
+                  <div className="space-y-1 mb-3 text-sm text-slate-600">
                     <p>📅 Added: {new Date(item.dateAdded).toLocaleDateString()}</p>
                     
                     {item.source && <p>🏪 From: {item.source}</p>}
@@ -621,7 +621,7 @@ function LivestockPageContent() {
                   </div>
 
                   {item.notes && (
-                    <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+                    <p className="text-xs text-slate-500 mb-3 line-clamp-2">
                       {item.notes}
                     </p>
                   )}
@@ -647,17 +647,17 @@ function LivestockPageContent() {
         )}
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-white shadow-2xl border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">🗑️</div>
-                <h3 className="text-xl font-bold text-white mb-2">Remove from Inventory?</h3>
-                <p className="text-gray-400">This action cannot be undone.</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Remove from Inventory?</h3>
+                <p className="text-slate-500">This action cannot be undone.</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                  className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg transition font-semibold"
                 >
                   Cancel
                 </button>
@@ -679,14 +679,14 @@ function LivestockPageContent() {
           
           return (
             <div 
-              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" 
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" 
               onClick={() => setViewingPhoto(null)}
             >
               <div 
-                className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg max-w-3xl w-full overflow-hidden animate-fadeIn" 
+                className="bg-white shadow-2xl border border-slate-200 rounded-lg max-w-3xl w-full overflow-hidden animate-fadeIn" 
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="relative aspect-video bg-gray-900">
+                <div className="relative aspect-video bg-slate-50">
                   <Image
                     src={item.photoUrl}
                     alt={item.name}
@@ -695,12 +695,12 @@ function LivestockPageContent() {
                   />
                 </div>
                 
-                <div className="p-4 border-t border-gray-700">
+                <div className="p-4 border-t border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-bold text-white text-lg">{item.name}</h3>
+                      <h3 className="font-bold text-slate-900 text-lg">{item.name}</h3>
                       {item.species && (
-                        <p className="text-sm text-gray-400">{item.species}</p>
+                        <p className="text-sm text-slate-500">{item.species}</p>
                       )}
                     </div>
                     
@@ -728,7 +728,7 @@ function LivestockPageContent() {
                       </button>
                       <button
                         onClick={() => setViewingPhoto(null)}
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-semibold transition"
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg text-sm font-semibold transition"
                       >
                         Close
                       </button>

@@ -24,7 +24,7 @@ export default function ModeSwitch({
         onClick={toggleMode}
         className={`
           relative inline-flex items-center gap-2 px-3 py-2 rounded-full
-          bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+          bg-white border border-slate-200
           hover:border-[var(--aqua-accent-primary)] transition-all duration-300
           shadow-sm hover:shadow-md
           ${className}
@@ -32,7 +32,7 @@ export default function ModeSwitch({
         aria-label={`Switch to ${mode === "reef" ? "Freshwater" : "Reef"} Mode`}
       >
         {/* Mode indicator track */}
-        <div className="relative w-14 h-7 bg-slate-100 dark:bg-slate-700 rounded-full p-0.5">
+        <div className="relative w-14 h-7 bg-slate-100 rounded-full p-0.5">
           {/* Sliding indicator */}
           <div
             className={`
@@ -48,7 +48,7 @@ export default function ModeSwitch({
           </div>
         </div>
         {showLabels && (
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-200 min-w-[90px]">
+          <span className="text-sm font-medium text-slate-700 min-w-[90px]">
             {modeLabel}
           </span>
         )}
@@ -64,13 +64,13 @@ export default function ModeSwitch({
           onClick={() => setIsOpen(!isOpen)}
           className={`
             flex items-center gap-2 px-3 py-2 rounded-lg
-            bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+            bg-white border border-slate-200
             hover:border-[var(--aqua-accent-primary)] transition-all
             shadow-sm
           `}
         >
           <span className="text-lg">{modeIcon}</span>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <span className="text-sm font-medium text-slate-700">
             {MODE_CONFIG[mode].shortLabel}
           </span>
           <svg
@@ -86,7 +86,7 @@ export default function ModeSwitch({
         {isOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 z-20 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 z-20 overflow-hidden">
               {(Object.keys(MODE_CONFIG) as AquaMode[]).map((modeKey) => (
                 <button
                   key={modeKey}
@@ -96,16 +96,16 @@ export default function ModeSwitch({
                   }}
                   className={`
                     w-full flex items-center gap-3 px-4 py-3 text-left
-                    hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors
-                    ${mode === modeKey ? "bg-slate-50 dark:bg-slate-700" : ""}
+                    hover:bg-slate-50 transition-colors
+                    ${mode === modeKey ? "bg-slate-50" : ""}
                   `}
                 >
                   <span className="text-2xl">{MODE_CONFIG[modeKey].icon}</span>
                   <div>
-                    <div className="font-medium text-slate-800 dark:text-slate-100">
+                    <div className="font-medium text-slate-800">
                       {MODE_CONFIG[modeKey].label}
                     </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                    <div className="text-xs text-slate-500">
                       {MODE_CONFIG[modeKey].description}
                     </div>
                   </div>
@@ -135,18 +135,18 @@ export default function ModeSwitch({
             border-2 transition-all duration-300
             ${mode === modeKey
               ? modeKey === "reef"
-                ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30"
-                : "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
-              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300"
+                ? "border-cyan-500 bg-cyan-50"
+                : "border-emerald-500 bg-emerald-50"
+              : "border-slate-200 bg-white hover:border-slate-300"
             }
           `}
         >
           <span className="text-4xl">{MODE_CONFIG[modeKey].icon}</span>
           <div className="text-center">
-            <div className="font-semibold text-slate-800 dark:text-slate-100">
+            <div className="font-semibold text-slate-800">
               {MODE_CONFIG[modeKey].label}
             </div>
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <div className="text-sm text-slate-500 mt-1">
               {MODE_CONFIG[modeKey].description}
             </div>
           </div>
@@ -175,8 +175,8 @@ export function ModeIndicator({ className = "" }: { className?: string }) {
       className={`
         inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
         ${mode === "reef"
-          ? "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300"
-          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+          ? "bg-cyan-100 text-cyan-700"
+          : "bg-emerald-100 text-emerald-700"
         }
         ${className}
       `}

@@ -43,13 +43,16 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen reef-bg flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="aqua-bubbles"><div className="bubble bubble-1" /><div className="bubble bubble-2" /><div className="bubble bubble-3" /></div>
+        <div className="light-rays" />
+        <div className="aqua-decor" />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md relative z-10"
         >
-          <div className="glass-card rounded-2xl p-8 text-center">
+          <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -58,9 +61,9 @@ export default function ForgotPasswordPage() {
             >
               ✉️
             </motion.div>
-            <h1 className="text-2xl font-bold text-white mb-4">Check Your Email</h1>
-            <p className="text-gray-400 mb-6">
-              We've sent a password reset link to <span className="text-cyan-400">{email}</span>. 
+            <h1 className="text-2xl font-bold text-slate-900 mb-4">Check Your Email</h1>
+            <p className="text-slate-500 mb-6">
+              We've sent a password reset link to <span className="text-[var(--aqua-accent-primary)]">{email}</span>. 
               Click the link in the email to reset your password.
             </p>
             <p className="text-gray-500 text-sm mb-6">
@@ -69,13 +72,13 @@ export default function ForgotPasswordPage() {
             <div className="space-y-3">
               <button
                 onClick={() => setSent(false)}
-                className="w-full py-3 rounded-xl bg-white/5 text-gray-300 font-medium hover:bg-white/10 transition"
+                className="w-full py-3 rounded-xl bg-slate-100 text-slate-700 font-medium hover:bg-slate-200 transition"
               >
                 Try Another Email
               </button>
               <Link
                 href="/login"
-                className="block w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition text-center"
+                className="block w-full py-3 rounded-xl bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition text-center"
               >
                 Back to Login
               </Link>
@@ -87,35 +90,38 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen reef-bg flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="aqua-bubbles"><div className="bubble bubble-1" /><div className="bubble bubble-2" /><div className="bubble bubble-3" /></div>
+      <div className="light-rays" />
+      <div className="aqua-decor" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
         {/* Logo */}
         <Link href="/" className="block text-center mb-8">
-          <h1 className="text-3xl font-bold text-gradient">REEFXONE</h1>
+          <h1 className="text-3xl font-bold text-gradient">🌊 AQUAXONE</h1>
         </Link>
 
-        <div className="glass-card rounded-2xl p-8">
+        <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-8">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-white mb-2">Forgot Password?</h2>
-            <p className="text-gray-400">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Forgot Password?</h2>
+            <p className="text-slate-500">
               Enter your email and we'll send you a link to reset your password.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-gray-500 focus:border-[var(--aqua-accent-primary)] focus:ring-1 focus:ring-[var(--aqua-accent-primary)]/20 transition"
                 placeholder="you@example.com"
                 required
               />
@@ -124,7 +130,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -140,7 +146,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <Link
               href="/login"
-              className="text-sm text-gray-400 hover:text-cyan-400 transition"
+              className="text-sm text-slate-500 hover:text-[var(--aqua-accent-primary)] transition"
             >
               ← Back to Login
             </Link>

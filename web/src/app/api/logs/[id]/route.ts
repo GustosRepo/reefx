@@ -20,14 +20,23 @@ export async function PUT(
     .from('reef_logs')
     .update({
       log_date: body.date,
+      // Shared parameters
       temp: body.temp,
-      salinity: body.salinity,
-      alk: body.alk,
       ph: body.ph,
-      cal: body.cal,
-      mag: body.mag,
       po4: body.po4,
       no3: body.no3,
+      // Reef/Saltwater parameters
+      salinity: body.salinity,
+      alk: body.alk,
+      cal: body.cal,
+      mag: body.mag,
+      // Freshwater parameters
+      gh: body.gh,
+      kh: body.kh,
+      ammonia: body.ammonia,
+      no2: body.no2,
+      // Mode tracking
+      mode: body.mode,
     })
     .eq('id', params.id)
     .eq('user_id', user.id)

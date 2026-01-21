@@ -76,21 +76,21 @@ export default function LearnPage() {
   return (
     <div className="min-h-screen reef-bg">
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/50 backdrop-blur-lg sticky top-0 z-50">
+      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-gradient">
             REEFXONE
           </Link>
           <nav className="flex items-center gap-6">
-            <Link href="/learn" className="text-cyan-400 font-medium">
+            <Link href="/learn" className="text-[var(--aqua-accent-primary)] font-medium">
               Learn
             </Link>
-            <Link href="/login" className="text-gray-400 hover:text-white transition">
+            <Link href="/login" className="text-slate-500 hover:text-slate-900 transition">
               Sign In
             </Link>
             <Link 
               href="/register" 
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-600 transition"
+              className="px-4 py-2 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] rounded-lg font-medium hover:opacity-90 transition"
             >
               Get Started
             </Link>
@@ -109,7 +109,7 @@ export default function LearnPage() {
             Reef Keeping Guides
           </motion.h1>
           <motion.p 
-            className="text-xl text-gray-400 max-w-2xl mx-auto"
+            className="text-xl text-slate-500 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -131,22 +131,22 @@ export default function LearnPage() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Link href={`/learn/${article.slug}`}>
-                  <div className="glass-card rounded-2xl p-6 h-full hover:border-cyan-500/50 transition-all duration-300 group">
+                  <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 h-full hover:border-[var(--aqua-accent-primary)]/50 transition-all duration-300 group">
                     <div className="flex items-start justify-between mb-4">
                       <span className="text-4xl">{article.icon}</span>
-                      <span className="text-xs text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded-full">
+                      <span className="text-xs text-[var(--aqua-accent-primary)] bg-[var(--aqua-accent-primary)]/10 px-2 py-1 rounded-full">
                         {article.category}
                       </span>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition">
+                    <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[var(--aqua-accent-primary)] transition">
                       {article.title}
                     </h2>
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                    <p className="text-slate-500 text-sm mb-4 line-clamp-2">
                       {article.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{article.readTime}</span>
-                      <span className="text-cyan-400 text-sm group-hover:translate-x-1 transition-transform">
+                      <span className="text-xs text-slate-500">{article.readTime}</span>
+                      <span className="text-[var(--aqua-accent-primary)] text-sm group-hover:translate-x-1 transition-transform">
                         Read more →
                       </span>
                     </div>
@@ -161,23 +161,23 @@ export default function LearnPage() {
       {/* CTA Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="glass-card rounded-2xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-8 text-center">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
               Ready to Track Your Reef?
             </h2>
-            <p className="text-gray-400 mb-6">
+            <p className="text-slate-500 mb-6">
               Join thousands of reef keepers using REEFXONE to monitor water parameters, track livestock, and maintain a healthy aquarium.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/register"
-                className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-600 transition"
+                className="px-8 py-3 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white rounded-xl font-semibold hover:opacity-90 transition"
               >
                 Start Free Today
               </Link>
               <Link 
                 href="/login"
-                className="px-8 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-semibold hover:bg-white/10 transition"
+                className="px-8 py-3 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl font-semibold hover:bg-slate-100 transition"
               >
                 Sign In
               </Link>
@@ -187,19 +187,19 @@ export default function LearnPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-8 px-4">
+      <footer className="border-t border-slate-200 py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-gray-500 text-sm">
+          <div className="text-slate-500 text-sm">
             © 2024 REEFXONE. All rights reserved.
           </div>
           <div className="flex items-center gap-6 text-sm">
-            <Link href="/learn" className="text-gray-400 hover:text-white transition">
+            <Link href="/learn" className="text-slate-500 hover:text-slate-900 transition">
               Guides
             </Link>
-            <Link href="/privacy" className="text-gray-400 hover:text-white transition">
+            <Link href="/privacy" className="text-slate-500 hover:text-slate-900 transition">
               Privacy
             </Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white transition">
+            <Link href="/terms" className="text-slate-500 hover:text-slate-900 transition">
               Terms
             </Link>
           </div>

@@ -194,13 +194,13 @@ export default function EmptyState({
         </motion.div>
       )}
       
-      <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-gray-400 max-w-md mb-6">{description}</p>
+      <h3 className="text-2xl font-bold text-slate-900 mb-2">{title}</h3>
+      <p className="text-slate-500 max-w-md mb-6">{description}</p>
       
       {(actionLabel && actionHref) && (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
         >
           {actionLabel}
         </Link>
@@ -209,7 +209,7 @@ export default function EmptyState({
       {(actionLabel && onAction) && (
         <button
           onClick={onAction}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 hover:scale-105 shadow-lg"
         >
           {actionLabel}
         </button>

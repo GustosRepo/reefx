@@ -144,20 +144,20 @@ function AdminAffiliatesContent() {
           <div className="flex items-center gap-3 mb-2">
             <Link 
               href="/admin" 
-              className="text-gray-400 hover:text-white transition"
+              className="text-slate-500 hover:text-slate-900 transition"
             >
               ← Admin Dashboard
             </Link>
           </div>
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
               <span>🤝</span> Partner Affiliates
             </h1>
             <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
               Admin Mode
             </span>
           </div>
-          <p className="text-gray-400">Track partner earnings and process payouts (5% commission)</p>
+          <p className="text-slate-500">Track partner earnings and process payouts (5% commission)</p>
         </motion.div>
 
         {loading ? (
@@ -173,25 +173,25 @@ function AdminAffiliatesContent() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <div className="glass-card rounded-xl p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{totals.totalPartners}</p>
-                  <p className="text-xs text-gray-400">Partners</p>
+                <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
+                  <p className="text-2xl font-bold text-slate-900">{totals.totalPartners}</p>
+                  <p className="text-xs text-slate-500">Partners</p>
                 </div>
-                <div className="glass-card rounded-xl p-4 text-center">
-                  <p className="text-2xl font-bold text-white">{totals.totalRedemptions}</p>
-                  <p className="text-xs text-gray-400">Total Signups</p>
+                <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
+                  <p className="text-2xl font-bold text-slate-900">{totals.totalRedemptions}</p>
+                  <p className="text-xs text-slate-500">Total Signups</p>
                 </div>
-                <div className="glass-card rounded-xl p-4 text-center">
-                  <p className="text-2xl font-bold text-cyan-400">{formatCents(totals.totalRevenue)}</p>
-                  <p className="text-xs text-gray-400">Revenue from Partners</p>
+                <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
+                  <p className="text-2xl font-bold text-[var(--aqua-accent-primary)]">{formatCents(totals.totalRevenue)}</p>
+                  <p className="text-xs text-slate-500">Revenue from Partners</p>
                 </div>
-                <div className="glass-card rounded-xl p-4 text-center">
+                <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 text-center">
                   <p className="text-2xl font-bold text-purple-400">{formatCents(totals.totalCommission)}</p>
-                  <p className="text-xs text-gray-400">Total Commission</p>
+                  <p className="text-xs text-slate-500">Total Commission</p>
                 </div>
-                <div className="glass-card rounded-xl p-4 text-center border border-yellow-500/30">
+                <div className="bg-white border border-yellow-500/30 shadow-sm rounded-xl p-4 text-center">
                   <p className="text-2xl font-bold text-yellow-400">{formatCents(totals.pendingPayouts)}</p>
-                  <p className="text-xs text-gray-400">Pending Payouts</p>
+                  <p className="text-xs text-slate-500">Pending Payouts</p>
                 </div>
               </motion.div>
             )}
@@ -199,58 +199,58 @@ function AdminAffiliatesContent() {
             {/* Partners Table */}
             {partners.length === 0 ? (
               <motion.div 
-                className="glass-card rounded-xl p-12 text-center"
+                className="bg-white border border-slate-200 shadow-sm rounded-xl p-12 text-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 <p className="text-6xl mb-4">📊</p>
-                <p className="text-xl text-white mb-2">No affiliate data yet</p>
-                <p className="text-gray-400">Partner earnings will appear here when customers pay using promo codes</p>
+                <p className="text-xl text-slate-900 mb-2">No affiliate data yet</p>
+                <p className="text-slate-500">Partner earnings will appear here when customers pay using promo codes</p>
               </motion.div>
             ) : (
               <motion.div 
-                className="glass-card rounded-xl overflow-hidden"
+                className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-white/5">
+                    <thead className="bg-slate-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Partner</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase">Code</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase">Signups</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase">Paying</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase">Conv %</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Revenue</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Earned</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Pending</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-400 uppercase">Action</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Partner</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Code</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Signups</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Paying</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Conv %</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Revenue</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Earned</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Pending</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-slate-200">
                       {partners.map((partner) => (
-                        <tr key={partner.id} className="hover:bg-white/5 transition">
+                        <tr key={partner.id} className="hover:bg-slate-100 transition">
                           <td className="px-4 py-4">
                             <div>
-                              <p className="font-medium text-white">{partner.partner_name}</p>
-                              <p className="text-xs text-gray-500">{partner.partner_email || 'No email'}</p>
+                              <p className="font-medium text-slate-900">{partner.partner_name}</p>
+                              <p className="text-xs text-slate-400">{partner.partner_email || 'No email'}</p>
                             </div>
                           </td>
                           <td className="px-4 py-4 text-center">
-                            <span className="font-mono text-cyan-400">{partner.code}</span>
+                            <span className="font-mono text-[var(--aqua-accent-primary)]">{partner.code}</span>
                           </td>
-                          <td className="px-4 py-4 text-center text-white">{partner.uses_count}</td>
-                          <td className="px-4 py-4 text-center text-white">{partner.payingCustomers}</td>
+                          <td className="px-4 py-4 text-center text-slate-900">{partner.uses_count}</td>
+                          <td className="px-4 py-4 text-center text-slate-900">{partner.payingCustomers}</td>
                           <td className="px-4 py-4 text-center">
-                            <span className={partner.payingCustomers > 0 ? 'text-green-400' : 'text-gray-500'}>
+                            <span className={partner.payingCustomers > 0 ? 'text-green-400' : 'text-slate-400'}>
                               {partner.conversionRate}%
                             </span>
                           </td>
-                          <td className="px-4 py-4 text-right text-white">{formatCents(partner.totalRevenue)}</td>
+                          <td className="px-4 py-4 text-right text-slate-900">{formatCents(partner.totalRevenue)}</td>
                           <td className="px-4 py-4 text-right text-purple-400">{formatCents(partner.totalCommission)}</td>
                           <td className="px-4 py-4 text-right">
-                            <span className={partner.pendingCommission > 0 ? 'text-yellow-400 font-semibold' : 'text-gray-500'}>
+                            <span className={partner.pendingCommission > 0 ? 'text-yellow-400 font-semibold' : 'text-slate-400'}>
                               {formatCents(partner.pendingCommission)}
                             </span>
                           </td>
@@ -263,7 +263,7 @@ function AdminAffiliatesContent() {
                                 Pay Out
                               </button>
                             ) : (
-                              <span className="text-gray-500 text-sm">—</span>
+                              <span className="text-slate-400 text-sm">—</span>
                             )}
                           </td>
                         </tr>
@@ -276,28 +276,28 @@ function AdminAffiliatesContent() {
 
             {/* How It Works */}
             <motion.div 
-              className="mt-8 glass-card rounded-xl p-6"
+              className="mt-8 bg-white border border-slate-200 shadow-sm rounded-xl p-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h3 className="text-lg font-semibold text-white mb-4">📝 How Affiliate Tracking Works</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">📝 How Affiliate Tracking Works</h3>
               <div className="grid md:grid-cols-4 gap-4 text-sm">
                 <div className="text-center">
                   <div className="text-3xl mb-2">1️⃣</div>
-                  <p className="text-gray-400">Partner shares their promo code (e.g., <span className="text-cyan-400">BRS2025</span>)</p>
+                  <p className="text-slate-500">Partner shares their promo code (e.g., <span className="text-[var(--aqua-accent-primary)]">BRS2025</span>)</p>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl mb-2">2️⃣</div>
-                  <p className="text-gray-400">Customer signs up with code → gets free trial</p>
+                  <p className="text-slate-500">Customer signs up with code → gets free trial</p>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl mb-2">3️⃣</div>
-                  <p className="text-gray-400">Customer upgrades to paid → 5% tracked here</p>
+                  <p className="text-slate-500">Customer upgrades to paid → 5% tracked here</p>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl mb-2">4️⃣</div>
-                  <p className="text-gray-400">You pay partners monthly via PayPal/Venmo</p>
+                  <p className="text-slate-500">You pay partners monthly via PayPal/Venmo</p>
                 </div>
               </div>
             </motion.div>
@@ -309,24 +309,24 @@ function AdminAffiliatesContent() {
       <AnimatePresence>
         {showPayoutModal && selectedPartner && (
           <motion.div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowPayoutModal(false)}
           >
             <motion.div
-              className="glass-card rounded-2xl p-6 w-full max-w-md"
+              className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 w-full max-w-md"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-bold text-white mb-4">💸 Process Payout</h2>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">💸 Process Payout</h2>
               
-              <div className="mb-6 p-4 bg-white/5 rounded-xl">
-                <p className="text-gray-400 text-sm">Paying out to</p>
-                <p className="text-lg font-semibold text-white">{selectedPartner.partner_name}</p>
+              <div className="mb-6 p-4 bg-slate-50 rounded-xl">
+                <p className="text-slate-500 text-sm">Paying out to</p>
+                <p className="text-lg font-semibold text-slate-900">{selectedPartner.partner_name}</p>
                 <p className="text-2xl font-bold text-green-400 mt-2">
                   {formatCents(selectedPartner.pendingCommission)}
                 </p>
@@ -334,11 +334,11 @@ function AdminAffiliatesContent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Payment Method</label>
+                  <label className="block text-sm font-medium text-slate-500 mb-2">Payment Method</label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-500/50 focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-cyan-500/50 focus:outline-none"
                   >
                     <option value="paypal">PayPal</option>
                     <option value="venmo">Venmo</option>
@@ -349,24 +349,24 @@ function AdminAffiliatesContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Reference / Transaction ID</label>
+                  <label className="block text-sm font-medium text-slate-500 mb-2">Reference / Transaction ID</label>
                   <input
                     type="text"
                     value={paymentReference}
                     onChange={(e) => setPaymentReference(e.target.value)}
                     placeholder="e.g., PayPal transaction ID"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Notes (optional)</label>
+                  <label className="block text-sm font-medium text-slate-500 mb-2">Notes (optional)</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any notes about this payout"
                     rows={2}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none resize-none"
                   />
                 </div>
               </div>
@@ -374,7 +374,7 @@ function AdminAffiliatesContent() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setShowPayoutModal(false)}
-                  className="flex-1 px-4 py-3 bg-white/5 text-gray-400 rounded-xl hover:bg-white/10 transition"
+                  className="flex-1 px-4 py-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-slate-100 transition"
                 >
                   Cancel
                 </button>

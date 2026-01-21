@@ -92,6 +92,7 @@ export async function POST(request: Request) {
       type: body.type || null,
       setup_date: body.setup_date || null,
       notes: body.notes || null,
+      aqua_mode: body.aqua_mode || 'reef',
       is_active: true,
     })
     .select()
@@ -128,6 +129,7 @@ export async function PUT(request: Request) {
       type: body.type,
       setup_date: body.setup_date,
       notes: body.notes,
+      aqua_mode: body.aqua_mode,
       updated_at: new Date().toISOString(),
     })
     .eq('id', body.id)
