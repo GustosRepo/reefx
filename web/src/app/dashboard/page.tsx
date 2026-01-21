@@ -61,12 +61,31 @@ function DashboardContent() {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
       
-      // Check if user needs onboarding (no tanks or first visit)
+      // Check if user needs onboarding - only show if:
+      // 1. User is logged in
+      // 2. User hasn't seen onboarding before
+      // 3. User has NO existing tanks (truly new user)
       if (currentUser) {
         const hasSeenOnboarding = localStorage.getItem('aquaxone_onboarding_complete');
-        if (!hasSeenOnboarding) {
-          // Small delay to let the page load
-          setTimeout(() => setShowOnboarding(true), 500);
+        // Also check for old key to handle migration
+        const hasSeenOldOnboarding = localStorage.getItem('reefxone_onboarding_complete');
+        
+        if (!hasSeenOnboarding && !hasSeenOldOnboarding) {
+          // Check if user already has tanks - if so, skip onboarding
+          try {
+            const tanksRes = await fetch('/api/tanks');
+            const tanks = await tanksRes.json();
+            if (!Array.isArray(tanks) || tanks.length === 0) {
+              // Truly new user with no tanks - show onboarding
+              setTimeout(() => setShowOnboarding(true), 500);
+            } else {
+              // Existing user with tanks - mark onboarding as complete
+              localStorage.setItem('aquaxone_onboarding_complete', 'true');
+            }
+          } catch {
+            // If fetch fails, don't show onboarding
+            localStorage.setItem('aquaxone_onboarding_complete', 'true');
+          }
         }
       }
     };
