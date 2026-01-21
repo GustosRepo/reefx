@@ -79,7 +79,7 @@ export default function LearnPage() {
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-gradient">
-            REEFXONE
+            AQUAXONE
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/learn" className="text-[var(--aqua-accent-primary)] font-medium">
@@ -166,7 +166,7 @@ export default function LearnPage() {
               Ready to Track Your Reef?
             </h2>
             <p className="text-slate-500 mb-6">
-              Join thousands of reef keepers using REEFXONE to monitor water parameters, track livestock, and maintain a healthy aquarium.
+              Join thousands of reef keepers using AQUAXONE to monitor water parameters, track livestock, and maintain a healthy aquarium.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
@@ -190,7 +190,7 @@ export default function LearnPage() {
       <footer className="border-t border-slate-200 py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-slate-500 text-sm">
-            © 2024 REEFXONE. All rights reserved.
+            © 2024 AQUAXONE. All rights reserved.
           </div>
           <div className="flex items-center gap-6 text-sm">
             <Link href="/learn" className="text-slate-500 hover:text-slate-900 transition">

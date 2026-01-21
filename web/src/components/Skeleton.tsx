@@ -97,3 +97,31 @@ export function FormSkeleton() {
     </div>
   );
 }
+
+export function HistorySkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-4 animate-fadeIn">
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          {/* Header with date and buttons */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+            <div className="skeleton h-7 w-32" />
+            <div className="flex gap-2 w-full sm:w-auto">
+              <div className="skeleton h-10 w-16 rounded-lg flex-1 sm:flex-none" />
+              <div className="skeleton h-10 w-20 rounded-lg flex-1 sm:flex-none" />
+            </div>
+          </div>
+          {/* Parameters grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {[...Array(8)].map((_, j) => (
+              <div key={j} className="bg-slate-50 rounded-lg p-3 space-y-2">
+                <div className="skeleton h-3 w-20" />
+                <div className="skeleton h-5 w-12" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

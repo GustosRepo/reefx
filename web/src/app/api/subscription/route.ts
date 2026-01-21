@@ -18,12 +18,8 @@ export async function GET() {
       .eq('user_id', user.id)
       .single();
 
-    console.log('📊 Subscription query result for user', user.id);
-    console.log('Data:', subscription);
-    console.log('Error:', error);
-
-    if (error) {
-      console.error('❌ Error fetching subscription:', error);
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error fetching subscription:', error);
       return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 });
     }
 
@@ -31,8 +27,6 @@ export async function GET() {
     
     // If subscription has ended, downgrade to free tier
     if (result.end_date && new Date(result.end_date) < new Date()) {
-      console.log('⏰ Subscription expired, downgrading to free tier');
-      
       // Update database to free tier
       await supabase
         .from('subscriptions')
@@ -48,7 +42,6 @@ export async function GET() {
       result = { tier: 'free', status: 'expired', end_date: null };
     }
     
-    console.log('✅ Returning subscription:', result);
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error in subscription API:', error);

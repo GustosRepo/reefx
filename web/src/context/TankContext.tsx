@@ -53,7 +53,7 @@ export function TankProvider({ children }: { children: ReactNode }) {
         setTanks(data);
         
         // Check if we have a saved tank preference
-        const savedTankId = localStorage.getItem('reefxone_current_tank');
+        const savedTankId = localStorage.getItem('aquaxone_current_tank');
         const savedTank = savedTankId ? data.find((t: Tank) => t.id === savedTankId) : null;
         
         const tankToSet = savedTank || data[0];
@@ -77,7 +77,7 @@ export function TankProvider({ children }: { children: ReactNode }) {
 
   const setCurrentTank = useCallback((tank: Tank) => {
     setCurrentTankState(tank);
-    localStorage.setItem('reefxone_current_tank', tank.id);
+    localStorage.setItem('aquaxone_current_tank', tank.id);
     
     // Sync aqua mode when tank changes
     if (tank.aqua_mode && onTankModeChange) {

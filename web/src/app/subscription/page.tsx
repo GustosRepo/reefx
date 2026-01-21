@@ -380,7 +380,7 @@ function SubscriptionPageContent() {
             >
               <div className="text-center mb-6">
                 <div className="text-5xl mb-3">☕</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Support REEFXONE</h3>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Support AQUAXONE</h3>
                 <p className="text-slate-500 text-sm">
                   Your donation helps keep this project alive and growing! 🐠💙
                 </p>
@@ -432,7 +432,7 @@ function SubscriptionPageContent() {
             Choose Your Plan
           </h1>
           <p className="text-slate-500 text-lg">
-            Unlock the full power of REEFXONE
+            Unlock the full power of AQUAXONE
           </p>
         </motion.div>
 

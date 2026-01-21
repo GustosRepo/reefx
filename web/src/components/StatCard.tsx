@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useMemo } from "react";
 
 interface StatCardProps {
@@ -91,7 +90,7 @@ export default function StatCard({
   };
 
   const cardClasses = useMemo(() => {
-    let base = `relative rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] bg-white border border-slate-200 shadow-sm hover:shadow-md`;
+    let base = `relative rounded-xl p-5 transition-shadow duration-200 hover:shadow-md bg-white border border-slate-200 shadow-sm`;
     if (danger) {
       base += " border-red-400 shadow-red-100";
     } else if (warning) {
@@ -101,12 +100,7 @@ export default function StatCard({
   }, [warning, danger]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className={cardClasses}
-    >
+    <div className={cardClasses}>
       <div className="flex items-start justify-between mb-3">
         <div className="text-2xl p-2 rounded-lg bg-slate-100">{icon}</div>
         <div className="flex items-center gap-2">
@@ -124,14 +118,9 @@ export default function StatCard({
       
       <div>
         <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">{title}</p>
-        <motion.p 
-          className="text-2xl font-bold text-slate-900"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          key={String(value)}
-        >
+        <p className="text-2xl font-bold text-slate-900">
           {value}
-        </motion.p>
+        </p>
       </div>
       
       {/* Subtle accent bar */}
@@ -139,6 +128,6 @@ export default function StatCard({
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-1 rounded-t-full opacity-60"
         style={{ background: colors.primary }}
       />
-    </motion.div>
+    </div>
   );
 }

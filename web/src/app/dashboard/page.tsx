@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, MotionConfig } from "framer-motion";
 import { ReefForm, MaintenanceEntry } from "@/types";
 import { getWarning } from "@/utils/warningUtils";
 import { sortLogsByDate } from "@/utils/dateUtils";
@@ -13,7 +13,7 @@ import EmptyState from "@/components/EmptyState";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { useTank } from "@/context/TankContext";
 import { useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from "@/context/AquaModeContext";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { getCurrentUser, User } from "@/utils/auth";
 import { fahrenheitToCelsius } from "@/utils/conversions";
 import Link from "next/link";
@@ -41,13 +41,13 @@ function DashboardContent() {
   const { isReefMode, mode } = useAquaMode();
   const [alertsMuted, setAlertsMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefxone_alerts_muted') === 'true';
+      return localStorage.getItem('aquaxone_alerts_muted') === 'true';
     }
     return false;
   });
   const [maintenanceMuted, setMaintenanceMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefxone_maintenance_muted') === 'true';
+      return localStorage.getItem('aquaxone_maintenance_muted') === 'true';
     }
     return false;
   });
@@ -79,11 +79,21 @@ function DashboardContent() {
     }
   }, [user, currentTank?.id]);
 
-  const loadDashboardData = async (tankId: string) => {
+  const loadDashboardData = useCallback(async (tankId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/logs?tank_id=${tankId}`);
-      const logs: ReefForm[] = await response.json();
+      // Fetch all data in parallel for better performance
+      const [logsResponse, thresholdsResponse, maintenanceResponse] = await Promise.all([
+        fetch(`/api/logs?tank_id=${tankId}`),
+        fetch('/api/thresholds'),
+        fetch(`/api/maintenance?tank_id=${tankId}`)
+      ]);
+      
+      const [logs, thresholdsData, maintenance]: [ReefForm[], any, MaintenanceEntry[]] = await Promise.all([
+        logsResponse.json(),
+        thresholdsResponse.json(),
+        maintenanceResponse.json()
+      ]);
       
       // Handle empty or error responses
       if (!Array.isArray(logs)) {
@@ -143,10 +153,6 @@ function DashboardContent() {
       setHasLogs(recent.length > 0);
       setLabels(recent.map((entry) => entry.date));
 
-      // Compute warnings
-      const thresholdsResponse = await fetch('/api/thresholds');
-      const thresholdsData = await thresholdsResponse.json();
-      
       // Convert API format to legacy format for getWarning function
       const thresholds: Record<string, { min: number; max: number }> = {
         temp: { min: thresholdsData.temp_min, max: thresholdsData.temp_max },
@@ -170,10 +176,7 @@ function DashboardContent() {
       }
       setWarnings(latestWarnings);
 
-      // Check overdue maintenance (filtered by current tank)
-      const maintenanceResponse = await fetch(`/api/maintenance?tank_id=${tankId}`);
-      const maintenance: MaintenanceEntry[] = await maintenanceResponse.json();
-      
+      // Check overdue maintenance (already fetched in parallel)
       if (Array.isArray(maintenance)) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -193,15 +196,18 @@ function DashboardContent() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.temp_unit]);
 
-  // Build labelMap and paramIcons from mode parameters
-  const labelMap: Record<string, string> = {};
-  const paramIcons: Record<string, string> = {};
-  modeParameters.forEach(p => {
-    labelMap[p.key] = p.label;
-    paramIcons[p.key] = p.icon;
-  });
+  // Build labelMap and paramIcons from mode parameters - memoized
+  const { labelMap, paramIcons } = useMemo(() => {
+    const labels: Record<string, string> = {};
+    const icons: Record<string, string> = {};
+    modeParameters.forEach(p => {
+      labels[p.key] = p.label;
+      icons[p.key] = p.icon;
+    });
+    return { labelMap: labels, paramIcons: icons };
+  }, [modeParameters]);
 
   const paramColors: Record<string, { stroke: string; fill: string }> = {
     // Shared
@@ -221,12 +227,17 @@ function DashboardContent() {
     no2: { stroke: "#f97316", fill: "url(#no2Gradient)" },
   };
 
-  const formatChartData = (param: string) => {
-    return labels.map((date, index) => ({
-      date: date.substring(5), // Show MM-DD
-      value: chartData[param]?.[index] || 0,
-    }));
-  };
+  // Memoize chart data formatting
+  const formattedChartData = useMemo(() => {
+    const formatted: Record<string, { date: string; value: number }[]> = {};
+    Object.keys(labelMap).forEach(param => {
+      formatted[param] = labels.map((date, index) => ({
+        date: date.substring(5), // Show MM-DD
+        value: chartData[param]?.[index] || 0,
+      }));
+    });
+    return formatted;
+  }, [labels, chartData, labelMap]);
 
   // Handle onboarding completion
   const handleOnboardingComplete = async (data: OnboardingData) => {
@@ -413,7 +424,7 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setAlertsMuted(true);
-                  localStorage.setItem('reefxone_alerts_muted', 'true');
+                  localStorage.setItem('aquaxone_alerts_muted', 'true');
                 }}
                 className="text-sm text-slate-500 hover:text-slate-700 transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
               >
@@ -451,7 +462,7 @@ function DashboardContent() {
             <button
               onClick={() => {
                 setAlertsMuted(false);
-                localStorage.setItem('reefxone_alerts_muted', 'false');
+                localStorage.setItem('aquaxone_alerts_muted', 'false');
               }}
               className="text-sm text-[var(--aqua-accent-primary)] hover:underline transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
             >
@@ -474,7 +485,7 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setMaintenanceMuted(true);
-                  localStorage.setItem('reefxone_maintenance_muted', 'true');
+                  localStorage.setItem('aquaxone_maintenance_muted', 'true');
                 }}
                 className="text-sm text-slate-500 hover:text-slate-700 transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
               >
@@ -499,7 +510,7 @@ function DashboardContent() {
             <button
               onClick={() => {
                 setMaintenanceMuted(false);
-                localStorage.setItem('reefxone_maintenance_muted', 'false');
+                localStorage.setItem('aquaxone_maintenance_muted', 'false');
               }}
               className="text-sm bg-amber-100 text-amber-600 px-4 py-2 rounded-lg border border-amber-300 hover:border-amber-400 transition"
             >
@@ -508,68 +519,65 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Parameter Charts - Enhanced with gradients */}
-        <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 relative isolate"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {Object.keys(labelMap).map((param, index) => (
-            <motion.div 
-              key={param}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
-              className="bg-white border border-slate-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-all duration-300 overflow-hidden shadow-sm"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xl">{paramIcons[param]}</span>
-                <h3 className="text-base md:text-lg font-bold" style={{ color: paramColors[param].stroke }}>{labelMap[param]}</h3>
-              </div>
-              {chartData[param]?.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
-                  <AreaChart data={formatChartData(param)}>
-                    <defs>
-                      <linearGradient id={`${param}Gradient`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={paramColors[param].stroke} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={paramColors[param].stroke} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} horizontal={true} vertical={false} />
-                    <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 12,
-                        color: "#0f172a",
-                        fontSize: 12,
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      }}
-                      labelStyle={{ color: "#64748b" }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={paramColors[param].stroke} 
-                      strokeWidth={2} 
-                      fill={`url(#${param}Gradient)`}
-                      dot={{ fill: paramColors[param].stroke, r: 3, strokeWidth: 0 }}
-                      activeDot={{ r: 5, stroke: paramColors[param].stroke, strokeWidth: 2, fill: "#ffffff" }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-slate-400">
-                  <span className="text-3xl mb-2 opacity-50">{paramIcons[param]}</span>
-                  <p className="text-sm">No data yet</p>
+        {/* Parameter Charts - Optimized rendering */}
+        <MotionConfig reducedMotion="user">
+          <div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 relative isolate animate-fadeIn"
+          >
+            {Object.keys(labelMap).map((param) => (
+              <div 
+                key={param}
+                className="bg-white border border-slate-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow duration-300 overflow-hidden shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">{paramIcons[param]}</span>
+                  <h3 className="text-base md:text-lg font-bold" style={{ color: paramColors[param].stroke }}>{labelMap[param]}</h3>
                 </div>
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
+                {formattedChartData[param]?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={formattedChartData[param]}>
+                      <defs>
+                        <linearGradient id={`${param}Gradient`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={paramColors[param].stroke} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={paramColors[param].stroke} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} horizontal={true} vertical={false} />
+                      <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(255, 255, 255, 0.95)",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: 12,
+                          color: "#0f172a",
+                          fontSize: 12,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                        labelStyle={{ color: "#64748b" }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke={paramColors[param].stroke} 
+                        strokeWidth={2} 
+                        fill={`url(#${param}Gradient)`}
+                        dot={false}
+                        activeDot={{ r: 5, stroke: paramColors[param].stroke, strokeWidth: 2, fill: "#ffffff" }}
+                        isAnimationActive={false}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+                    <span className="text-3xl mb-2 opacity-50">{paramIcons[param]}</span>
+                    <p className="text-sm">No data yet</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </MotionConfig>
 
         {/* Floating Action Button for Mobile */}
         <Link

@@ -41,15 +41,11 @@ export default function RegisterPage() {
             body: JSON.stringify({ code: promoCode.trim() }),
           });
           
-          if (promoResponse.ok) {
-            const promoData = await promoResponse.json();
-            console.log('Promo code applied:', promoData);
-          } else {
-            // Don't block registration if promo fails, just log it
-            console.warn('Promo code redemption failed, but registration succeeded');
+          if (!promoResponse.ok) {
+            // Promo failed but registration succeeded - continue silently
           }
-        } catch (err) {
-          console.warn('Error applying promo code:', err);
+        } catch {
+          // Promo error - continue silently
         }
       }
       

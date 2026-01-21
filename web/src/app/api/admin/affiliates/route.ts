@@ -84,8 +84,6 @@ export async function GET(request: NextRequest) {
     // If table doesn't exist, just use empty array
     if (!earningsError) {
       allEarnings = earningsData || [];
-    } else {
-      console.log('affiliate_earnings table may not exist yet:', earningsError.message);
     }
 
     // Aggregate earnings by partner

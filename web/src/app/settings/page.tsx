@@ -1024,7 +1024,7 @@ function SettingsPageContent() {
 
         {/* About Section */}
         <div className="mt-6 text-center text-slate-500 text-sm">
-          <p>REEFXONE - Web App Version</p>
+          <p>AQUAXONE - Web App Version</p>
           <p className="mt-1">Track your reef parameters, maintenance, and more</p>
         </div>
       </div>

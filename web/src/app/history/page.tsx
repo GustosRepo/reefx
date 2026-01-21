@@ -6,8 +6,11 @@ import { ReefForm } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdBanner from "@/components/AdBanner";
+import { HistorySkeleton } from "@/components/Skeleton";
 import { useTank } from "@/context/TankContext";
 import { useAquaMode, useModeParameters } from "@/context/AquaModeContext";
+import { getCurrentUser, User } from "@/utils/auth";
+import { fahrenheitToCelsius } from "@/utils/conversions";
 
 export default function HistoryPage() {
   return (
@@ -19,13 +22,23 @@ export default function HistoryPage() {
 
 function HistoryPageContent() {
   const [logs, setLogs] = useState<ReefForm[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [editingLog, setEditingLog] = useState<ReefForm | null>(null);
   const [editForm, setEditForm] = useState<ReefForm | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { currentTank } = useTank();
   const { mode } = useAquaMode();
   const modeParameters = useModeParameters();
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (currentTank) {
@@ -34,6 +47,7 @@ function HistoryPageContent() {
   }, [currentTank?.id]);
 
   const loadLogs = async (tankId: string) => {
+    setIsLoading(true);
     try {
       const response = await fetch(`/api/logs?tank_id=${tankId}`);
       const data: ReefForm[] = await response.json();
@@ -43,7 +57,40 @@ function HistoryPageContent() {
       setLogs(sorted);
     } catch (err) {
       console.error('Failed to load logs:', err);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Convert temperature for display based on user preference
+  const formatTempValue = (value: string | number | undefined): string => {
+    if (value === undefined || value === null || value === '') return '—';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '—';
+    
+    // Temperature is stored in Fahrenheit, convert if user prefers Celsius
+    if (user?.temp_unit === 'celsius') {
+      return fahrenheitToCelsius(numValue).toFixed(1);
+    }
+    return numValue.toFixed(1);
+  };
+
+  // Get the display value for a parameter
+  const getDisplayValue = (log: ReefForm, key: string): string => {
+    const value = log[key as keyof ReefForm];
+    if (key === 'temp') {
+      return formatTempValue(value);
+    }
+    return value?.toString() || '—';
+  };
+
+  // Get the label with correct temp unit
+  const getParameterLabel = (key: string, baseLabel: string): string => {
+    if (key === 'temp') {
+      const unit = user?.temp_unit === 'celsius' ? '°C' : '°F';
+      return `Temperature (${unit})`;
+    }
+    return baseLabel.split(' (')[0];
   };
 
   const handleDeleteClick = (logId: string) => {
@@ -114,7 +161,9 @@ function HistoryPageContent() {
 
         <AdBanner />
 
-        {logs.length === 0 ? (
+        {isLoading ? (
+          <HistorySkeleton count={3} />
+        ) : logs.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
             <p className="text-slate-500">No logs found.</p>
           </div>
@@ -147,10 +196,10 @@ function HistoryPageContent() {
                   {modeParameters.map(({ key, label, icon }) => (
                     <div key={key} className="bg-slate-50 rounded-lg p-3">
                       <p className="text-slate-500 text-xs md:text-sm flex items-center gap-1">
-                        <span>{icon}</span> {label.split(' (')[0]}
+                        <span>{icon}</span> {getParameterLabel(key, label)}
                       </p>
                       <p className="text-slate-900 font-semibold text-sm md:text-base">
-                        {log[key as keyof ReefForm] || '—'}
+                        {getDisplayValue(log, key)}
                       </p>
                     </div>
                   ))}
