@@ -97,7 +97,7 @@ export default function OnboardingModal({ isOpen, onComplete, userName }: Onboar
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ duration: 0.5, delay: 0.2 }}
                   >
-                    🌊
+                    🫧
                   </motion.div>
                   <h2 className="text-2xl font-bold text-slate-800">
                     Welcome{userName ? `, ${userName}` : ""}! 🎉

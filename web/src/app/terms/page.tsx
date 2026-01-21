@@ -10,7 +10,7 @@ export default function TermsPage() {
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold text-gradient">
-            🌊 AQUAXONE
+            🫧 AQUAXONE
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/learn" className="text-slate-500 hover:text-slate-900 transition">

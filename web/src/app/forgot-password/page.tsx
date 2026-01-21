@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
       >
         {/* Logo */}
         <Link href="/" className="block text-center mb-8">
-          <h1 className="text-3xl font-bold text-gradient">🌊 AQUAXONE</h1>
+          <h1 className="text-3xl font-bold text-gradient">🫧 AQUAXONE</h1>
         </Link>
 
         <div className="bg-white border border-slate-200 shadow-lg rounded-2xl p-8">

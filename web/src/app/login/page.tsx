@@ -72,7 +72,7 @@ export default function LoginPage() {
         >
           <Link href="/">
             <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2 flex items-center justify-center gap-3">
-              <span>🌊</span>
+              <span>🫧</span>
               AQUAXONE
             </h1>
           </Link>
