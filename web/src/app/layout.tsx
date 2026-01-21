@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
 import { TankProvider } from "@/context/TankContext";
+import { AquaModeProvider } from "@/context/AquaModeContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,16 +22,29 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#06b6d4",
+  themeColor: "#0891b2",
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://reefxone.app"),
-  title: "REEFXONE - Reef Aquarium Tracking",
-  description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts. The ultimate app for reef hobbyists.",
-  keywords: ["reef aquarium", "coral tracking", "water parameters", "reef tank", "alkalinity", "calcium", "magnesium"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://aquaxone.app"),
+  title: "AQUAXONE - Smart Aquarium Tracking",
+  description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts. The ultimate app for aquarium hobbyists. Powered by ReefXOne.",
+  keywords: [
+    "aquarium tracking",
+    "reef aquarium",
+    "freshwater aquarium",
+    "planted tank",
+    "coral tracking",
+    "water parameters",
+    "reef tank",
+    "alkalinity",
+    "calcium",
+    "magnesium",
+    "fish tank",
+    "aquarium maintenance",
+  ],
   authors: [
-    { name: "REEFXONE" },
+    { name: "AQUAXONE" },
     { name: "CODEWERX", url: "https://www.code-werx.com/" },
   ],
   creator: "CODEWERX",
@@ -38,29 +52,29 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "REEFXONE",
+    statusBarStyle: "default",
+    title: "AQUAXONE",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://reefxone.app",
-    siteName: "REEFXONE",
-    title: "REEFXONE - Reef Aquarium Tracking",
-    description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts.",
+    url: "https://aquaxone.app",
+    siteName: "AQUAXONE",
+    title: "AQUAXONE - Smart Aquarium Tracking",
+    description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "REEFXONE - Reef Aquarium Tracking",
+        alt: "AQUAXONE - Smart Aquarium Tracking",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "REEFXONE - Reef Aquarium Tracking",
-    description: "Track your reef aquarium parameters, maintenance, and trends with smart alerts.",
+    title: "AQUAXONE - Smart Aquarium Tracking",
+    description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts.",
     images: ["/og-image.png"],
   },
 };
@@ -87,9 +101,10 @@ export default function RootLayout({
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#1f2937',
-              color: '#fff',
-              border: '1px solid #374151',
+              background: '#ffffff',
+              color: '#0f172a',
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             },
             success: {
               iconTheme: {
@@ -105,11 +120,13 @@ export default function RootLayout({
             },
           }}
         />
-        <SubscriptionProvider>
-          <TankProvider>
-            {children}
-          </TankProvider>
-        </SubscriptionProvider>
+        <AquaModeProvider>
+          <SubscriptionProvider>
+            <TankProvider>
+              {children}
+            </TankProvider>
+          </SubscriptionProvider>
+        </AquaModeProvider>
       </body>
     </html>
   );

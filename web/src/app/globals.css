@@ -1,21 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     AQUAXONE - Unified Aquarium Tracking Platform
+     A light, clean, modern aquatic design system
+     ═══════════════════════════════════════════════════════════════════════════ */
   
-  /* Ocean Color Palette */
-  --reef-deep: #0a1628;
-  --reef-ocean: #0c1e35;
-  --reef-surface: #0f2942;
-  --reef-coral: #ff6b6b;
-  --reef-anemone: #f472b6;
-  --reef-biolum: #a855f7;
-  --reef-cyan: #06b6d4;
-  --reef-teal: #14b8a6;
-  --reef-lime: #a3e635;
+  /* Base Theme Colors - Deeper aquatic tint */
+  --background: #d4eef4;          /* Deeper cyan tint */
+  --background-secondary: #c5e6ee; /* Richer aqua */
+  --foreground: #1a3340;          /* Deep ocean text */
+  --foreground-muted: #4a6b7a;    /* Muted aqua-gray */
   
-  /* Parameter Colors */
+  /* Card & Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #c5e6ee;   /* Deeper aqua surface */
+  --surface-elevated: #ffffff;
+  --border-light: #a8d4e0;        /* Aqua border */
+  --border-medium: #8bc4d4;       /* Medium aqua border */
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     AQUAXONE SHARED PALETTE
+     Core colors used across both modes
+     ───────────────────────────────────────────────────────────────────────── */
+  --aqua-primary: #0891b2;      /* Primary brand cyan */
+  --aqua-light: #22d3ee;        /* Light cyan for highlights */
+  --aqua-dark: #0e7490;         /* Dark cyan for text/borders */
+  
+  /* Mode-Specific Accents (overridden by data-aqua-mode) */
+  --aqua-accent-primary: #0891b2;
+  --aqua-accent-secondary: #f97316;
+  --aqua-accent-tertiary: #06b6d4;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     REEF MODE COLORS
+     Ocean blues, teals, and coral accents
+     ───────────────────────────────────────────────────────────────────────── */
+  --reef-cyan: #0891b2;
+  --reef-teal: #0d9488;
+  --reef-ocean: #0369a1;
+  --reef-coral: #f97316;
+  --reef-anemone: #ec4899;
+  --reef-purple: #8b5cf6;
+  --reef-surface: #e0f2fe;
+  --reef-deep: #0c4a6e;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     FRESHWATER MODE COLORS
+     Soft blues, greens, and natural plant accents
+     ───────────────────────────────────────────────────────────────────────── */
+  --fresh-emerald: #059669;
+  --fresh-green: #22c55e;
+  --fresh-teal: #14b8a6;
+  --fresh-aqua: #06b6d4;
+  --fresh-lime: #84cc16;
+  --fresh-nature: #15803d;
+  --fresh-surface: #ecfdf5;
+  --fresh-deep: #064e3b;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     PARAMETER COLORS (Shared)
+     Consistent across modes for data visualization
+     ───────────────────────────────────────────────────────────────────────── */
   --param-temp: #f97316;
   --param-salinity: #3b82f6;
   --param-alk: #8b5cf6;
@@ -24,6 +70,48 @@
   --param-mag: #ec4899;
   --param-po4: #f59e0b;
   --param-no3: #ef4444;
+  
+  /* Freshwater-specific parameters */
+  --param-gh: #6366f1;
+  --param-kh: #8b5cf6;
+  --param-ammonia: #dc2626;
+  --param-nitrite: #ea580c;
+  --param-co2: #22c55e;
+  --param-iron: #b45309;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     STATUS COLORS
+     ───────────────────────────────────────────────────────────────────────── */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+  --status-info: #3b82f6;
+  
+  /* Legacy compatibility (original reef palette) */
+  --reef-biolum: #a855f7;
+  --reef-lime: #a3e635;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODE-SPECIFIC THEME OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Reef Mode Theme */
+[data-aqua-mode="reef"] {
+  --aqua-accent-primary: var(--reef-cyan);
+  --aqua-accent-secondary: var(--reef-coral);
+  --aqua-accent-tertiary: var(--reef-teal);
+  --mode-surface: var(--reef-surface);
+  --mode-deep: var(--reef-deep);
+}
+
+/* Freshwater Mode Theme */
+[data-aqua-mode="freshwater"] {
+  --aqua-accent-primary: var(--fresh-emerald);
+  --aqua-accent-secondary: var(--fresh-green);
+  --aqua-accent-tertiary: var(--fresh-teal);
+  --mode-surface: var(--fresh-surface);
+  --mode-deep: var(--fresh-deep);
 }
 
 @theme inline {
@@ -33,15 +121,24 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode disabled - AQUAXONE uses light theme by default
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --background-secondary: #1e293b;
+    --foreground: #f1f5f9;
+    --foreground-muted: #94a3b8;
+    --surface-primary: #1e293b;
+    --surface-secondary: #334155;
+    --surface-elevated: #1e293b;
+    --border-light: #334155;
+    --border-medium: #475569;
   }
 }
+*/
 
 body {
-  background: var(--reef-deep);
+  background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -49,17 +146,711 @@ body {
   touch-action: manipulation;
 }
 
-/* Gradient Mesh Background */
-.reef-bg {
-  background: var(--reef-deep);
+/* AquaXOne Background Patterns */
+.aqua-bg {
+  background: var(--background);
   background-image: 
-    radial-gradient(ellipse at 20% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 80%, rgba(var(--aqua-accent-primary), 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(var(--aqua-accent-tertiary), 0.03) 0%, transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DECORATIVE AQUATIC TEXTURES & ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Floating Bubbles Animation */
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+  25% { transform: translateY(-15px) translateX(5px); opacity: 0.8; }
+  50% { transform: translateY(-25px) translateX(-3px); opacity: 0.5; }
+  75% { transform: translateY(-15px) translateX(8px); opacity: 0.7; }
+}
+
+@keyframes float-bubble-slow {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(-40px) scale(1.1); opacity: 0.6; }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg) translateX(0); }
+  50% { transform: rotate(3deg) translateX(10px); }
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-5px) scaleY(1.02); }
+}
+
+/* Bubbles Container */
+.aqua-bubbles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.aqua-bubbles::before,
+.aqua-bubbles::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.15), rgba(6, 182, 212, 0.08));
+  filter: blur(1px);
+}
+
+.aqua-bubbles::before {
+  width: 12px;
+  height: 12px;
+  bottom: 15%;
+  left: 10%;
+  animation: float-bubble 8s ease-in-out infinite;
+}
+
+.aqua-bubbles::after {
+  width: 8px;
+  height: 8px;
+  bottom: 25%;
+  right: 15%;
+  animation: float-bubble 6s ease-in-out infinite 1s;
+}
+
+/* Additional bubble elements */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(8, 145, 178, 0.2));
+  border: 1px solid rgba(8, 145, 178, 0.15);
+  animation: float-bubble-slow 10s ease-in-out infinite;
+}
+
+.bubble-1 { width: 6px; height: 6px; bottom: 20%; left: 25%; animation-delay: 0s; }
+.bubble-2 { width: 10px; height: 10px; bottom: 30%; left: 60%; animation-delay: 2s; }
+.bubble-3 { width: 4px; height: 4px; bottom: 40%; left: 80%; animation-delay: 4s; }
+.bubble-4 { width: 8px; height: 8px; bottom: 10%; left: 45%; animation-delay: 1s; }
+.bubble-5 { width: 5px; height: 5px; bottom: 50%; left: 15%; animation-delay: 3s; }
+
+/* Coral/Plant Decorative Silhouettes */
+.aqua-decor {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  overflow: hidden;
+}
+
+/* Reef Mode Coral Silhouette */
+[data-aqua-mode="reef"] .aqua-decor {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='none'%3E%3Cpath fill='%230891b2' d='M0,200 C50,180 80,120 100,140 C120,160 140,100 180,120 C220,140 240,80 280,100 C320,120 360,60 400,90 C440,120 480,50 520,80 C560,110 600,40 640,70 C680,100 720,30 760,60 C800,90 840,20 880,50 C920,80 960,40 1000,70 C1040,100 1080,60 1120,80 C1160,100 1180,140 1200,120 L1200,200 Z'/%3E%3Cpath fill='%2314b8a6' opacity='0.6' d='M0,200 C30,190 60,150 90,170 C120,190 150,130 190,155 C230,180 270,110 310,140 C350,170 390,100 430,130 C470,160 510,90 550,120 C590,150 630,80 670,110 C710,140 750,70 790,100 C830,130 870,60 910,95 C950,130 990,80 1030,110 C1070,140 1110,100 1150,125 C1190,150 1200,180 1200,160 L1200,200 Z'/%3E%3Ccircle fill='%23f97316' cx='150' cy='160' r='8' opacity='0.4'/%3E%3Ccircle fill='%23ec4899' cx='450' cy='150' r='6' opacity='0.3'/%3E%3Ccircle fill='%238b5cf6' cx='750' cy='155' r='7' opacity='0.35'/%3E%3Ccircle fill='%23f97316' cx='950' cy='145' r='5' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom;
+  animation: wave 8s ease-in-out infinite;
+}
+
+/* Freshwater Mode Plant Silhouette */
+[data-aqua-mode="freshwater"] .aqua-decor {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='none'%3E%3Cpath fill='%23059669' d='M0,200 L0,180 C20,170 25,120 30,140 L35,80 C38,60 42,90 45,70 L50,100 C55,120 60,80 65,110 L70,140 C80,160 90,130 100,150 L100,200 Z'/%3E%3Cpath fill='%2322c55e' d='M80,200 L80,160 C90,140 95,100 100,120 L105,60 C110,40 115,80 120,50 L125,90 C130,110 135,70 140,100 L145,130 C155,150 165,120 175,145 L175,200 Z'/%3E%3Cpath fill='%2314b8a6' d='M200,200 L200,170 C210,150 215,110 220,130 L225,70 C230,50 235,90 240,60 L245,100 C250,120 255,80 260,110 L265,140 C275,160 285,130 295,155 L295,200 Z'/%3E%3Cpath fill='%23059669' d='M400,200 L400,175 C410,155 415,115 420,135 L425,75 C430,55 435,95 440,65 L445,105 C450,125 455,85 460,115 L465,145 C475,165 485,135 495,160 L495,200 Z'/%3E%3Cpath fill='%2322c55e' d='M550,200 L550,165 C560,145 565,105 570,125 L575,65 C580,45 585,85 590,55 L595,95 C600,115 605,75 610,105 L615,135 C625,155 635,125 645,150 L645,200 Z'/%3E%3Cpath fill='%2314b8a6' d='M700,200 L700,180 C710,160 715,120 720,140 L725,80 C730,60 735,100 740,70 L745,110 C750,130 755,90 760,120 L765,150 C775,170 785,140 795,165 L795,200 Z'/%3E%3Cpath fill='%23059669' d='M850,200 L850,170 C860,150 865,110 870,130 L875,70 C880,50 885,90 890,60 L895,100 C900,120 905,80 910,110 L915,140 C925,160 935,130 945,155 L945,200 Z'/%3E%3Cpath fill='%2322c55e' d='M1000,200 L1000,175 C1010,155 1015,115 1020,135 L1025,75 C1030,55 1035,95 1040,65 L1045,105 C1050,125 1055,85 1060,115 L1065,145 C1075,165 1085,135 1095,160 L1095,200 Z'/%3E%3Cpath fill='%2314b8a6' d='M1120,200 L1120,185 C1130,165 1135,125 1140,145 L1145,85 C1150,65 1155,105 1160,75 L1165,115 C1170,135 1175,95 1180,125 L1185,155 C1195,175 1200,145 1200,170 L1200,200 Z'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom;
+  animation: sway 6s ease-in-out infinite;
+}
+
+/* Subtle Water Surface Effect */
+.water-surface {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(8, 145, 178, 0.1) 25%, 
+    rgba(6, 182, 212, 0.15) 50%, 
+    rgba(8, 145, 178, 0.1) 75%, 
+    transparent 100%
+  );
+  z-index: 50;
+  pointer-events: none;
+  animation: wave 4s ease-in-out infinite;
+}
+
+/* Light Rays from Surface */
+.light-rays {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background: 
+    linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 30%),
+    repeating-linear-gradient(
+      100deg,
+      transparent,
+      transparent 80px,
+      rgba(8, 145, 178, 0.1) 80px,
+      rgba(8, 145, 178, 0.1) 82px,
+      transparent 82px,
+      transparent 200px
+    );
+}
+
+/* ============================================
+   STATIC HERO DECORATIONS - Corals & Plants
+   No animations for better performance
+   ============================================ */
+
+/* Hero Coral Container */
+.hero-coral-decor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Large Branching Coral - Left Side */
+.coral-branch-left {
+  position: absolute;
+  bottom: 0;
+  left: 5%;
+  width: 120px;
+  height: 180px;
+  opacity: 0.12;
+}
+
+.coral-branch-left::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 16px;
+  height: 100%;
+  background: linear-gradient(to top, #0891b2, #06b6d4);
+  border-radius: 8px 8px 0 0;
+  transform: translateX(-50%);
+}
+
+.coral-branch-left::after {
+  content: '';
+  position: absolute;
+  bottom: 40%;
+  left: 10%;
+  width: 60px;
+  height: 80px;
+  background: 
+    radial-gradient(ellipse 12px 25px at 0% 100%, #0891b2 0%, transparent 70%),
+    radial-gradient(ellipse 10px 30px at 50% 100%, #06b6d4 0%, transparent 70%),
+    radial-gradient(ellipse 12px 22px at 100% 100%, #0891b2 0%, transparent 70%);
+}
+
+/* Fan Coral - Right Side */
+.coral-fan-right {
+  position: absolute;
+  bottom: 0;
+  right: 8%;
+  width: 140px;
+  height: 160px;
+  opacity: 0.1;
+}
+
+.coral-fan-right::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translateX(-50%);
+  background: 
+    radial-gradient(ellipse 100% 100% at 50% 100%, transparent 60%, rgba(236, 72, 153, 0.4) 60%, transparent 62%),
+    radial-gradient(ellipse 80% 80% at 50% 100%, transparent 60%, rgba(236, 72, 153, 0.3) 60%, transparent 62%),
+    radial-gradient(ellipse 60% 60% at 50% 100%, transparent 60%, rgba(236, 72, 153, 0.25) 60%, transparent 62%),
+    radial-gradient(ellipse 40% 40% at 50% 100%, transparent 60%, rgba(236, 72, 153, 0.2) 60%, transparent 62%);
+}
+
+.coral-fan-right::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 10px;
+  height: 30px;
+  background: linear-gradient(to top, #9d174d, #ec4899);
+  border-radius: 5px 5px 0 0;
+  transform: translateX(-50%);
+}
+
+/* Brain Coral - Center-Left */
+.coral-brain {
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 80px;
+  height: 50px;
+  background: radial-gradient(ellipse at center, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+  border-radius: 50% 50% 45% 45%;
+  opacity: 0.15;
+}
+
+.coral-brain::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 4px,
+    rgba(255,255,255,0.2) 4px,
+    rgba(255,255,255,0.2) 6px
+  );
+  border-radius: inherit;
+}
+
+/* Tube Coral Cluster - Right-Center */
+.coral-tubes {
+  position: absolute;
+  bottom: 0;
+  right: 25%;
+  width: 100px;
+  height: 120px;
+  opacity: 0.12;
+}
+
+.coral-tubes::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    /* Individual tubes */
+    linear-gradient(to top, #f97316 0%, #fb923c 100%) no-repeat 0% 100% / 12px 70px,
+    linear-gradient(to top, #ea580c 0%, #f97316 100%) no-repeat 20% 100% / 14px 90px,
+    linear-gradient(to top, #f97316 0%, #fdba74 100%) no-repeat 40% 100% / 10px 60px,
+    linear-gradient(to top, #ea580c 0%, #f97316 100%) no-repeat 55% 100% / 13px 80px,
+    linear-gradient(to top, #f97316 0%, #fb923c 100%) no-repeat 75% 100% / 11px 65px,
+    linear-gradient(to top, #ea580c 0%, #fdba74 100%) no-repeat 90% 100% / 12px 75px;
+  border-radius: 6px 6px 0 0;
+}
+
+/* Small Mushroom Corals */
+.coral-mushroom-1 {
+  position: absolute;
+  bottom: 0;
+  left: 40%;
+  width: 40px;
+  height: 25px;
+  background: radial-gradient(ellipse at 50% 0%, #a855f7 0%, #7c3aed 100%);
+  border-radius: 50% 50% 20% 20%;
+  opacity: 0.1;
+}
+
+.coral-mushroom-2 {
+  position: absolute;
+  bottom: 0;
+  right: 40%;
+  width: 35px;
+  height: 22px;
+  background: radial-gradient(ellipse at 50% 0%, #8b5cf6 0%, #6d28d9 100%);
+  border-radius: 50% 50% 20% 20%;
+  opacity: 0.08;
+}
+
+/* Seaweed/Kelp - Left */
+.seaweed-left {
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 30px;
+  height: 200px;
+  opacity: 0.08;
+}
+
+.seaweed-left::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(to top, #059669 0%, #10b981 50%, #34d399 100%);
+  clip-path: polygon(
+    40% 100%, 60% 100%,
+    70% 90%, 30% 85%,
+    60% 75%, 35% 70%,
+    65% 60%, 40% 55%,
+    60% 45%, 45% 40%,
+    55% 30%, 50% 20%,
+    50% 0%
+  );
+}
+
+.seaweed-left::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15px;
+  width: 18px;
+  height: 80%;
+  background: linear-gradient(to top, #047857 0%, #059669 50%, #10b981 100%);
+  clip-path: polygon(
+    40% 100%, 60% 100%,
+    65% 85%, 35% 80%,
+    60% 65%, 40% 60%,
+    55% 45%, 45% 35%,
+    50% 0%
+  );
+}
+
+/* Seaweed/Kelp - Right */
+.seaweed-right {
+  position: absolute;
+  bottom: 0;
+  right: 15%;
+  width: 35px;
+  height: 180px;
+  opacity: 0.08;
+}
+
+.seaweed-right::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 100%;
+  background: linear-gradient(to top, #059669 0%, #10b981 50%, #6ee7b7 100%);
+  clip-path: polygon(
+    40% 100%, 60% 100%,
+    30% 88%, 70% 82%,
+    35% 72%, 65% 65%,
+    40% 55%, 60% 48%,
+    45% 35%, 55% 25%,
+    50% 0%
+  );
+}
+
+/* Anemone */
+.anemone {
+  position: absolute;
+  bottom: 0;
+  left: 60%;
+  width: 60px;
+  height: 45px;
+  opacity: 0.1;
+}
+
+.anemone::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 45px;
+  background: 
+    /* Tentacles */
+    radial-gradient(ellipse 3px 20px at 10% 100%, #f472b6 0%, transparent 80%),
+    radial-gradient(ellipse 3px 22px at 20% 100%, #ec4899 0%, transparent 80%),
+    radial-gradient(ellipse 3px 25px at 30% 100%, #f472b6 0%, transparent 80%),
+    radial-gradient(ellipse 3px 28px at 40% 100%, #db2777 0%, transparent 80%),
+    radial-gradient(ellipse 3px 30px at 50% 100%, #f472b6 0%, transparent 80%),
+    radial-gradient(ellipse 3px 28px at 60% 100%, #ec4899 0%, transparent 80%),
+    radial-gradient(ellipse 3px 25px at 70% 100%, #f472b6 0%, transparent 80%),
+    radial-gradient(ellipse 3px 22px at 80% 100%, #db2777 0%, transparent 80%),
+    radial-gradient(ellipse 3px 20px at 90% 100%, #f472b6 0%, transparent 80%);
+}
+
+.anemone::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 15px;
+  background: radial-gradient(ellipse at 50% 0%, #be185d 0%, #9d174d 100%);
+  border-radius: 50% 50% 30% 30%;
+}
+
+/* Sandy Bottom */
+.sandy-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to top, 
+    rgba(194, 178, 128, 0.15) 0%,
+    rgba(194, 178, 128, 0.08) 50%,
+    transparent 100%
+  );
+}
+
+/* Small Rocks/Pebbles */
+.pebbles {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  opacity: 0.06;
+  background:
+    radial-gradient(ellipse 15px 10px at 10% 80%, #64748b 0%, transparent 70%),
+    radial-gradient(ellipse 12px 8px at 30% 90%, #475569 0%, transparent 70%),
+    radial-gradient(ellipse 18px 12px at 50% 85%, #64748b 0%, transparent 70%),
+    radial-gradient(ellipse 10px 7px at 70% 88%, #475569 0%, transparent 70%),
+    radial-gradient(ellipse 14px 9px at 85% 82%, #64748b 0%, transparent 70%);
+}
+
+/* Freshwater Plants for Hero */
+.hero-plant-decor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Tall Grass/Vallisneria - Left */
+.plant-grass-left {
+  position: absolute;
+  bottom: 0;
+  left: 8%;
+  width: 50px;
+  height: 220px;
+  opacity: 0.1;
+}
+
+.plant-grass-left::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(175deg, transparent 48%, #059669 48%, #059669 52%, transparent 52%) 0% 0% / 8px 100%,
+    linear-gradient(172deg, transparent 48%, #10b981 48%, #10b981 52%, transparent 52%) 12px 0% / 7px 90%,
+    linear-gradient(178deg, transparent 48%, #047857 48%, #047857 52%, transparent 52%) 22px 0% / 6px 85%,
+    linear-gradient(174deg, transparent 48%, #059669 48%, #059669 52%, transparent 52%) 32px 0% / 7px 95%,
+    linear-gradient(176deg, transparent 48%, #10b981 48%, #10b981 52%, transparent 52%) 42px 0% / 6px 88%;
+}
+
+/* Tall Grass - Right */
+.plant-grass-right {
+  position: absolute;
+  bottom: 0;
+  right: 8%;
+  width: 45px;
+  height: 200px;
+  opacity: 0.1;
+}
+
+.plant-grass-right::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(185deg, transparent 48%, #059669 48%, #059669 52%, transparent 52%) 0% 0% / 7px 100%,
+    linear-gradient(182deg, transparent 48%, #10b981 48%, #10b981 52%, transparent 52%) 10px 0% / 6px 88%,
+    linear-gradient(188deg, transparent 48%, #047857 48%, #047857 52%, transparent 52%) 18px 0% / 7px 92%,
+    linear-gradient(184deg, transparent 48%, #059669 48%, #059669 52%, transparent 52%) 28px 0% / 6px 85%,
+    linear-gradient(186deg, transparent 48%, #10b981 48%, #10b981 52%, transparent 52%) 36px 0% / 7px 95%;
+}
+
+/* Broad Leaf Plant - Left Center */
+.plant-broad-left {
+  position: absolute;
+  bottom: 0;
+  left: 22%;
+  width: 80px;
+  height: 140px;
+  opacity: 0.12;
+}
+
+.plant-broad-left::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 140px;
+  background:
+    /* Leaves */
+    radial-gradient(ellipse 30px 60px at 20% 40%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 35px 55px at 50% 30%, #16a34a 0%, transparent 70%),
+    radial-gradient(ellipse 28px 50px at 80% 45%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 25px 45px at 35% 60%, #15803d 0%, transparent 70%),
+    radial-gradient(ellipse 30px 48px at 65% 55%, #22c55e 0%, transparent 70%);
+}
+
+.plant-broad-left::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 40px;
+  background: linear-gradient(to top, #15803d, #22c55e);
+  border-radius: 4px 4px 0 0;
+}
+
+/* Broad Leaf Plant - Right Center */
+.plant-broad-right {
+  position: absolute;
+  bottom: 0;
+  right: 22%;
+  width: 70px;
+  height: 120px;
+  opacity: 0.1;
+}
+
+.plant-broad-right::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 120px;
+  background:
+    radial-gradient(ellipse 25px 50px at 25% 35%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 30px 45px at 50% 25%, #16a34a 0%, transparent 70%),
+    radial-gradient(ellipse 22px 42px at 75% 40%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 28px 40px at 40% 50%, #15803d 0%, transparent 70%);
+}
+
+/* Lotus/Lily Pad */
+.lily-pad-1 {
+  position: absolute;
+  bottom: 20px;
+  left: 35%;
+  width: 45px;
+  height: 30px;
+  background: radial-gradient(ellipse at 50% 50%, #22c55e 0%, #15803d 70%, #14532d 100%);
+  border-radius: 50%;
+  opacity: 0.08;
+  transform: perspective(100px) rotateX(60deg);
+}
+
+.lily-pad-1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 45%;
+  width: 10%;
+  height: 50%;
+  background: var(--background);
+}
+
+.lily-pad-2 {
+  position: absolute;
+  bottom: 15px;
+  right: 35%;
+  width: 38px;
+  height: 25px;
+  background: radial-gradient(ellipse at 50% 50%, #16a34a 0%, #15803d 70%, #166534 100%);
+  border-radius: 50%;
+  opacity: 0.06;
+  transform: perspective(100px) rotateX(60deg);
+}
+
+/* Moss/Ground Cover */
+.moss-patch {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 25px;
+  opacity: 0.08;
+  background:
+    radial-gradient(ellipse 60px 20px at 15% 90%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 80px 25px at 40% 85%, #16a34a 0%, transparent 70%),
+    radial-gradient(ellipse 50px 18px at 60% 92%, #22c55e 0%, transparent 70%),
+    radial-gradient(ellipse 70px 22px at 85% 88%, #15803d 0%, transparent 70%);
+}
+
+/* Driftwood */
+.driftwood {
+  position: absolute;
+  bottom: 5px;
+  left: 45%;
+  width: 120px;
+  height: 25px;
+  opacity: 0.06;
+}
+
+.driftwood::before {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: linear-gradient(90deg, #78716c 0%, #a8a29e 30%, #78716c 60%, #57534e 100%);
+  border-radius: 6px;
+  transform: rotate(-5deg);
+}
+
+.driftwood::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 70%;
+  width: 40px;
+  height: 8px;
+  background: linear-gradient(90deg, #78716c 0%, #a8a29e 50%, #57534e 100%);
+  border-radius: 4px;
+  transform: rotate(15deg);
+}
+
+/* Legacy reef background (for backward compatibility) */
+.reef-bg {
+  background: var(--background);
+  background-image: 
+    radial-gradient(ellipse at 20% 80%, rgba(8, 145, 178, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
 }
 
 .text-gradient {
   color: transparent;
-  background-image: linear-gradient(135deg, #a3e635 0%, #22d3ee 50%, #3b82f6 100%);
+  background-image: linear-gradient(135deg, var(--aqua-accent-primary) 0%, var(--aqua-accent-tertiary) 50%, var(--aqua-light) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.text-gradient-reef {
+  color: transparent;
+  background-image: linear-gradient(135deg, var(--reef-cyan) 0%, var(--reef-teal) 50%, var(--reef-ocean) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.text-gradient-fresh {
+  color: transparent;
+  background-image: linear-gradient(135deg, var(--fresh-emerald) 0%, var(--fresh-green) 50%, var(--fresh-teal) 100%);
   background-clip: text;
   -webkit-background-clip: text;
 }
@@ -232,22 +1023,39 @@ button:not(:disabled):active {
 .param-po4 { --param-color: var(--param-po4); }
 .param-no3 { --param-color: var(--param-no3); }
 
-/* Glassmorphism cards */
+/* Glassmorphism cards - Light theme version */
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-light);
   box-shadow: 
-    0 4px 30px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .glass-card:hover {
-  border-color: rgba(6, 182, 212, 0.3);
+  border-color: var(--aqua-accent-primary);
   box-shadow: 
-    0 8px 40px rgba(6, 182, 212, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 40px rgba(8, 145, 178, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 30px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  
+  .glass-card:hover {
+    border-color: rgba(8, 145, 178, 0.4);
+    box-shadow: 
+      0 8px 40px rgba(8, 145, 178, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* Glow effects */

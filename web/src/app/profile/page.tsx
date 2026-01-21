@@ -56,7 +56,7 @@ function ProfilePageContent() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold text-gradient mb-6">Edit Profile</h1>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6">
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             {message && (
               <div
@@ -71,7 +71,7 @@ function ProfilePageContent() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 Name
               </label>
               <input
@@ -79,12 +79,12 @@ function ProfilePageContent() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full bg-gray-950 border border-gray-600 rounded px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 Email
               </label>
               <input
@@ -92,7 +92,7 @@ function ProfilePageContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-gray-950 border border-gray-600 rounded px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)]"
               />
             </div>
 
@@ -102,8 +102,8 @@ function ProfilePageContent() {
                 disabled={isLoading}
                 className={`flex-1 py-4 rounded-lg font-semibold text-base transition ${
                   isLoading
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white active:from-cyan-600 active:to-blue-600"
+                    ? "bg-slate-100 text-slate-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white active:from-cyan-600 active:to-blue-600"
                 }`}
               >
                 {isLoading ? "Saving..." : "Save Changes"}
@@ -111,7 +111,7 @@ function ProfilePageContent() {
               <button
                 type="button"
                 onClick={() => router.push("/settings")}
-                className="px-6 py-4 bg-gray-700 text-white rounded-lg active:bg-gray-600 transition text-base"
+                className="px-6 py-4 bg-slate-100 text-slate-900 rounded-lg active:bg-slate-200 transition text-base"
               >
                 Cancel
               </button>

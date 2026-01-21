@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useMemo } from "react";
 
 interface StatCardProps {
@@ -79,9 +78,9 @@ export default function StatCard({
   const colors = paramColors[paramType || "default"];
   
   const trendColors = {
-    up: "text-green-400",
-    down: "text-red-400",
-    stable: "text-gray-400",
+    up: "text-green-500",
+    down: "text-red-500",
+    stable: "text-slate-400",
   };
 
   const trendIcons = {
@@ -91,26 +90,19 @@ export default function StatCard({
   };
 
   const cardClasses = useMemo(() => {
-    let base = `glass-card rounded-xl p-5 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${colors.gradient}`;
+    let base = `relative rounded-xl p-5 transition-shadow duration-200 hover:shadow-md bg-white border border-slate-200 shadow-sm`;
     if (danger) {
-      base += " border-red-500/50 glow-danger";
+      base += " border-red-400 shadow-red-100";
     } else if (warning) {
-      base += " border-amber-500/50 glow-warning";
-    } else {
-      base += ` hover:${colors.glow} hover:shadow-lg`;
+      base += " border-amber-400 shadow-amber-100";
     }
     return base;
-  }, [colors, warning, danger]);
+  }, [warning, danger]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className={cardClasses}
-    >
+    <div className={cardClasses}>
       <div className="flex items-start justify-between mb-3">
-        <div className="text-2xl p-2 rounded-lg bg-white/5">{icon}</div>
+        <div className="text-2xl p-2 rounded-lg bg-slate-100">{icon}</div>
         <div className="flex items-center gap-2">
           {sparklineData && sparklineData.length > 1 && (
             <Sparkline data={sparklineData} color={colors.primary} />
@@ -125,22 +117,17 @@ export default function StatCard({
       </div>
       
       <div>
-        <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{title}</p>
-        <motion.p 
-          className="text-2xl font-bold text-white"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          key={String(value)}
-        >
+        <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">{title}</p>
+        <p className="text-2xl font-bold text-slate-900">
           {value}
-        </motion.p>
+        </p>
       </div>
       
-      {/* Subtle glow accent */}
+      {/* Subtle accent bar */}
       <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px opacity-50"
-        style={{ background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)` }}
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-1 rounded-t-full opacity-60"
+        style={{ background: colors.primary }}
       />
-    </motion.div>
+    </div>
   );
 }

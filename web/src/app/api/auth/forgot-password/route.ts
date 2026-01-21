@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     // Send email via Resend
     const emailResult = await sendEmail({
       to: email,
-      subject: "Reset Your Password - REEFXONE",
+      subject: "Reset Your Password - AQUAXONE",
       html: getPasswordResetEmailHtml(resetUrl),
       text: getPasswordResetEmailText(resetUrl),
     });

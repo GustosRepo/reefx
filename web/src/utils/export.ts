@@ -70,7 +70,7 @@ export function exportLogs(logs: any[]): void {
 
   const csv = objectsToCSV(logs, columns);
   const date = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `reefxone-logs-${date}.csv`);
+  downloadCSV(csv, `aquaxone-logs-${date}.csv`);
 }
 
 /**
@@ -87,7 +87,7 @@ export function exportMaintenance(entries: any[]): void {
 
   const csv = objectsToCSV(entries, columns);
   const date = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `reefxone-maintenance-${date}.csv`);
+  downloadCSV(csv, `aquaxone-maintenance-${date}.csv`);
 }
 
 /**
@@ -108,7 +108,7 @@ export function exportEquipment(equipment: any[]): void {
 
   const csv = objectsToCSV(equipment, columns);
   const date = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `reefxone-equipment-${date}.csv`);
+  downloadCSV(csv, `aquaxone-equipment-${date}.csv`);
 }
 
 /**
@@ -131,7 +131,7 @@ export function exportLivestock(livestock: any[]): void {
 
   const csv = objectsToCSV(livestock, columns);
   const date = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `reefxone-livestock-${date}.csv`);
+  downloadCSV(csv, `aquaxone-livestock-${date}.csv`);
 }
 
 /**

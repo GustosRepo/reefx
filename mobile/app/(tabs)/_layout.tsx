@@ -1,22 +1,39 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import { Image, View } from "react-native";
-import AdBanner from "../../components/AdBanner"; // ✅ Import banner
+import { Image, View, Text, TouchableOpacity } from "react-native";
+import AdBanner from "../../components/AdBanner";
+import { AquaModeProvider, useAquaMode } from "../../context/AquaModeContext";
+import { ModeIndicator } from "../../components/ModeSwitch";
 
-export default function TabLayout() {
+function TabLayoutContent() {
+  const { colors, modeIcon, mode } = useAquaMode();
+
   return (
     <>
-      <StatusBar style="light" />
-      <View style={{ flex: 1, backgroundColor: "#000" }}>
-        {/* Logo Header */}
-        <View style={{ alignItems: "center", marginTop: 10, marginBottom: 0 }}>
-          <Image
-            source={require("../../assets/fulllogo.png")}
-            style={{ width: 150, height: 75, resizeMode: "contain" }}
-            onError={() => console.warn("❌ fulllogo.png failed to load")}
-            accessibilityLabel="REEFX Logo"
-          />
+      <StatusBar style="dark" />
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
+        {/* Logo Header with Mode Indicator */}
+        <View style={{ 
+          alignItems: "center", 
+          marginTop: 10, 
+          marginBottom: 0,
+          flexDirection: "row",
+          justifyContent: "center",
+          paddingHorizontal: 16,
+        }}>
+          <View style={{ flex: 1, alignItems: "center" }}>
+            <Image
+              source={require("../../assets/fulllogo.png")}
+              style={{ width: 150, height: 75, resizeMode: "contain" }}
+              onError={() => console.warn("❌ fulllogo.png failed to load")}
+              accessibilityLabel="AQUAXONE Logo"
+            />
+          </View>
+          {/* Mode indicator in top right */}
+          <View style={{ position: "absolute", right: 16, top: 25 }}>
+            <ModeIndicator />
+          </View>
         </View>
 
         {/* Tabs */}
@@ -32,12 +49,13 @@ export default function TabLayout() {
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            tabBarActiveTintColor: "#7df9ff",
-            tabBarInactiveTintColor: "#999",
+            tabBarActiveTintColor: colors.primary,
+            tabBarInactiveTintColor: colors.textMuted,
             headerShown: false,
             tabBarStyle: {
-              backgroundColor: "#000",
-              borderTopColor: "#333",
+              backgroundColor: colors.card,
+              borderTopColor: colors.border,
+              borderTopWidth: 1,
             },
             tabBarLabelStyle: {
               fontWeight: "600",
@@ -49,5 +67,13 @@ export default function TabLayout() {
         <AdBanner />
       </View>
     </>
+  );
+}
+
+export default function TabLayout() {
+  return (
+    <AquaModeProvider>
+      <TabLayoutContent />
+    </AquaModeProvider>
   );
 }

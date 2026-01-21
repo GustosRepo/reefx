@@ -22,9 +22,15 @@ export default function Toast({ message, type = "success", duration = 3000, onCl
   }, [duration, onClose]);
 
   const bgColor = {
-    success: "from-green-900/90 to-green-800/90 border-green-500/50",
-    error: "from-red-900/90 to-red-800/90 border-red-500/50",
-    info: "from-cyan-900/90 to-blue-800/90 border-cyan-500/50",
+    success: "bg-green-50 border-green-200",
+    error: "bg-red-50 border-red-200",
+    info: "bg-[var(--aqua-accent-primary)]/10 border-[var(--aqua-accent-primary)]/30",
+  };
+
+  const textColor = {
+    success: "text-green-800",
+    error: "text-red-800",
+    info: "text-[var(--aqua-accent-primary)]",
   };
 
   const icon = {
@@ -40,7 +46,7 @@ export default function Toast({ message, type = "success", duration = 3000, onCl
       }`}
     >
       <div
-        className={`bg-gradient-to-r ${bgColor[type]} border rounded-lg shadow-2xl p-4 min-w-[300px] max-w-md backdrop-blur-sm`}
+        className={`${bgColor[type]} border rounded-lg shadow-2xl p-4 min-w-[300px] max-w-md backdrop-blur-sm`}
       >
         <div className="flex items-center gap-3">
           <div
@@ -49,18 +55,18 @@ export default function Toast({ message, type = "success", duration = 3000, onCl
                 ? "bg-green-500"
                 : type === "error"
                 ? "bg-red-500"
-                : "bg-cyan-500"
+                : "bg-[var(--aqua-accent-primary)]"
             }`}
           >
             {icon[type]}
           </div>
-          <p className="text-white text-sm font-medium flex-1">{message}</p>
+          <p className={`${textColor[type]} text-sm font-medium flex-1`}>{message}</p>
           <button
             onClick={() => {
               setIsVisible(false);
               setTimeout(onClose, 300);
             }}
-            className="text-white/70 hover:text-white transition text-xl leading-none"
+            className="text-slate-400 hover:text-slate-600 transition text-xl leading-none"
           >
             ×
           </button>

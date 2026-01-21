@@ -6,7 +6,11 @@ import { ReefForm } from "@/types";
 import AppLayout from "@/components/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdBanner from "@/components/AdBanner";
+import { HistorySkeleton } from "@/components/Skeleton";
 import { useTank } from "@/context/TankContext";
+import { useAquaMode, useModeParameters } from "@/context/AquaModeContext";
+import { getCurrentUser, User } from "@/utils/auth";
+import { fahrenheitToCelsius } from "@/utils/conversions";
 
 export default function HistoryPage() {
   return (
@@ -18,11 +22,23 @@ export default function HistoryPage() {
 
 function HistoryPageContent() {
   const [logs, setLogs] = useState<ReefForm[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [editingLog, setEditingLog] = useState<ReefForm | null>(null);
   const [editForm, setEditForm] = useState<ReefForm | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLogId, setDeleteLogId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { currentTank } = useTank();
+  const { mode } = useAquaMode();
+  const modeParameters = useModeParameters();
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (currentTank) {
@@ -31,6 +47,7 @@ function HistoryPageContent() {
   }, [currentTank?.id]);
 
   const loadLogs = async (tankId: string) => {
+    setIsLoading(true);
     try {
       const response = await fetch(`/api/logs?tank_id=${tankId}`);
       const data: ReefForm[] = await response.json();
@@ -40,7 +57,40 @@ function HistoryPageContent() {
       setLogs(sorted);
     } catch (err) {
       console.error('Failed to load logs:', err);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Convert temperature for display based on user preference
+  const formatTempValue = (value: string | number | undefined): string => {
+    if (value === undefined || value === null || value === '') return '—';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '—';
+    
+    // Temperature is stored in Fahrenheit, convert if user prefers Celsius
+    if (user?.temp_unit === 'celsius') {
+      return fahrenheitToCelsius(numValue).toFixed(1);
+    }
+    return numValue.toFixed(1);
+  };
+
+  // Get the display value for a parameter
+  const getDisplayValue = (log: ReefForm, key: string): string => {
+    const value = log[key as keyof ReefForm];
+    if (key === 'temp') {
+      return formatTempValue(value);
+    }
+    return value?.toString() || '—';
+  };
+
+  // Get the label with correct temp unit
+  const getParameterLabel = (key: string, baseLabel: string): string => {
+    if (key === 'temp') {
+      const unit = user?.temp_unit === 'celsius' ? '°C' : '°F';
+      return `Temperature (${unit})`;
+    }
+    return baseLabel.split(' (')[0];
   };
 
   const handleDeleteClick = (logId: string) => {
@@ -111,29 +161,31 @@ function HistoryPageContent() {
 
         <AdBanner />
 
-        {logs.length === 0 ? (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-8 text-center">
-            <p className="text-gray-400">No logs found.</p>
+        {isLoading ? (
+          <HistorySkeleton count={3} />
+        ) : logs.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
+            <p className="text-slate-500">No logs found.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {logs.map((log) => (
               <div
                 key={log.date}
-                className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+                className="bg-white border border-slate-200 rounded-xl p-6 hover:border-[var(--aqua-accent-primary)]/50 transition-all duration-300 hover:shadow-lg shadow-sm"
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                  <h2 className="text-lg sm:text-xl font-bold text-cyan-400">{log.date}</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-[var(--aqua-accent-primary)]">{log.date}</h2>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => startEdit(log)}
-                      className="flex-1 sm:flex-none px-5 py-2.5 bg-blue-600 text-white rounded-lg active:bg-blue-700 transition text-sm font-medium"
+                      className="flex-1 sm:flex-none px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition text-sm font-medium"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDeleteClick((log as any).id)}
-                      className="flex-1 sm:flex-none px-5 py-2.5 bg-red-600 text-white rounded-lg active:bg-red-700 transition text-sm font-medium"
+                      className="flex-1 sm:flex-none px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition text-sm font-medium"
                     >
                       Delete
                     </button>
@@ -141,38 +193,16 @@ function HistoryPageContent() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Temperature</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.temp} °C</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Salinity</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.salinity} ppt</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">ALK</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.alk} dKH</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">pH</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.ph}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Calcium</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.cal} ppm</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Magnesium</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.mag} ppm</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Phosphate</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.po4} ppm</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-xs md:text-sm">Nitrate</p>
-                    <p className="text-white font-semibold text-sm md:text-base">{log.no3} ppm</p>
-                  </div>
+                  {modeParameters.map(({ key, label, icon }) => (
+                    <div key={key} className="bg-slate-50 rounded-lg p-3">
+                      <p className="text-slate-500 text-xs md:text-sm flex items-center gap-1">
+                        <span>{icon}</span> {getParameterLabel(key, label)}
+                      </p>
+                      <p className="text-slate-900 font-semibold text-sm md:text-base">
+                        {getDisplayValue(log, key)}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -181,23 +211,23 @@ function HistoryPageContent() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-white border border-red-200 rounded-xl p-6 max-w-md w-full shadow-2xl animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">🗑️</div>
-                <h3 className="text-xl font-bold text-white mb-2">Delete Log?</h3>
-                <p className="text-gray-400">This action cannot be undone.</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Log?</h3>
+                <p className="text-slate-500">This action cannot be undone.</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                  className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold"
+                  className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-semibold"
                 >
                   Delete
                 </button>
@@ -208,9 +238,9 @@ function HistoryPageContent() {
 
         {/* Edit Modal */}
         {editingLog && editForm && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-slate-200 rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <h2 className="text-2xl font-bold text-[var(--aqua-accent-primary)] mb-4">
                 Edit Log - {editingLog.date}
               </h2>
 
@@ -226,7 +256,7 @@ function HistoryPageContent() {
                   { key: "no3", label: "Nitrate (NO₃)" },
                 ].map(({ key, label }) => (
                   <div key={key}>
-                    <label className="block text-sm font-semibold text-cyan-400 mb-2">
+                    <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                       {label}
                     </label>
                     <input
@@ -235,7 +265,7 @@ function HistoryPageContent() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, [key]: e.target.value })
                       }
-                      className="w-full bg-gray-950 border border-gray-600 rounded px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20"
                     />
                   </div>
                 ))}
@@ -244,13 +274,13 @@ function HistoryPageContent() {
               <div className="flex space-x-4 mt-6">
                 <button
                   onClick={saveEdit}
-                  className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-600 transition"
+                  className="flex-1 py-3 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white rounded-lg font-semibold hover:opacity-90 transition"
                 >
                   Save Changes
                 </button>
                 <button
                   onClick={cancelEdit}
-                  className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition"
+                  className="px-6 py-3 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition"
                 >
                   Cancel
                 </button>

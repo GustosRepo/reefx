@@ -14,11 +14,6 @@ export async function POST(request: NextRequest) {
 
     const { priceId, tier, promoCode } = await request.json();
 
-    console.log('🛒 Creating checkout for user:', user.id);
-    console.log('Price ID:', priceId);
-    console.log('Tier:', tier);
-    console.log('Promo Code:', promoCode || 'none');
-
     // Validate price ID
     if (!priceId || !priceId.startsWith('price_')) {
       console.error('❌ Invalid price ID:', priceId);
@@ -87,14 +82,10 @@ export async function POST(request: NextRequest) {
           } else if (promo.stripe_coupon_id) {
             stripeCouponId = promo.stripe_coupon_id;
           }
-          console.log('✅ Promo code valid:', promo.code, 'Trial days:', trialDays);
         }
       }
     }
 
-    // Create Checkout Session
-    console.log('Creating Stripe checkout session with metadata:', { user_id: user.id, tier, promoCode });
-    
     // Build subscription data with optional trial
     const subscriptionData: { trial_period_days?: number; metadata: Record<string, string> } = {
       metadata: {
@@ -128,8 +119,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('✅ Checkout session created:', session.id);
-    console.log('Session metadata:', session.metadata);
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion, MotionConfig } from "framer-motion";
 import { ReefForm, MaintenanceEntry } from "@/types";
 import { getWarning } from "@/utils/warningUtils";
 import { sortLogsByDate } from "@/utils/dateUtils";
@@ -12,10 +12,13 @@ import AdBanner from "@/components/AdBanner";
 import EmptyState from "@/components/EmptyState";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import { useTank } from "@/context/TankContext";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from "@/context/AquaModeContext";
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { getCurrentUser, User } from "@/utils/auth";
 import { fahrenheitToCelsius } from "@/utils/conversions";
 import Link from "next/link";
+import OnboardingModal, { OnboardingData } from "@/components/OnboardingModal";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
   return (
@@ -33,24 +36,39 @@ function DashboardContent() {
   const [overdueMaintenance, setOverdueMaintenance] = useState<MaintenanceEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLogs, setHasLogs] = useState(false);
-  const { currentTank } = useTank();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { currentTank, refreshTanks } = useTank();
+  const { isReefMode, mode } = useAquaMode();
   const [alertsMuted, setAlertsMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefxone_alerts_muted') === 'true';
+      return localStorage.getItem('aquaxone_alerts_muted') === 'true';
     }
     return false;
   });
   const [maintenanceMuted, setMaintenanceMuted] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('reefxone_maintenance_muted') === 'true';
+      return localStorage.getItem('aquaxone_maintenance_muted') === 'true';
     }
     return false;
   });
+
+  // Get mode-specific parameters
+  const modeParameters = isReefMode ? REEF_PARAMETERS : FRESHWATER_PARAMETERS;
+  const paramKeys = modeParameters.map(p => p.key);
 
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
+      
+      // Check if user needs onboarding (no tanks or first visit)
+      if (currentUser) {
+        const hasSeenOnboarding = localStorage.getItem('aquaxone_onboarding_complete');
+        if (!hasSeenOnboarding) {
+          // Small delay to let the page load
+          setTimeout(() => setShowOnboarding(true), 500);
+        }
+      }
     };
     loadUser();
   }, []);
@@ -61,11 +79,21 @@ function DashboardContent() {
     }
   }, [user, currentTank?.id]);
 
-  const loadDashboardData = async (tankId: string) => {
+  const loadDashboardData = useCallback(async (tankId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/logs?tank_id=${tankId}`);
-      const logs: ReefForm[] = await response.json();
+      // Fetch all data in parallel for better performance
+      const [logsResponse, thresholdsResponse, maintenanceResponse] = await Promise.all([
+        fetch(`/api/logs?tank_id=${tankId}`),
+        fetch('/api/thresholds'),
+        fetch(`/api/maintenance?tank_id=${tankId}`)
+      ]);
+      
+      const [logs, thresholdsData, maintenance]: [ReefForm[], any, MaintenanceEntry[]] = await Promise.all([
+        logsResponse.json(),
+        thresholdsResponse.json(),
+        maintenanceResponse.json()
+      ]);
       
       // Handle empty or error responses
       if (!Array.isArray(logs)) {
@@ -78,16 +106,23 @@ function DashboardContent() {
       const sortedLogs = sortLogsByDate(logs);
       const recent = sortedLogs.slice(-7).filter((log) => log && log.date);
 
-      // Build chart data
+      // Build chart data - includes both reef and freshwater parameters
       const newChartData: Record<string, number[]> = {
+        // Shared
         temp: [],
-        salinity: [],
-        alk: [],
         ph: [],
-        cal: [],
-        mag: [],
         po4: [],
         no3: [],
+        // Reef specific
+        salinity: [],
+        alk: [],
+        cal: [],
+        mag: [],
+        // Freshwater specific
+        gh: [],
+        kh: [],
+        ammonia: [],
+        no2: [],
       };
 
       recent.forEach((entry) => {
@@ -97,24 +132,27 @@ function DashboardContent() {
         if (user?.temp_unit === 'celsius' && tempValue > 0) {
           tempValue = fahrenheitToCelsius(tempValue);
         }
+        // Shared
         newChartData.temp.push(tempValue);
-        newChartData.salinity.push(parseFloat(String(entry.salinity)) || 0);
-        newChartData.alk.push(parseFloat(String(entry.alk)) || 0);
         newChartData.ph.push(parseFloat(String(entry.ph)) || 0);
-        newChartData.cal.push(parseFloat(String(entry.cal)) || 0);
-        newChartData.mag.push(parseFloat(String(entry.mag)) || 0);
         newChartData.po4.push(parseFloat(String(entry.po4)) || 0);
         newChartData.no3.push(parseFloat(String(entry.no3)) || 0);
+        // Reef specific
+        newChartData.salinity.push(parseFloat(String(entry.salinity)) || 0);
+        newChartData.alk.push(parseFloat(String(entry.alk)) || 0);
+        newChartData.cal.push(parseFloat(String(entry.cal)) || 0);
+        newChartData.mag.push(parseFloat(String(entry.mag)) || 0);
+        // Freshwater specific
+        newChartData.gh.push(parseFloat(String(entry.gh)) || 0);
+        newChartData.kh.push(parseFloat(String(entry.kh)) || 0);
+        newChartData.ammonia.push(parseFloat(String(entry.ammonia)) || 0);
+        newChartData.no2.push(parseFloat(String(entry.no2)) || 0);
       });
 
       setChartData(newChartData);
       setHasLogs(recent.length > 0);
       setLabels(recent.map((entry) => entry.date));
 
-      // Compute warnings
-      const thresholdsResponse = await fetch('/api/thresholds');
-      const thresholdsData = await thresholdsResponse.json();
-      
       // Convert API format to legacy format for getWarning function
       const thresholds: Record<string, { min: number; max: number }> = {
         temp: { min: thresholdsData.temp_min, max: thresholdsData.temp_max },
@@ -138,10 +176,7 @@ function DashboardContent() {
       }
       setWarnings(latestWarnings);
 
-      // Check overdue maintenance (filtered by current tank)
-      const maintenanceResponse = await fetch(`/api/maintenance?tank_id=${tankId}`);
-      const maintenance: MaintenanceEntry[] = await maintenanceResponse.json();
-      
+      // Check overdue maintenance (already fetched in parallel)
       if (Array.isArray(maintenance)) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -161,52 +196,104 @@ function DashboardContent() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.temp_unit]);
 
-  const labelMap: Record<string, string> = {
-    temp: "Temperature",
-    salinity: "Salinity (ppt)",
-    alk: "Alkalinity (dKH)",
-    ph: "pH",
-    cal: "Calcium (ppm)",
-    mag: "Magnesium (ppm)",
-    po4: "Phosphate (PO₄)",
-    no3: "Nitrate (NO₃)",
-  };
-
-  const paramIcons: Record<string, string> = {
-    temp: "🌡️",
-    salinity: "🧂",
-    alk: "⚗️",
-    ph: "🔬",
-    cal: "💎",
-    mag: "✨",
-    po4: "🧪",
-    no3: "📊",
-  };
+  // Build labelMap and paramIcons from mode parameters - memoized
+  const { labelMap, paramIcons } = useMemo(() => {
+    const labels: Record<string, string> = {};
+    const icons: Record<string, string> = {};
+    modeParameters.forEach(p => {
+      labels[p.key] = p.label;
+      icons[p.key] = p.icon;
+    });
+    return { labelMap: labels, paramIcons: icons };
+  }, [modeParameters]);
 
   const paramColors: Record<string, { stroke: string; fill: string }> = {
+    // Shared
     temp: { stroke: "#f97316", fill: "url(#tempGradient)" },
-    salinity: { stroke: "#3b82f6", fill: "url(#salinityGradient)" },
-    alk: { stroke: "#8b5cf6", fill: "url(#alkGradient)" },
     ph: { stroke: "#10b981", fill: "url(#phGradient)" },
-    cal: { stroke: "#06b6d4", fill: "url(#calGradient)" },
-    mag: { stroke: "#ec4899", fill: "url(#magGradient)" },
     po4: { stroke: "#f59e0b", fill: "url(#po4Gradient)" },
     no3: { stroke: "#ef4444", fill: "url(#no3Gradient)" },
+    // Reef specific
+    salinity: { stroke: "#3b82f6", fill: "url(#salinityGradient)" },
+    alk: { stroke: "#8b5cf6", fill: "url(#alkGradient)" },
+    cal: { stroke: "#06b6d4", fill: "url(#calGradient)" },
+    mag: { stroke: "#ec4899", fill: "url(#magGradient)" },
+    // Freshwater specific
+    gh: { stroke: "#3b82f6", fill: "url(#ghGradient)" },
+    kh: { stroke: "#8b5cf6", fill: "url(#khGradient)" },
+    ammonia: { stroke: "#dc2626", fill: "url(#ammoniaGradient)" },
+    no2: { stroke: "#f97316", fill: "url(#no2Gradient)" },
   };
 
-  const formatChartData = (param: string) => {
-    return labels.map((date, index) => ({
-      date: date.substring(5), // Show MM-DD
-      value: chartData[param]?.[index] || 0,
-    }));
+  // Memoize chart data formatting
+  const formattedChartData = useMemo(() => {
+    const formatted: Record<string, { date: string; value: number }[]> = {};
+    Object.keys(labelMap).forEach(param => {
+      formatted[param] = labels.map((date, index) => ({
+        date: date.substring(5), // Show MM-DD
+        value: chartData[param]?.[index] || 0,
+      }));
+    });
+    return formatted;
+  }, [labels, chartData, labelMap]);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = async (data: OnboardingData) => {
+    try {
+      // Update the user's first tank with onboarding data
+      const response = await fetch('/api/tanks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.tankName,
+          size_gallons: data.tankSize ? parseFloat(data.tankSize) : null,
+          type: data.tankType,
+          aqua_mode: data.aquaMode,
+        }),
+      });
+
+      if (!response.ok) {
+        // If tank creation fails (might already have default tank), try to update it
+        const tanksRes = await fetch('/api/tanks');
+        const tanks = await tanksRes.json();
+        if (tanks.length > 0) {
+          await fetch('/api/tanks', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: tanks[0].id,
+              name: data.tankName,
+              size_gallons: data.tankSize ? parseFloat(data.tankSize) : null,
+              type: data.tankType,
+              aqua_mode: data.aquaMode,
+            }),
+          });
+        }
+      }
+
+      // Mark onboarding as complete
+      localStorage.setItem('aquaxone_onboarding_complete', 'true');
+      setShowOnboarding(false);
+      refreshTanks();
+      toast.success(`Welcome! Your ${data.aquaMode === 'reef' ? 'reef' : 'freshwater'} tank is ready!`);
+    } catch (err) {
+      console.error('Onboarding error:', err);
+      localStorage.setItem('aquaxone_onboarding_complete', 'true');
+      setShowOnboarding(false);
+    }
   };
 
   if (isLoading) {
     return (
       <AppLayout>
         <DashboardSkeleton />
+        <OnboardingModal
+          isOpen={showOnboarding}
+          onComplete={handleOnboardingComplete}
+          userName={user?.name?.split(' ')[0]}
+        />
       </AppLayout>
     );
   }
@@ -214,21 +301,26 @@ function DashboardContent() {
   if (!hasLogs) {
     return (
       <AppLayout>
+        <OnboardingModal
+          isOpen={showOnboarding}
+          onComplete={handleOnboardingComplete}
+          userName={user?.name?.split(' ')[0]}
+        />
         <div className="max-w-2xl mx-auto py-12">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-8"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-2">REEFXONE</h1>
-            <p className="text-gray-400">Your reef journey begins here</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-2">AQUAXONE</h1>
+            <p className="text-slate-500">Your aquarium journey begins here</p>
           </motion.div>
           
-          <div className="glass-card rounded-2xl p-8">
+          <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
             <EmptyState
               variant="coral"
-              title="Welcome to Your Reef Dashboard!"
-              description="Start tracking your reef parameters to see beautiful charts, trends, and get smart alerts when things need attention."
+              title="Welcome to Your Dashboard!"
+              description="Start tracking your aquarium parameters to see beautiful charts, trends, and get smart alerts when things need attention."
               actionLabel="📝 Log Your First Parameters"
               actionHref="/log"
             />
@@ -240,7 +332,12 @@ function DashboardContent() {
 
   return (
     <AppLayout>
-      <div className="space-y-8 reef-bg min-h-screen -mx-4 -mt-4 px-4 pt-4 md:-mx-6 md:-mt-6 md:px-6 md:pt-6">
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onComplete={handleOnboardingComplete}
+        userName={user?.name?.split(' ')[0]}
+      />
+      <div className="space-y-8 min-h-screen">
         {/* Header with animated gradient */}
         <motion.div 
           className="relative"
@@ -248,13 +345,13 @@ function DashboardContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient gradient-animate mb-2">REEFXONE</h1>
-          <p className="text-gray-400 text-lg">Your reef parameters at a glance</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient gradient-animate mb-2">AQUAXONE</h1>
+          <p className="text-slate-500 text-lg">Your aquarium parameters at a glance</p>
           
           {/* Quick action button */}
           <Link
             href="/log"
-            className="absolute right-0 top-0 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-xl font-medium text-sm hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30 hidden md:flex items-center gap-2"
+            className="absolute right-0 top-0 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white px-4 py-2 rounded-xl font-medium text-sm hover:opacity-90 transition-all duration-300 hover:scale-105 hover:shadow-lg hidden md:flex items-center gap-2"
           >
             <span>+</span> New Log
           </Link>
@@ -309,13 +406,13 @@ function DashboardContent() {
         {/* Warnings Section */}
         {Object.values(warnings).some((w) => w) && !alertsMuted && (
           <motion.div 
-            className="glass-card rounded-xl p-4 md:p-6 border-red-500/50 glow-danger"
+            className="bg-white border border-red-200 rounded-xl p-4 md:p-6 shadow-sm"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
           >
             <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h2 className="text-lg md:text-xl font-bold text-red-400 flex items-center gap-2">
+              <h2 className="text-lg md:text-xl font-bold text-red-500 flex items-center gap-2">
                 <motion.span 
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
@@ -327,9 +424,9 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setAlertsMuted(true);
-                  localStorage.setItem('reefxone_alerts_muted', 'true');
+                  localStorage.setItem('aquaxone_alerts_muted', 'true');
                 }}
-                className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10"
+                className="text-sm text-slate-500 hover:text-slate-700 transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
               >
                 🔕 Mute
               </button>
@@ -339,14 +436,14 @@ function DashboardContent() {
                 warning ? (
                   <motion.div 
                     key={param} 
-                    className="bg-black/40 rounded-lg p-3 flex items-start gap-3"
+                    className="bg-red-50 rounded-lg p-3 flex items-start gap-3"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                   >
                     <span className="text-xl">{paramIcons[param]}</span>
                     <div>
-                      <p className="font-semibold text-white text-sm md:text-base">{labelMap[param]}</p>
-                      <p className="text-red-300 text-xs md:text-sm">{warning}</p>
+                      <p className="font-semibold text-slate-800 text-sm md:text-base">{labelMap[param]}</p>
+                      <p className="text-red-600 text-xs md:text-sm">{warning}</p>
                     </div>
                   </motion.div>
                 ) : null
@@ -357,17 +454,17 @@ function DashboardContent() {
 
         {/* Muted Alerts Indicator */}
         {Object.values(warnings).some((w) => w) && alertsMuted && (
-          <div className="glass-card rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-2 text-slate-500 text-sm">
               <span>🔕</span>
               <span>Alerts muted ({Object.values(warnings).filter((w) => w).length} warnings hidden)</span>
             </div>
             <button
               onClick={() => {
                 setAlertsMuted(false);
-                localStorage.setItem('reefxone_alerts_muted', 'false');
+                localStorage.setItem('aquaxone_alerts_muted', 'false');
               }}
-              className="text-sm text-cyan-400 hover:text-cyan-300 transition px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10"
+              className="text-sm text-[var(--aqua-accent-primary)] hover:underline transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
             >
               Show Alerts
             </button>
@@ -377,29 +474,29 @@ function DashboardContent() {
         {/* Overdue Maintenance */}
         {overdueMaintenance.length > 0 && !maintenanceMuted && (
           <motion.div 
-            className="glass-card rounded-xl p-4 md:p-6 border-amber-500/50 glow-warning"
+            className="bg-white border border-amber-200 rounded-xl p-4 md:p-6 shadow-sm"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
             <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h2 className="text-lg md:text-xl font-bold text-amber-400 flex items-center gap-2">
+              <h2 className="text-lg md:text-xl font-bold text-amber-500 flex items-center gap-2">
                 <span>🔧</span> Overdue Maintenance
               </h2>
               <button
                 onClick={() => {
                   setMaintenanceMuted(true);
-                  localStorage.setItem('reefxone_maintenance_muted', 'true');
+                  localStorage.setItem('aquaxone_maintenance_muted', 'true');
                 }}
-                className="text-sm text-gray-400 hover:text-white transition px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10"
+                className="text-sm text-slate-500 hover:text-slate-700 transition px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200"
               >
                 🔕 Mute
               </button>
             </div>
             <ul className="space-y-2">
               {overdueMaintenance.map((item, index) => (
-                <li key={index} className="bg-black/40 rounded-lg p-3">
-                  <p className="font-semibold text-white text-sm md:text-base">{item.type}</p>
-                  <p className="text-xs md:text-sm text-gray-400">Last done: {item.date}</p>
+                <li key={index} className="bg-amber-50 rounded-lg p-3">
+                  <p className="font-semibold text-slate-800 text-sm md:text-base">{item.type}</p>
+                  <p className="text-xs md:text-sm text-slate-500">Last done: {item.date}</p>
                 </li>
               ))}
             </ul>
@@ -408,87 +505,84 @@ function DashboardContent() {
 
         {/* Show Maintenance Button (when muted) */}
         {overdueMaintenance.length > 0 && maintenanceMuted && (
-          <div className="glass-card rounded-xl p-4 text-center">
-            <p className="text-gray-400 mb-2">🔕 Overdue maintenance muted ({overdueMaintenance.length} {overdueMaintenance.length === 1 ? 'task' : 'tasks'})</p>
+          <div className="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+            <p className="text-slate-500 mb-2">🔕 Overdue maintenance muted ({overdueMaintenance.length} {overdueMaintenance.length === 1 ? 'task' : 'tasks'})</p>
             <button
               onClick={() => {
                 setMaintenanceMuted(false);
-                localStorage.setItem('reefxone_maintenance_muted', 'false');
+                localStorage.setItem('aquaxone_maintenance_muted', 'false');
               }}
-              className="text-sm bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 px-4 py-2 rounded-lg border border-amber-500/30 hover:border-amber-400/50 transition"
+              className="text-sm bg-amber-100 text-amber-600 px-4 py-2 rounded-lg border border-amber-300 hover:border-amber-400 transition"
             >
               Show Maintenance
             </button>
           </div>
         )}
 
-        {/* Parameter Charts - Enhanced with gradients */}
-        <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 relative isolate"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {Object.keys(labelMap).map((param, index) => (
-            <motion.div 
-              key={param}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
-              className="glass-card rounded-xl p-4 md:p-6 hover:scale-[1.01] transition-transform duration-300 overflow-hidden"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-xl">{paramIcons[param]}</span>
-                <h3 className="text-base md:text-lg font-bold" style={{ color: paramColors[param].stroke }}>{labelMap[param]}</h3>
-              </div>
-              {chartData[param]?.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
-                  <AreaChart data={formatChartData(param)}>
-                    <defs>
-                      <linearGradient id={`${param}Gradient`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={paramColors[param].stroke} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={paramColors[param].stroke} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0} horizontal={false} vertical={false} />
-                    <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(15, 23, 42, 0.9)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: 12,
-                        color: "#fff",
-                        fontSize: 12,
-                        backdropFilter: "blur(10px)",
-                      }}
-                      labelStyle={{ color: "#9ca3af" }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={paramColors[param].stroke} 
-                      strokeWidth={2} 
-                      fill={`url(#${param}Gradient)`}
-                      dot={{ fill: paramColors[param].stroke, r: 3, strokeWidth: 0 }}
-                      activeDot={{ r: 5, stroke: paramColors[param].stroke, strokeWidth: 2, fill: "#0f172a" }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <span className="text-3xl mb-2 opacity-50">{paramIcons[param]}</span>
-                  <p className="text-sm">No data yet</p>
+        {/* Parameter Charts - Optimized rendering */}
+        <MotionConfig reducedMotion="user">
+          <div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 relative isolate animate-fadeIn"
+          >
+            {Object.keys(labelMap).map((param) => (
+              <div 
+                key={param}
+                className="bg-white border border-slate-200 rounded-xl p-4 md:p-6 hover:shadow-md transition-shadow duration-300 overflow-hidden shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xl">{paramIcons[param]}</span>
+                  <h3 className="text-base md:text-lg font-bold" style={{ color: paramColors[param].stroke }}>{labelMap[param]}</h3>
                 </div>
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
+                {formattedChartData[param]?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={formattedChartData[param]}>
+                      <defs>
+                        <linearGradient id={`${param}Gradient`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={paramColors[param].stroke} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={paramColors[param].stroke} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} horizontal={true} vertical={false} />
+                      <XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <YAxis stroke="#94a3b8" style={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(255, 255, 255, 0.95)",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: 12,
+                          color: "#0f172a",
+                          fontSize: 12,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                        labelStyle={{ color: "#64748b" }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke={paramColors[param].stroke} 
+                        strokeWidth={2} 
+                        fill={`url(#${param}Gradient)`}
+                        dot={false}
+                        activeDot={{ r: 5, stroke: paramColors[param].stroke, strokeWidth: 2, fill: "#ffffff" }}
+                        isAnimationActive={false}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+                    <span className="text-3xl mb-2 opacity-50">{paramIcons[param]}</span>
+                    <p className="text-sm">No data yet</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </MotionConfig>
 
         {/* Floating Action Button for Mobile */}
         <Link
           href="/log"
-          className="fab md:hidden bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-2xl"
+          className="fab md:hidden bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white text-2xl"
         >
           +
         </Link>

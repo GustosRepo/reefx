@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `☕ Support REEFXONE`,
+              name: `☕ Support AQUAXONE`,
               description: `Thank you for supporting the reef community! 🐠`,
             },
             unit_amount: amount * 100, // Convert to cents

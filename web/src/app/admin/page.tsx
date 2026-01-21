@@ -127,14 +127,14 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen reef-bg">
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-gray-400 hover:text-white transition">
+            <Link href="/dashboard" className="text-slate-500 hover:text-slate-900 transition">
               ← Back to App
             </Link>
-            <div className="h-6 w-px bg-white/10" />
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <div className="h-6 w-px bg-slate-200" />
+            <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <span className="text-2xl">⚙️</span>
               Admin Dashboard
             </h1>
@@ -154,27 +154,27 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
         >
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Total Users</p>
-            <p className="text-3xl font-bold text-white">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Total Users</p>
+            <p className="text-3xl font-bold text-slate-900">
               {loading ? "..." : stats?.totalUsers || 0}
             </p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Premium</p>
-            <p className="text-3xl font-bold text-cyan-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Premium</p>
+            <p className="text-3xl font-bold text-[var(--aqua-accent-primary)]">
               {loading ? "..." : stats?.premiumUsers || 0}
             </p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Super Premium</p>
-            <p className="text-3xl font-bold text-purple-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Super Premium</p>
+            <p className="text-3xl font-bold text-purple-500">
               {loading ? "..." : stats?.superPremiumUsers || 0}
             </p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Total Revenue</p>
-            <p className="text-3xl font-bold text-green-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Total Revenue</p>
+            <p className="text-3xl font-bold text-green-600">
               {loading ? "..." : formatCents(stats?.totalRevenue || 0)}
             </p>
           </div>
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h2 className="text-lg font-semibold text-white mb-4">Admin Tools</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Admin Tools</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {adminTools.map((tool, index) => (
               <motion.div
@@ -196,19 +196,19 @@ export default function AdminDashboard() {
                 transition={{ delay: 0.1 + index * 0.05 }}
               >
                 <Link href={tool.href}>
-                  <div className="glass-card rounded-xl p-6 hover:bg-white/10 transition group cursor-pointer">
+                  <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-6 hover:bg-slate-50 transition group cursor-pointer">
                     <div className="flex items-start justify-between mb-4">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center text-2xl`}>
                         {tool.icon}
                       </div>
-                      <span className="text-sm text-gray-400 group-hover:text-white transition">
+                      <span className="text-sm text-slate-500 group-hover:text-slate-900 transition">
                         {tool.stats}
                       </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-cyan-400 transition">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1 group-hover:text-[var(--aqua-accent-primary)] transition">
                       {tool.title}
                     </h3>
-                    <p className="text-gray-400 text-sm">{tool.description}</p>
+                    <p className="text-slate-500 text-sm">{tool.description}</p>
                   </div>
                 </Link>
               </motion.div>
@@ -223,21 +223,21 @@ export default function AdminDashboard() {
           transition={{ delay: 0.3 }}
           className="mt-8"
         >
-          <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
-          <div className="glass-card rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link href="/admin/promo-codes">
-                <button className="w-full py-3 px-4 rounded-xl bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition text-sm font-medium">
+                <button className="w-full py-3 px-4 rounded-xl bg-purple-100 text-purple-600 hover:bg-purple-200 transition text-sm font-medium">
                   + Create Promo Code
                 </button>
               </Link>
               <Link href="/admin/users">
-                <button className="w-full py-3 px-4 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition text-sm font-medium">
+                <button className="w-full py-3 px-4 rounded-xl bg-blue-100 text-blue-600 hover:bg-blue-200 transition text-sm font-medium">
                   Search Users
                 </button>
               </Link>
               <Link href="/admin/affiliates">
-                <button className="w-full py-3 px-4 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500/30 transition text-sm font-medium">
+                <button className="w-full py-3 px-4 rounded-xl bg-green-100 text-green-600 hover:bg-green-200 transition text-sm font-medium">
                   View Payouts
                 </button>
               </Link>
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
                   loadStats();
                   toast.success('Stats refreshed');
                 }}
-                className="w-full py-3 px-4 rounded-xl bg-gray-500/20 text-gray-400 hover:bg-gray-500/30 transition text-sm font-medium"
+                className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition text-sm font-medium"
               >
                 🔄 Refresh Stats
               </button>
@@ -262,15 +262,15 @@ export default function AdminDashboard() {
             transition={{ delay: 0.4 }}
             className="mt-8"
           >
-            <div className="glass-card rounded-xl p-6 border border-yellow-500/30 bg-yellow-500/5">
+            <div className="bg-yellow-50 border border-yellow-300 shadow-sm rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center text-2xl">
+                  <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center text-2xl">
                     💰
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white">Pending Affiliate Payouts</h3>
-                    <p className="text-yellow-400">{formatCents(stats.pendingPayouts)} awaiting payment</p>
+                    <h3 className="font-semibold text-slate-900">Pending Affiliate Payouts</h3>
+                    <p className="text-yellow-600">{formatCents(stats.pendingPayouts)} awaiting payment</p>
                   </div>
                 </div>
                 <Link href="/admin/affiliates">

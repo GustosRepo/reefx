@@ -63,8 +63,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('Canceling subscription:', subscription.stripe_subscription_id);
-
     // Cancel the subscription at period end (user keeps access until end of billing period)
     const canceledSubscription = await stripe.subscriptions.update(
       subscription.stripe_subscription_id,
@@ -72,8 +70,6 @@ export async function POST(request: NextRequest) {
         cancel_at_period_end: true,
       }
     );
-
-    console.log('Subscription canceled:', canceledSubscription.id);
 
     // Update subscription status in database
     await supabase

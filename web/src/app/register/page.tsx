@@ -41,15 +41,11 @@ export default function RegisterPage() {
             body: JSON.stringify({ code: promoCode.trim() }),
           });
           
-          if (promoResponse.ok) {
-            const promoData = await promoResponse.json();
-            console.log('Promo code applied:', promoData);
-          } else {
-            // Don't block registration if promo fails, just log it
-            console.warn('Promo code redemption failed, but registration succeeded');
+          if (!promoResponse.ok) {
+            // Promo failed but registration succeeded - continue silently
           }
-        } catch (err) {
-          console.warn('Error applying promo code:', err);
+        } catch {
+          // Promo error - continue silently
         }
       }
       
@@ -64,12 +60,23 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen reef-bg text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Aquatic Elements */}
+      <div className="aqua-bubbles">
+        <div className="bubble bubble-1" />
+        <div className="bubble bubble-2" />
+        <div className="bubble bubble-3" />
+        <div className="bubble bubble-4" />
+        <div className="bubble bubble-5" />
+      </div>
+      <div className="light-rays" />
+      <div className="aqua-decor" />
+      
       {/* Success Animation Overlay */}
       <AnimatePresence>
         {showSuccess && (
           <motion.div 
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+            className="fixed inset-0 bg-[#c5e6ee]/90 backdrop-blur-sm flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -87,14 +94,14 @@ export default function RegisterPage() {
               >
                 🎉
               </motion.div>
-              <p className="text-2xl font-bold text-white">Welcome aboard!</p>
+              <p className="text-2xl font-bold text-slate-800">Welcome aboard!</p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <motion.div 
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -104,13 +111,16 @@ export default function RegisterPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2">REEFXONE</h1>
-          <p className="text-gray-400 text-lg">Create your account</p>
+          <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2 flex items-center justify-center gap-3">
+            <span>🌊</span>
+            AQUAXONE
+          </h1>
+          <p className="text-slate-500 text-lg">Create your account</p>
         </motion.div>
 
         {/* Registration Form */}
         <motion.div 
-          className="glass-card rounded-2xl p-6 md:p-8"
+          className="bg-white border border-slate-200 shadow-lg rounded-2xl p-6 md:p-8"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
@@ -119,18 +129,18 @@ export default function RegisterPage() {
             <AnimatePresence>
               {error && (
                 <motion.div 
-                  className="bg-red-900/30 border border-red-500/50 rounded-xl p-3"
+                  className="bg-red-50 border border-red-200 rounded-xl p-3"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                 >
-                  <p className="text-red-400 text-sm">{error}</p>
+                  <p className="text-red-600 text-sm">{error}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 👤 Name
               </label>
               <input
@@ -139,12 +149,12 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 ✉️ Email
               </label>
               <input
@@ -153,12 +163,12 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 🔒 Password
               </label>
               <input
@@ -168,13 +178,13 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 required
                 minLength={6}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
               />
-              <p className="text-gray-500 text-xs mt-1">At least 6 characters</p>
+              <p className="text-slate-400 text-xs mt-1">At least 6 characters</p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 🔒 Confirm Password
               </label>
               <input
@@ -183,22 +193,22 @@ export default function RegisterPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
-                🎁 Promo Code <span className="text-gray-500 font-normal">(optional)</span>
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
+                🎁 Promo Code <span className="text-slate-400 font-normal">(optional)</span>
               </label>
               <input
                 type="text"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                 placeholder="Enter promo code"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all uppercase"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all uppercase"
               />
-              <p className="text-gray-500 text-xs mt-1">Have a promo code? Get free Premium access!</p>
+              <p className="text-slate-400 text-xs mt-1">Have a promo code? Get free Premium access!</p>
             </div>
 
             <motion.button
@@ -206,15 +216,15 @@ export default function RegisterPage() {
               disabled={isLoading}
               className={`w-full py-4 rounded-xl font-semibold text-base transition ${
                 isLoading
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white glow-cyan"
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white shadow-md hover:shadow-lg"
               }`}
               whileHover={!isLoading ? { scale: 1.02 } : {}}
               whileTap={!isLoading ? { scale: 0.98 } : {}}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-5 h-5 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
                   Creating account...
                 </span>
               ) : (
@@ -224,9 +234,9 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Already have an account?{" "}
-              <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-semibold">
+              <Link href="/login" className="text-[var(--aqua-accent-primary)] hover:text-[var(--aqua-accent-secondary)] font-semibold">
                 Sign in
               </Link>
             </p>
@@ -240,7 +250,7 @@ export default function RegisterPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          <Link href="/" className="text-gray-400 text-sm hover:text-white transition">
+          <Link href="/" className="text-slate-500 text-sm hover:text-slate-900 transition">
             ← Back to Home
           </Link>
         </motion.div>

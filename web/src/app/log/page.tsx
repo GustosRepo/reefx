@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { getCurrentUser, User } from "@/utils/auth";
 import { normalizeTemperature, type TempUnit } from "@/utils/conversions";
 import { useTank } from "@/context/TankContext";
+import { useAquaMode, useModeParameters } from "@/context/AquaModeContext";
 
 export default function LogPage() {
   return (
@@ -23,6 +24,8 @@ function LogPageContent() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const { currentTank } = useTank();
+  const { mode, modeLabel } = useAquaMode();
+  const modeParameters = useModeParameters();
   
   // Initialize with today's date
   const todayDateObj = new Date();
@@ -35,13 +38,20 @@ function LogPageContent() {
   const [form, setForm] = useState<ReefForm>({
     date: todayString,
     temp: "",
-    alk: "",
+    // Shared
     ph: "",
-    cal: "",
-    mag: "",
     po4: "",
     no3: "",
+    // Reef specific
+    alk: "",
+    cal: "",
+    mag: "",
     salinity: "",
+    // Freshwater specific
+    gh: "",
+    kh: "",
+    ammonia: "",
+    no2: "",
   });
 
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -117,14 +127,23 @@ function LogPageContent() {
         body: JSON.stringify({
           date: form.date,
           temp,
-          salinity: form.salinity || null,
-          alk: form.alk || null,
+          // Shared parameters
           ph: form.ph || null,
-          cal: form.cal || null,
-          mag: form.mag || null,
           po4: form.po4 || null,
           no3: form.no3 || null,
+          // Reef/Saltwater parameters
+          salinity: form.salinity || null,
+          alk: form.alk || null,
+          cal: form.cal || null,
+          mag: form.mag || null,
+          // Freshwater parameters
+          gh: form.gh || null,
+          kh: form.kh || null,
+          ammonia: form.ammonia || null,
+          no2: form.no2 || null,
+          // Tank and mode info
           tank_id: currentTank?.id || null,
+          mode: mode,
         }),
       });
 
@@ -141,13 +160,17 @@ function LogPageContent() {
         setForm({
           date: todayString,
           temp: "",
-          alk: "",
           ph: "",
-          cal: "",
-          mag: "",
           po4: "",
           no3: "",
+          alk: "",
+          cal: "",
+          mag: "",
           salinity: "",
+          gh: "",
+          kh: "",
+          ammonia: "",
+          no2: "",
         });
         setShowSuccess(false);
         router.push("/dashboard");
@@ -158,18 +181,6 @@ function LogPageContent() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Parameter icons for visual enhancement
-  const paramIcons: Record<string, string> = {
-    temp: '🌡️',
-    salinity: '🧂',
-    alk: '⚗️',
-    ph: '📊',
-    cal: '💎',
-    mag: '🔮',
-    po4: '🧪',
-    no3: '🌿',
   };
 
   return (
@@ -187,7 +198,7 @@ function LogPageContent() {
         <AnimatePresence>
           {showSuccess && (
             <motion.div 
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+              className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -205,7 +216,7 @@ function LogPageContent() {
                 >
                   ✅
                 </motion.div>
-                <p className="text-2xl font-bold text-white">Saved!</p>
+                <p className="text-2xl font-bold text-slate-900">Saved!</p>
               </motion.div>
             </motion.div>
           )}
@@ -213,26 +224,26 @@ function LogPageContent() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <motion.div 
-            className="glass-card rounded-2xl p-6"
+            className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             {/* Date Field */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-cyan-400 mb-2">
+              <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
                 📅 Date (YYYY-MM-DD)
               </label>
               <input
                 type="text"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
               />
               <AnimatePresence>
                 {errors.date && (
                   <motion.p 
-                    className="text-red-400 text-sm mt-1"
+                    className="text-red-500 text-sm mt-1"
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
@@ -243,57 +254,54 @@ function LogPageContent() {
               </AnimatePresence>
             </div>
 
-            {/* Parameter Fields */}
+            {/* Parameter Fields - Mode Aware */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { 
-                  key: "temp", 
-                  label: `Temperature (${user?.temp_unit === 'celsius' ? '°C' : '°F'})`, 
-                  placeholder: user?.temp_unit === 'celsius' ? "e.g., 25.5" : "e.g., 78" 
-                },
-                { key: "salinity", label: "Salinity (ppt)", placeholder: "e.g., 35" },
-                { key: "alk", label: "Alkalinity (dKH)", placeholder: "e.g., 8.5" },
-                { key: "ph", label: "pH", placeholder: "e.g., 8.2" },
-                { key: "cal", label: "Calcium (ppm)", placeholder: "e.g., 420" },
-                { key: "mag", label: "Magnesium (ppm)", placeholder: "e.g., 1350" },
-                { key: "po4", label: "Phosphate (PO₄)", placeholder: "e.g., 0.05" },
-                { key: "no3", label: "Nitrate (NO₃)", placeholder: "e.g., 5" },
-              ].map(({ key, label, placeholder }, i) => (
-                <motion.div 
-                  key={key} 
-                  className="mb-2"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.05 }}
-                >
-                  <label className="block text-sm font-semibold text-cyan-400 mb-2">
-                    {paramIcons[key]} {label}
-                  </label>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    step="any"
-                    value={form[key as keyof ReefForm]}
-                    onChange={(e) =>
-                      setForm({ ...form, [key]: e.target.value })
-                    }
-                    placeholder={placeholder}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-base focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
-                  />
-                  <AnimatePresence>
-                    {errors[key] && (
-                      <motion.p 
-                        className="text-red-400 text-sm mt-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                      >
-                        {errors[key]}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
+              {modeParameters.map(({ key, label, placeholder, icon }, i) => {
+                // Handle temperature unit display
+                const displayLabel = key === "temp" 
+                  ? `${label} (${user?.temp_unit === 'celsius' ? '°C' : '°F'})` 
+                  : label;
+                const displayPlaceholder = key === "temp" 
+                  ? (user?.temp_unit === 'celsius' ? "e.g., 25.5" : "e.g., 78")
+                  : placeholder;
+                  
+                return (
+                  <motion.div 
+                    key={key} 
+                    className="mb-2"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                  >
+                    <label className="block text-sm font-semibold text-[var(--aqua-accent-primary)] mb-2">
+                      {icon} {displayLabel}
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      value={form[key as keyof ReefForm]}
+                      onChange={(e) =>
+                        setForm({ ...form, [key]: e.target.value })
+                      }
+                      placeholder={displayPlaceholder}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-base focus:outline-none focus:border-[var(--aqua-accent-primary)] focus:ring-2 focus:ring-[var(--aqua-accent-primary)]/20 transition-all"
+                    />
+                    <AnimatePresence>
+                      {errors[key] && (
+                        <motion.p 
+                          className="text-red-500 text-sm mt-1"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                        >
+                          {errors[key]}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -309,8 +317,8 @@ function LogPageContent() {
               disabled={!isValid || isSubmitting}
               className={`flex-1 py-4 rounded-xl font-semibold text-base transition-all duration-200 ${
                 isValid && !isSubmitting
-                  ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white glow-cyan"
-                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  ? "bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white shadow-lg hover:shadow-xl"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
               whileHover={isValid ? { scale: 1.02 } : {}}
               whileTap={isValid ? { scale: 0.98 } : {}}
@@ -327,7 +335,7 @@ function LogPageContent() {
             <motion.button
               type="button"
               onClick={() => router.push("/dashboard")}
-              className="px-6 py-4 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition text-base sm:w-auto"
+              className="px-6 py-4 bg-slate-100 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-200 transition text-base sm:w-auto"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

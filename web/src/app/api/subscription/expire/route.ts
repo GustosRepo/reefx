@@ -17,8 +17,6 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('🔥 Manually expiring subscription for user:', user.id);
-
     // Downgrade to free tier
     const { data, error } = await supabase
       .from('subscriptions')
@@ -33,11 +31,10 @@ export async function POST() {
       .select();
 
     if (error) {
-      console.error('❌ Error expiring subscription:', error);
+      console.error('Error expiring subscription:', error);
       return NextResponse.json({ error: 'Failed to expire subscription' }, { status: 500 });
     }
 
-    console.log('✅ Subscription expired:', data);
     return NextResponse.json({ 
       success: true, 
       message: 'Subscription expired and downgraded to free tier',

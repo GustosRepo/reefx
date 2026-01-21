@@ -145,15 +145,15 @@ function AdminUsersContent() {
             <div className="flex items-center gap-3 mb-2">
               <Link 
                 href="/admin" 
-                className="text-gray-400 hover:text-white transition"
+                className="text-slate-500 hover:text-slate-900 transition"
               >
                 ← Admin Dashboard
               </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
               <span>👥</span> User Management
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="text-slate-500 mt-1">
               Manage and delete user accounts
             </p>
           </div>
@@ -164,25 +164,25 @@ function AdminUsersContent() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Total Users</p>
-            <p className="text-2xl font-bold text-white">{users.length}</p>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Total Users</p>
+            <p className="text-2xl font-bold text-slate-900">{users.length}</p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Premium</p>
-            <p className="text-2xl font-bold text-cyan-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Premium</p>
+            <p className="text-2xl font-bold text-[var(--aqua-accent-primary)]">
               {users.filter(u => u.subscription.tier === 'premium').length}
             </p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Super Premium</p>
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Super Premium</p>
             <p className="text-2xl font-bold text-purple-400">
               {users.filter(u => u.subscription.tier === 'super-premium').length}
             </p>
           </div>
-          <div className="glass-card rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Free</p>
-            <p className="text-2xl font-bold text-gray-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+            <p className="text-slate-500 text-sm">Free</p>
+            <p className="text-2xl font-bold text-slate-500">
               {users.filter(u => u.subscription.tier === 'free').length}
             </p>
           </div>
@@ -195,7 +195,7 @@ function AdminUsersContent() {
             placeholder="Search by email or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-80 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+            className="w-full md:w-80 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
           />
         </div>
 
@@ -205,21 +205,21 @@ function AdminUsersContent() {
             <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="glass-card rounded-xl p-8 text-center">
-            <p className="text-gray-400">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
+            <p className="text-slate-500">
               {searchTerm ? 'No users match your search' : 'No users found'}
             </p>
           </div>
         ) : (
-          <div className="glass-card rounded-xl overflow-hidden">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left p-4 text-gray-400 font-medium">User</th>
-                    <th className="text-left p-4 text-gray-400 font-medium">Plan</th>
-                    <th className="text-left p-4 text-gray-400 font-medium">Joined</th>
-                    <th className="text-right p-4 text-gray-400 font-medium">Actions</th>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-4 text-slate-500 font-medium">User</th>
+                    <th className="text-left p-4 text-slate-500 font-medium">Plan</th>
+                    <th className="text-left p-4 text-slate-500 font-medium">Joined</th>
+                    <th className="text-right p-4 text-slate-500 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -228,11 +228,11 @@ function AdminUsersContent() {
                       key={user.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="border-b border-white/5 hover:bg-white/5 transition"
+                      className="border-b border-slate-200 hover:bg-slate-100 transition"
                     >
                       <td className="p-4">
                         <div>
-                          <p className="text-white font-medium flex items-center gap-2">
+                          <p className="text-slate-900 font-medium flex items-center gap-2">
                             {user.name}
                             {user.is_admin && (
                               <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full">
@@ -240,7 +240,7 @@ function AdminUsersContent() {
                               </span>
                             )}
                           </p>
-                          <p className="text-gray-500 text-sm">{user.email}</p>
+                          <p className="text-slate-400 text-sm">{user.email}</p>
                         </div>
                       </td>
                       <td className="p-4">
@@ -248,12 +248,12 @@ function AdminUsersContent() {
                           {user.subscription.tier}
                         </span>
                       </td>
-                      <td className="p-4 text-gray-400 text-sm">
+                      <td className="p-4 text-slate-500 text-sm">
                         {formatDate(user.created_at)}
                       </td>
                       <td className="p-4 text-right">
                         {user.is_admin ? (
-                          <span className="text-gray-600 text-sm">Protected</span>
+                          <span className="text-slate-400 text-sm">Protected</span>
                         ) : (
                           <button
                             onClick={() => openDeleteModal(user)}
@@ -278,7 +278,7 @@ function AdminUsersContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
               onClick={() => !deleting && setShowDeleteModal(false)}
             >
               <motion.div
@@ -286,24 +286,24 @@ function AdminUsersContent() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="glass-card rounded-2xl p-6 w-full max-w-md"
+                className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 w-full max-w-md"
               >
                 <div className="text-center mb-6">
                   <div className="text-5xl mb-4">⚠️</div>
-                  <h2 className="text-xl font-bold text-white mb-2">Delete User Account</h2>
-                  <p className="text-gray-400 text-sm">
+                  <h2 className="text-xl font-bold text-slate-900 mb-2">Delete User Account</h2>
+                  <p className="text-slate-500 text-sm">
                     This action <span className="text-red-400 font-semibold">cannot be undone</span>. 
                     All user data including logs, maintenance records, livestock, and photos will be permanently deleted.
                   </p>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 mb-6">
-                  <p className="text-white font-medium">{userToDelete.name}</p>
-                  <p className="text-gray-400 text-sm">{userToDelete.email}</p>
+                <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                  <p className="text-slate-900 font-medium">{userToDelete.name}</p>
+                  <p className="text-slate-500 text-sm">{userToDelete.email}</p>
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm text-gray-400 mb-2">
+                  <label className="block text-sm text-slate-500 mb-2">
                     Type <span className="text-red-400 font-mono">{userToDelete.email}</span> to confirm:
                   </label>
                   <input
@@ -311,7 +311,7 @@ function AdminUsersContent() {
                     value={confirmEmail}
                     onChange={(e) => setConfirmEmail(e.target.value)}
                     placeholder="Enter email to confirm"
-                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
                     disabled={deleting}
                   />
                 </div>
@@ -320,7 +320,7 @@ function AdminUsersContent() {
                   <button
                     onClick={() => setShowDeleteModal(false)}
                     disabled={deleting}
-                    className="flex-1 py-3 rounded-xl bg-white/5 text-gray-300 font-medium hover:bg-white/10 transition disabled:opacity-50"
+                    className="flex-1 py-3 rounded-xl bg-slate-50 text-slate-600 font-medium hover:bg-slate-100 transition disabled:opacity-50"
                   >
                     Cancel
                   </button>

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { User } from "@/utils/auth";
 import SiteFooter from "@/components/SiteFooter";
 import FeedbackModal from "@/components/FeedbackModal";
+import { useAquaMode } from "@/context/AquaModeContext";
 
 export default function AppLayout({
   children,
@@ -25,6 +26,7 @@ export default function AppLayout({
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const { tanks, currentTank, setCurrentTank } = useTank();
   const { subscription } = useSubscription();
+  const { mode, modeIcon } = useAquaMode();
   const userTier = subscription.tier;
 
   useEffect(() => {
@@ -85,13 +87,26 @@ export default function AppLayout({
   };
 
   return (
-    <div className="min-h-screen reef-bg text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-x-hidden">
+      {/* Decorative Aquatic Elements */}
+      <div className="aqua-bubbles">
+        <div className="bubble bubble-1" />
+        <div className="bubble bubble-2" />
+        <div className="bubble bubble-3" />
+        <div className="bubble bubble-4" />
+        <div className="bubble bubble-5" />
+      </div>
+      <div className="light-rays" />
+      <div className="aqua-decor" />
+      <div className="water-surface" />
+      
       {/* Header */}
-      <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur-xl bg-black/60 border-white/5">
+      <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur-xl bg-white/80 border-slate-200">
         <div className="flex items-center justify-between max-w-7xl px-4 md:px-6 py-3 mx-auto">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-xl md:text-2xl font-bold text-gradient">
-              REEFXONE
+            <Link href="/dashboard" className="text-xl md:text-2xl font-bold text-gradient flex items-center gap-2">
+              <span>{modeIcon}</span>
+              <span>AQUAXONE</span>
             </Link>
             
             {/* Tank Selector */}
@@ -99,9 +114,9 @@ export default function AppLayout({
               <div className="relative">
                 <button
                   onClick={() => setShowTankMenu(!showTankMenu)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300 hover:bg-white/10 hover:border-cyan-500/30 transition"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-sm text-slate-600 hover:bg-slate-200 hover:border-[var(--aqua-accent-primary)] transition"
                 >
-                  <span className="text-cyan-400">🐠</span>
+                  <span className="text-[var(--aqua-accent-primary)]">🐠</span>
                   <span className="hidden sm:inline max-w-[100px] truncate">{currentTank?.name || 'Select Tank'}</span>
                   <svg className="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -114,33 +129,33 @@ export default function AppLayout({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute left-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl py-2 z-50"
+                      className="absolute left-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50"
                     >
-                      <div className="px-3 py-2 border-b border-gray-700">
-                        <p className="text-xs text-gray-400 uppercase tracking-wide">Your Tanks</p>
+                      <div className="px-3 py-2 border-b border-slate-200">
+                        <p className="text-xs text-slate-500 uppercase tracking-wide">Your Tanks</p>
                       </div>
                       {tanks.map((tank) => (
                         <button
                           key={tank.id}
                           onClick={() => handleTankChange(tank)}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-800 transition flex items-center gap-3 ${
-                            currentTank?.id === tank.id ? 'text-cyan-400 bg-cyan-500/10' : 'text-gray-300'
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 transition flex items-center gap-3 ${
+                            currentTank?.id === tank.id ? 'text-[var(--aqua-accent-primary)] bg-[var(--aqua-accent-primary)]/10' : 'text-slate-700'
                           }`}
                         >
                           <span className="text-lg">🐠</span>
                           <div>
                             <p className="font-medium">{tank.name}</p>
-                            <p className="text-xs text-gray-500">{tank.volume} gal • {tank.type}</p>
+                            <p className="text-xs text-slate-500">{tank.volume} gal • {tank.type}</p>
                           </div>
                           {currentTank?.id === tank.id && (
-                            <span className="ml-auto text-cyan-400">✓</span>
+                            <span className="ml-auto text-[var(--aqua-accent-primary)]">✓</span>
                           )}
                         </button>
                       ))}
-                      <div className="border-t border-gray-700 mt-2 pt-2 px-3">
+                      <div className="border-t border-slate-200 mt-2 pt-2 px-3">
                         <Link
                           href="/settings#tanks"
-                          className="block text-xs text-cyan-400 hover:text-cyan-300 transition py-1"
+                          className="block text-xs text-[var(--aqua-accent-primary)] hover:underline transition py-1"
                           onClick={() => setShowTankMenu(false)}
                         >
                           ⚙️ Manage Tanks
@@ -169,8 +184,8 @@ export default function AppLayout({
                     }}
                     className={`px-3 py-2 rounded-lg transition ${
                       pathname === item.href 
-                        ? "bg-cyan-500/20 text-cyan-400" 
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                        ? "bg-[var(--aqua-accent-primary)]/10 text-[var(--aqua-accent-primary)]" 
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     } ${locked ? "opacity-50" : ""}`}
                   >
                     {item.label} {locked && "🔒"}
@@ -184,8 +199,8 @@ export default function AppLayout({
                   href={item.href}
                   className={`px-3 py-2 rounded-lg transition ${
                     pathname === item.href 
-                      ? "bg-amber-500/20 text-amber-400" 
-                      : "text-amber-400/70 hover:text-amber-400 hover:bg-amber-500/10"
+                      ? "bg-amber-500/20 text-amber-600" 
+                      : "text-amber-600/70 hover:text-amber-600 hover:bg-amber-500/10"
                   }`}
                 >
                   {item.icon} {item.label}
@@ -198,9 +213,9 @@ export default function AppLayout({
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition"
+                  className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-semibold text-white shadow-lg shadow-cyan-500/20">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] flex items-center justify-center font-semibold text-white shadow-lg">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="hidden xl:inline">{user.name}</span>
@@ -212,18 +227,18 @@ export default function AppLayout({
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-56 glass-card rounded-xl shadow-xl py-2"
+                      className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2"
                     >
-                      <div className="px-4 py-2 border-b border-white/10">
+                      <div className="px-4 py-2 border-b border-slate-200">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-gray-400">Signed in as</p>
+                          <p className="text-xs text-slate-500">Signed in as</p>
                           {userTier === 'super-premium' ? (
                             <span className="text-xs bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full font-bold shimmer">🚀 SUPER</span>
                           ) : userTier === 'premium' ? (
                             <span className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-0.5 rounded-full font-bold shimmer">👑 PRO</span>
                           ) : null}
                         </div>
-                        <p className="text-sm text-white truncate">{user.email}</p>
+                        <p className="text-sm text-slate-800 truncate">{user.email}</p>
                       </div>
                       {userTier === 'free' && (
                         <Link
@@ -236,14 +251,14 @@ export default function AppLayout({
                       )}
                       <Link
                         href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition rounded-lg mx-1"
+                        className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 transition rounded-lg mx-1"
                         onClick={() => setShowUserMenu(false)}
                       >
                         ⚙️ Settings
                       </Link>
                       <Link
                         href="/subscription"
-                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition rounded-lg mx-1"
+                        className="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 transition rounded-lg mx-1"
                         onClick={() => setShowUserMenu(false)}
                       >
                         💎 Subscription
@@ -253,14 +268,14 @@ export default function AppLayout({
                           setShowUserMenu(false);
                           setShowFeedbackModal(true);
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition rounded-lg mx-1"
+                        className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 transition rounded-lg mx-1"
                       >
                         💬 Send Feedback
                       </button>
-                      <div className="border-t border-white/10 mt-2 pt-2">
+                      <div className="border-t border-slate-200 mt-2 pt-2">
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition rounded-lg mx-1"
+                          className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition rounded-lg mx-1"
                         >
                           🚪 Sign Out
                         </button>
@@ -275,7 +290,7 @@ export default function AppLayout({
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 pb-24 px-4 md:px-6 max-w-7xl mx-auto min-h-screen">
+      <main className="pt-20 pb-28 px-4 md:px-6 max-w-7xl mx-auto min-h-screen">
         {children}
       </main>
 
@@ -285,7 +300,7 @@ export default function AppLayout({
       {user && (
         <button
           onClick={() => setShowFeedbackModal(true)}
-          className="hidden lg:flex fixed bottom-6 right-6 z-40 items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 transition-all"
+          className="hidden lg:flex fixed bottom-6 right-6 z-40 items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white font-medium shadow-lg hover:shadow-xl hover:scale-105 transition-all"
         >
           <span>💬</span>
           <span>Feedback</span>
@@ -299,7 +314,7 @@ export default function AppLayout({
       />
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 z-50 w-full lg:hidden border-t backdrop-blur-xl bg-black/80 border-white/5 safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 z-50 w-full lg:hidden border-t backdrop-blur-xl bg-white/90 border-slate-200 safe-area-bottom">
         <div className="flex justify-around items-center py-2">
           {navItems.slice(0, 5).map((item) => {
             const locked = item.requiresTier && !hasAccess(item.requiresTier);
@@ -310,8 +325,8 @@ export default function AppLayout({
                 href={locked ? "/subscription" : item.href}
                 className={`flex flex-col items-center py-2 px-3 rounded-xl transition min-w-[56px] ${
                   isActive
-                    ? "text-cyan-400 bg-cyan-500/10"
-                    : "text-gray-500 active:text-white active:bg-white/5"
+                    ? "text-[var(--aqua-accent-primary)] bg-[var(--aqua-accent-primary)]/10"
+                    : "text-slate-500 active:text-slate-900 active:bg-slate-100"
                 } ${locked ? "opacity-50" : ""}`}
               >
                 <span className={`text-xl mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>{item.icon}</span>
@@ -323,8 +338,8 @@ export default function AppLayout({
             href="/settings"
             className={`flex flex-col items-center py-2 px-3 rounded-xl transition min-w-[56px] ${
               pathname === "/settings"
-                ? "text-cyan-400 bg-cyan-500/10"
-                : "text-gray-500 active:text-white active:bg-white/5"
+                ? "text-[var(--aqua-accent-primary)] bg-[var(--aqua-accent-primary)]/10"
+                : "text-slate-500 active:text-slate-900 active:bg-slate-100"
             }`}
           >
             <span className={`text-xl mb-0.5 ${pathname === "/settings" ? 'scale-110' : ''} transition-transform`}>⚙️</span>
@@ -339,8 +354,8 @@ export default function AppLayout({
                 href={item.href}
                 className={`flex flex-col items-center py-2 px-3 rounded-xl transition min-w-[56px] ${
                   isActive
-                    ? "text-amber-400 bg-amber-500/10"
-                    : "text-amber-400/60 active:text-amber-400 active:bg-amber-500/5"
+                    ? "text-amber-500 bg-amber-500/10"
+                    : "text-amber-500/60 active:text-amber-500 active:bg-amber-500/5"
                 }`}
               >
                 <span className={`text-xl mb-0.5 ${isActive ? 'scale-110' : ''} transition-transform`}>{item.icon}</span>

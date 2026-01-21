@@ -21,7 +21,7 @@ export const articles: Record<string, Article> = {
     readTime: "8 min read",
     category: "Getting Started",
     publishedAt: "2024-01-15",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Beginner's Guide to Reef Keeping
 
@@ -146,13 +146,13 @@ Keeping detailed records of your water parameters helps you:
 - Learn what works for your specific tank
 - Share data with other reefers for advice
 
-**That's exactly why we built REEFXONE** - to make parameter tracking effortless and give you insights into your reef's health.
+**That's exactly why we built AQUAXONE** - to make parameter tracking effortless and give you insights into your reef's health.
 
 ## Conclusion
 
 Reef keeping is a marathon, not a sprint. Take your time, do your research, and don't be afraid to ask for help from the community. Every successful reefer was once a beginner!
 
-Ready to start tracking your reef? [Create your free REEFXONE account](/register) and join thousands of reef keepers monitoring their tanks with us.
+Ready to start tracking your reef? [Create your free AQUAXONE account](/register) and join thousands of reef keepers monitoring their tanks with us.
     `
   },
 
@@ -164,7 +164,7 @@ Ready to start tracking your reef? [Create your free REEFXONE account](/register
     readTime: "10 min read",
     category: "Water Chemistry",
     publishedAt: "2024-01-20",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Understanding Water Parameters
 
@@ -299,13 +299,13 @@ Manually logging parameters in a notebook works, but digital tracking offers:
 - Historical data for troubleshooting
 - Easy sharing with other reefers
 
-REEFXONE makes parameter tracking simple with automatic charts, trend analysis, and customizable alerts.
+AQUAXONE makes parameter tracking simple with automatic charts, trend analysis, and customizable alerts.
 
 ## Conclusion
 
 Understanding water parameters takes time, but it's the key to reef keeping success. Start with the basics, test regularly, and always prioritize stability over perfection.
 
-[Start tracking your parameters free with REEFXONE →](/register)
+[Start tracking your parameters free with AQUAXONE →](/register)
     `
   },
 
@@ -317,7 +317,7 @@ Understanding water parameters takes time, but it's the key to reef keeping succ
     readTime: "6 min read",
     category: "Water Chemistry",
     publishedAt: "2024-02-01",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Maintaining Ideal Alkalinity Levels
 
@@ -431,13 +431,13 @@ Because alkalinity changes quickly, regular testing is essential:
 - **Moderate tanks:** Test every 2-3 days
 - **Established tanks:** Test weekly minimum
 
-With REEFXONE, you can log your alkalinity readings and instantly see trends. Catch consumption rate changes before they become problems.
+With AQUAXONE, you can log your alkalinity readings and instantly see trends. Catch consumption rate changes before they become problems.
 
 ## Conclusion
 
 Alkalinity is the lifeblood of a coral reef tank. Master this parameter, and you're well on your way to reef keeping success. Remember: test often, dose consistently, and always prioritize stability.
 
-[Track your alkalinity trends with REEFXONE →](/register)
+[Track your alkalinity trends with AQUAXONE →](/register)
     `
   },
 
@@ -449,7 +449,7 @@ Alkalinity is the lifeblood of a coral reef tank. Master this parameter, and you
     readTime: "5 min read",
     category: "Water Chemistry",
     publishedAt: "2024-02-10",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Temperature & Salinity: The Basics
 
@@ -562,7 +562,7 @@ Most successful reef keepers aim for 1.025-1.026 SG and 77-79°F.
 
 Temperature and salinity are your tank's vital signs. Check them daily, maintain stability, and your livestock will thrive. These two parameters alone can make or break your reef.
 
-[Start logging your temperature and salinity with REEFXONE →](/register)
+[Start logging your temperature and salinity with AQUAXONE →](/register)
     `
   },
 
@@ -574,7 +574,7 @@ Temperature and salinity are your tank's vital signs. Check them daily, maintain
     readTime: "7 min read",
     category: "Tips & Tricks",
     publishedAt: "2024-02-15",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # 10 Common Reef Keeping Mistakes
 
@@ -704,7 +704,7 @@ Every reef keeper makes mistakes - it's part of the learning process. But some m
 - Establish a testing routine
 - Track results to spot trends
 - Invest in quality test kits
-- Use a tracker app (like REEFXONE!) to visualize data
+- Use a tracker app (like AQUAXONE!) to visualize data
 
 ## Bonus: Analysis Paralysis
 
@@ -719,7 +719,7 @@ Getting so overwhelmed by information that you never take action. Remember:
 
 Mistakes happen, but they don't have to be catastrophic. Learn from others' experiences, take your time, and remember that reef keeping is a marathon, not a sprint.
 
-[Track your progress and avoid mistakes with REEFXONE →](/register)
+[Track your progress and avoid mistakes with AQUAXONE →](/register)
     `
   },
 
@@ -731,7 +731,7 @@ Mistakes happen, but they don't have to be catastrophic. Learn from others' expe
     readTime: "9 min read",
     category: "Equipment",
     publishedAt: "2024-02-20",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Essential Reef Tank Equipment
 
@@ -913,13 +913,13 @@ Keep records of:
 - Maintenance schedules
 - Replacement parts
 
-REEFXONE's equipment tracking feature helps you stay organized and never miss a filter change or warranty expiration.
+AQUAXONE's equipment tracking feature helps you stay organized and never miss a filter change or warranty expiration.
 
 ## Conclusion
 
 The right equipment makes reef keeping manageable and enjoyable. Invest wisely in quality gear, and your tank will reward you with years of success.
 
-[Track your equipment with REEFXONE →](/register)
+[Track your equipment with AQUAXONE →](/register)
     `
   },
 
@@ -931,7 +931,7 @@ The right equipment makes reef keeping manageable and enjoyable. Invest wisely i
     readTime: "8 min read",
     category: "Coral Care",
     publishedAt: "2024-02-25",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Coral Care Basics for Beginners
 
@@ -1132,13 +1132,13 @@ Record keeping helps you:
 - Note placement and conditions
 - Learn what works for your tank
 
-REEFXONE's gallery feature lets you photograph and track your corals' progress over time.
+AQUAXONE's gallery feature lets you photograph and track your corals' progress over time.
 
 ## Conclusion
 
 Start with forgiving species, provide stable conditions, and be patient. Every thriving reef tank started with a single coral. Soon you'll be fragging and sharing with fellow reefers!
 
-[Start your coral journey with REEFXONE →](/register)
+[Start your coral journey with AQUAXONE →](/register)
     `
   },
 
@@ -1150,7 +1150,7 @@ Start with forgiving species, provide stable conditions, and be patient. Every t
     readTime: "6 min read",
     category: "Water Chemistry",
     publishedAt: "2024-03-01",
-    author: "REEFXONE Team",
+    author: "AQUAXONE Team",
     content: `
 # Water Testing Best Practices
 
@@ -1287,9 +1287,9 @@ Paper logs work, but digital tracking offers:
 ✅ **Historical reference** - What worked before?
 ✅ **Consumption calculations** - Know your dosing needs
 
-### Why REEFXONE?
+### Why AQUAXONE?
 
-REEFXONE makes water testing more useful:
+AQUAXONE makes water testing more useful:
 - Log results in seconds
 - Automatic trend charts
 - Compare multiple parameters
@@ -1335,7 +1335,7 @@ If you get concerning results:
 
 Testing isn't just about numbers - it's about understanding your unique reef ecosystem. Regular, consistent testing combined with good record-keeping is the key to long-term success.
 
-[Start tracking your test results with REEFXONE →](/register)
+[Start tracking your test results with AQUAXONE →](/register)
     `
   }
 };

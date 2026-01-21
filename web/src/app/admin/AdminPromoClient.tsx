@@ -163,17 +163,17 @@ export default function AdminPromoClient() {
           <div className="flex items-center gap-3 mb-4">
             <Link 
               href="/admin" 
-              className="text-gray-400 hover:text-white transition"
+              className="text-slate-500 hover:text-slate-900 transition"
             >
               ← Admin Dashboard
             </Link>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+              <h1 className="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
                 <span>🎟️</span> Partner Promo Codes
               </h1>
-              <p className="text-gray-400">Create codes for stores, YouTubers, and partners</p>
+              <p className="text-slate-500">Create codes for stores, YouTubers, and partners</p>
             </div>
             <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
               Admin Mode
@@ -183,49 +183,49 @@ export default function AdminPromoClient() {
 
         {/* Create New Code */}
         <motion.div 
-          className="glass-card rounded-2xl p-6 mb-8"
+          className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h2 className="text-xl font-bold text-white mb-4">Create New Code</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Create New Code</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Partner Name *</label>
+              <label className="block text-sm text-slate-500 mb-1">Partner Name *</label>
               <input
                 type="text"
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 placeholder="e.g., Bulk Reef Supply"
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Partner Email (optional)</label>
+              <label className="block text-sm text-slate-500 mb-1">Partner Email (optional)</label>
               <input
                 type="email"
                 value={partnerEmail}
                 onChange={(e) => setPartnerEmail(e.target.value)}
                 placeholder="partner@example.com"
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Promo Code</label>
+              <label className="block text-sm text-slate-500 mb-1">Promo Code</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={customCode}
                   onChange={(e) => setCustomCode(e.target.value.toUpperCase())}
                   placeholder="BRS2025"
-                  className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none font-mono"
+                  className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none font-mono"
                 />
                 <button
                   onClick={generateCode}
-                  className="px-3 py-2 bg-white/10 border border-white/10 rounded-xl hover:bg-white/20 transition text-sm"
+                  className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl hover:bg-slate-200 transition text-sm"
                   title="Generate code"
                 >
                   🎲
@@ -233,22 +233,22 @@ export default function AdminPromoClient() {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Free Trial Days</label>
+              <label className="block text-sm text-slate-500 mb-1">Free Trial Days</label>
               <input
                 type="number"
                 value={trialDays}
                 onChange={(e) => setTrialDays(parseInt(e.target.value) || 30)}
                 min={1}
                 max={365}
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:border-cyan-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Applies To</label>
+              <label className="block text-sm text-slate-500 mb-1">Applies To</label>
               <select
                 value={appliesTo}
                 onChange={(e) => setAppliesTo(e.target.value as typeof appliesTo)}
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:border-cyan-500/50 focus:outline-none"
               >
                 <option value="premium">Premium only</option>
                 <option value="super-premium">Super Premium only</option>
@@ -259,25 +259,25 @@ export default function AdminPromoClient() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Max Uses (leave empty for unlimited)</label>
+              <label className="block text-sm text-slate-500 mb-1">Max Uses (leave empty for unlimited)</label>
               <input
                 type="number"
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value ? parseInt(e.target.value) : "")}
                 min={1}
                 placeholder="Unlimited"
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Expires In Days (leave empty for never)</label>
+              <label className="block text-sm text-slate-500 mb-1">Expires In Days (leave empty for never)</label>
               <input
                 type="number"
                 value={expiresIn}
                 onChange={(e) => setExpiresIn(e.target.value ? parseInt(e.target.value) : "")}
                 min={1}
                 placeholder="Never"
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:border-cyan-500/50 focus:outline-none"
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-cyan-500/50 focus:outline-none"
               />
             </div>
           </div>
@@ -285,7 +285,7 @@ export default function AdminPromoClient() {
           <button
             onClick={createCode}
             disabled={creating || !partnerName.trim() || !customCode.trim()}
-            className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {creating ? 'Creating...' : '🎟️ Create Promo Code'}
           </button>
@@ -293,30 +293,30 @@ export default function AdminPromoClient() {
 
         {/* Existing Codes */}
         <motion.div 
-          className="glass-card rounded-2xl p-6"
+          className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h2 className="text-xl font-bold text-white mb-4">Existing Codes</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Existing Codes</h2>
           
           {loading ? (
-            <p className="text-gray-400 text-center py-8">Loading...</p>
+            <p className="text-slate-500 text-center py-8">Loading...</p>
           ) : codes.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">No promo codes yet. Create your first one above!</p>
+            <p className="text-slate-500 text-center py-8">No promo codes yet. Create your first one above!</p>
           ) : (
             <div className="space-y-3">
               {codes.map((code) => (
                 <div 
                   key={code.id}
-                  className={`p-4 rounded-xl border ${code.is_active ? 'bg-white/5 border-white/10' : 'bg-red-500/5 border-red-500/20'}`}
+                  className={`p-4 rounded-xl border ${code.is_active ? 'bg-slate-50 border-slate-200' : 'bg-red-500/5 border-red-500/20'}`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <button
                           onClick={() => copyCode(code.code)}
-                          className="font-mono text-lg font-bold text-cyan-400 hover:text-cyan-300 transition"
+                          className="font-mono text-lg font-bold text-[var(--aqua-accent-primary)] hover:opacity-80 transition"
                           title="Click to copy"
                         >
                           {code.code}
@@ -325,8 +325,8 @@ export default function AdminPromoClient() {
                           <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full">Inactive</span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-400">
-                        <span className="text-white">{code.partner_name}</span>
+                      <p className="text-sm text-slate-500">
+                        <span className="text-slate-900">{code.partner_name}</span>
                         {' • '}
                         {code.discount_value} days free {code.applies_to === 'both' ? 'Premium/Super' : code.applies_to}
                         {' • '}

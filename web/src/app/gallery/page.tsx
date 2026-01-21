@@ -154,7 +154,7 @@ function GalleryPageContent() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-gray-400">Loading gallery...</div>
+          <div className="text-slate-500">Loading gallery...</div>
         </div>
       </AppLayout>
     );
@@ -172,7 +172,7 @@ function GalleryPageContent() {
         <div className="flex items-center justify-between mb-6 animate-slideDown">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-2">Photo Gallery</h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Document your reef's journey {isSuperPremiumUser && "🚀"}
             </p>
           </div>
@@ -188,14 +188,14 @@ function GalleryPageContent() {
         </div>
 
         {/* Storage Usage */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-4 mb-6 animate-fadeIn">
+        <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 animate-fadeIn">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-400">Storage Used</span>
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm text-slate-500">Storage Used</span>
+            <span className="text-sm font-semibold text-slate-900">
               {storageUsed.toFixed(1)} MB / {storageLimit} MB
             </span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-slate-100 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${
                 storagePercent > 90 ? "bg-red-500" : storagePercent > 70 ? "bg-yellow-500" : "bg-gradient-to-r from-purple-600 to-pink-600"
@@ -206,12 +206,12 @@ function GalleryPageContent() {
         </div>
 
         {/* Upload Section */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg p-6 mb-6 animate-fadeIn">
-          <h2 className="text-xl font-bold text-white mb-4">Upload Photo</h2>
+        <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6 animate-fadeIn">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Upload Photo</h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Caption
               </label>
               <input
@@ -219,12 +219,12 @@ function GalleryPageContent() {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="e.g., New coral placement"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Tags (comma-separated)
               </label>
               <input
@@ -232,7 +232,7 @@ function GalleryPageContent() {
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="e.g., coral, SPS, growth"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
 
@@ -248,12 +248,12 @@ function GalleryPageContent() {
                 <div className={`
                   py-8 border-2 border-dashed rounded-lg text-center cursor-pointer transition
                   ${uploading || storageUsed >= storageLimit 
-                    ? "border-gray-600 bg-gray-800 cursor-not-allowed" 
-                    : "border-purple-500 bg-purple-900/20 hover:bg-purple-900/30"
+                    ? "border-slate-300 bg-slate-100 cursor-not-allowed" 
+                    : "border-purple-500 bg-purple-100 hover:bg-purple-200"
                   }
                 `}>
                   {uploading ? (
-                    <p className="text-gray-400">Uploading...</p>
+                    <p className="text-slate-500">Uploading...</p>
                   ) : storageUsed >= storageLimit ? (
                     <p className="text-red-400">Storage limit reached</p>
                   ) : (
@@ -270,10 +270,10 @@ function GalleryPageContent() {
 
         {/* Photo Grid */}
         {photos.length === 0 ? (
-          <div className="text-center py-16 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-lg">
+          <div className="text-center py-16 bg-white border border-slate-200 rounded-lg">
             <div className="text-6xl mb-4">📸</div>
-            <p className="text-gray-400 mb-2">No photos yet</p>
-            <p className="text-sm text-gray-500">Upload your first tank photo above</p>
+            <p className="text-slate-500 mb-2">No photos yet</p>
+            <p className="text-sm text-slate-400">Upload your first tank photo above</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -281,7 +281,7 @@ function GalleryPageContent() {
               <div
                 key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
-                className="relative group cursor-pointer rounded-lg overflow-hidden bg-gray-800 aspect-square animate-fadeIn hover:ring-2 hover:ring-purple-500 transition"
+                className="relative group cursor-pointer rounded-lg overflow-hidden bg-slate-100 aspect-square animate-fadeIn hover:ring-2 hover:ring-purple-500 transition"
               >
                 <img
                   src={photo.url}
@@ -291,7 +291,7 @@ function GalleryPageContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-0 left-0 right-0 p-3">
                     <p className="text-white text-sm font-semibold truncate">{photo.caption}</p>
-                    <p className="text-gray-300 text-xs">
+                    <p className="text-slate-300 text-xs">
                       {new Date(photo.date).toLocaleDateString()}
                     </p>
                   </div>
@@ -304,11 +304,11 @@ function GalleryPageContent() {
         {/* Photo Modal */}
         {selectedPhoto && (
           <div
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedPhoto(null)}
           >
             <div
-              className="relative max-w-4xl w-full bg-gray-900 rounded-lg overflow-hidden"
+              className="relative max-w-4xl w-full bg-white shadow-2xl rounded-lg overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <img
@@ -320,8 +320,8 @@ function GalleryPageContent() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2">{selectedPhoto.caption}</h3>
-                    <p className="text-sm text-gray-400">
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{selectedPhoto.caption}</h3>
+                    <p className="text-sm text-slate-500">
                       {new Date(selectedPhoto.date).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -332,7 +332,7 @@ function GalleryPageContent() {
                   
                   <button
                     onClick={() => setSelectedPhoto(null)}
-                    className="text-gray-400 hover:text-white transition text-2xl"
+                    className="text-slate-500 hover:text-slate-900 transition text-2xl"
                   >
                     ✕
                   </button>
@@ -361,7 +361,7 @@ function GalleryPageContent() {
                   
                   <button
                     onClick={() => setSelectedPhoto(null)}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm"
+                    className="px-4 py-2 bg-slate-100 text-slate-900 rounded-lg hover:bg-slate-200 transition text-sm"
                   >
                     Close
                   </button>
@@ -373,17 +373,17 @@ function GalleryPageContent() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowDeleteModal(false)}>
+            <div className="bg-white shadow-2xl border border-red-500/50 rounded-lg p-6 max-w-md w-full animate-fadeIn" onClick={(e) => e.stopPropagation()}>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">🗑️</div>
-                <h3 className="text-xl font-bold text-white mb-2">Delete Photo?</h3>
-                <p className="text-gray-400">This action cannot be undone.</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Delete Photo?</h3>
+                <p className="text-slate-500">This action cannot be undone.</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-semibold"
+                  className="flex-1 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg transition font-semibold"
                 >
                   Cancel
                 </button>

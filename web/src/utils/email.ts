@@ -24,7 +24,7 @@ export interface SendEmailParams {
 export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
   try {
     const client = getResendClient();
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'REEFXONE <noreply@reefxone.com>';
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'AQUAXONE <noreply@aquaxone.app>';
     
     const { data, error } = await client.emails.send({
       from: fromEmail,
@@ -54,7 +54,7 @@ export function getPasswordResetEmailHtml(resetUrl: string) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset Your Password - REEFXONE</title>
+  <title>Reset Your Password - AQUAXONE</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #0a0e1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -64,7 +64,7 @@ export function getPasswordResetEmailHtml(resetUrl: string) {
           <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom: 30px;">
-              <h1 style="margin: 0; font-size: 32px; font-weight: bold; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">REEFXONE</h1>
+              <h1 style="margin: 0; font-size: 32px; font-weight: bold; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">AQUAXONE</h1>
             </td>
           </tr>
           
@@ -99,7 +99,7 @@ export function getPasswordResetEmailHtml(resetUrl: string) {
           <tr>
             <td align="center" style="padding-top: 30px;">
               <p style="margin: 0; color: #6b7280; font-size: 12px;">
-                © ${new Date().getFullYear()} REEFXONE. All rights reserved.
+                © ${new Date().getFullYear()} AQUAXONE. All rights reserved.
               </p>
             </td>
           </tr>
@@ -114,7 +114,7 @@ export function getPasswordResetEmailHtml(resetUrl: string) {
 
 export function getPasswordResetEmailText(resetUrl: string) {
   return `
-REEFXONE - Reset Your Password
+AQUAXONE - Reset Your Password
 
 We received a request to reset your password. Click the link below to create a new password:
 
@@ -122,7 +122,7 @@ ${resetUrl}
 
 This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
 
-© ${new Date().getFullYear()} REEFXONE. All rights reserved.
+© ${new Date().getFullYear()} AQUAXONE. All rights reserved.
   `.trim();
 }
 
@@ -134,7 +134,7 @@ export function getWelcomeEmailHtml(confirmUrl: string, name: string) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to REEFXONE</title>
+  <title>Welcome to AQUAXONE</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #0a0e1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -144,7 +144,7 @@ export function getWelcomeEmailHtml(confirmUrl: string, name: string) {
           <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom: 30px;">
-              <h1 style="margin: 0; font-size: 32px; font-weight: bold; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">REEFXONE</h1>
+              <h1 style="margin: 0; font-size: 32px; font-weight: bold; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">AQUAXONE</h1>
             </td>
           </tr>
           
@@ -155,7 +155,7 @@ export function getWelcomeEmailHtml(confirmUrl: string, name: string) {
                 Welcome, ${name}! 🎉
               </h2>
               <p style="margin: 0 0 24px; color: #9ca3af; font-size: 16px; line-height: 1.6; text-align: center;">
-                Thanks for signing up for REEFXONE! Please confirm your email address to get started tracking your reef tank.
+                Thanks for signing up for AQUAXONE! Please confirm your email address to get started tracking your reef tank.
               </p>
               
               <!-- Button -->
@@ -179,7 +179,7 @@ export function getWelcomeEmailHtml(confirmUrl: string, name: string) {
           <tr>
             <td align="center" style="padding-top: 30px;">
               <p style="margin: 0; color: #6b7280; font-size: 12px;">
-                © ${new Date().getFullYear()} REEFXONE. All rights reserved.
+                © ${new Date().getFullYear()} AQUAXONE. All rights reserved.
               </p>
             </td>
           </tr>
@@ -194,15 +194,15 @@ export function getWelcomeEmailHtml(confirmUrl: string, name: string) {
 
 export function getWelcomeEmailText(confirmUrl: string, name: string) {
   return `
-REEFXONE - Welcome, ${name}!
+AQUAXONE - Welcome, ${name}!
 
-Thanks for signing up for REEFXONE! Please confirm your email address to get started tracking your reef tank.
+Thanks for signing up for AQUAXONE! Please confirm your email address to get started tracking your reef tank.
 
 Click here to confirm your email:
 ${confirmUrl}
 
 This link will expire in 24 hours.
 
-© ${new Date().getFullYear()} REEFXONE. All rights reserved.
+© ${new Date().getFullYear()} AQUAXONE. All rights reserved.
   `.trim();
 }

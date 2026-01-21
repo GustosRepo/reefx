@@ -45,9 +45,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen reef-bg text-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Aquatic Elements */}
+      <div className="aqua-bubbles">
+        <div className="bubble bubble-1" />
+        <div className="bubble bubble-2" />
+        <div className="bubble bubble-3" />
+        <div className="bubble bubble-4" />
+        <div className="bubble bubble-5" />
+      </div>
+      <div className="light-rays" />
+      <div className="aqua-decor" />
+      
       <motion.div 
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -60,14 +71,17 @@ export default function LoginPage() {
           transition={{ delay: 0.1 }}
         >
           <Link href="/">
-            <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2">REEFXONE</h1>
+            <h1 className="text-5xl font-bold text-gradient gradient-animate mb-2 flex items-center justify-center gap-3">
+              <span>🌊</span>
+              AQUAXONE
+            </h1>
           </Link>
-          <p className="text-gray-400 text-lg">Sign in to your account</p>
+          <p className="text-slate-500 text-lg">Sign in to your account</p>
         </motion.div>
 
         {/* Login Form */}
         <motion.div 
-          className="glass-card rounded-2xl p-6 md:p-8"
+          className="bg-white border border-slate-200 shadow-lg rounded-2xl p-6 md:p-8"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
@@ -75,16 +89,16 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
               <motion.div 
-                className="bg-red-500/10 border border-red-500/50 rounded-xl p-3"
+                className="bg-red-50 border border-red-200 rounded-xl p-3"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-red-600 text-sm">{error}</p>
               </motion.div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Email
               </label>
               <input
@@ -93,18 +107,18 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[var(--aqua-accent-primary)] focus:ring-1 focus:ring-[var(--aqua-accent-primary)] transition"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-300">
+                <label className="block text-sm font-medium text-slate-700">
                   Password
                 </label>
                 <Link 
                   href="/forgot-password" 
-                  className="text-xs text-cyan-400 hover:text-cyan-300 transition"
+                  className="text-xs text-[var(--aqua-accent-primary)] hover:text-[var(--aqua-accent-secondary)] transition"
                 >
                   Forgot password?
                 </Link>
@@ -115,14 +129,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[var(--aqua-accent-primary)] focus:ring-1 focus:ring-[var(--aqua-accent-primary)] transition"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -136,9 +150,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Don't have an account?{" "}
-              <Link href="/register" className="text-cyan-400 hover:text-cyan-300 font-semibold transition">
+              <Link href="/register" className="text-[var(--aqua-accent-primary)] hover:text-[var(--aqua-accent-secondary)] font-semibold transition">
                 Sign up
               </Link>
             </p>
@@ -147,7 +161,7 @@ export default function LoginPage() {
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-400 text-sm hover:text-white transition">
+          <Link href="/" className="text-slate-500 text-sm hover:text-slate-900 transition">
             ← Back to Home
           </Link>
         </div>
