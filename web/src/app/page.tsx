@@ -399,6 +399,9 @@ export default function Home() {
                   <span className="text-emerald-500">✓</span> Basic parameter logging
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
+                  <span className="text-emerald-500">✓</span> Reef & freshwater modes
+                </li>
+                <li className="flex items-center gap-2 text-slate-600">
                   <span className="text-emerald-500">✓</span> 30 days history
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">

@@ -73,8 +73,10 @@ export async function POST(request: Request) {
     .eq('is_active', true);
 
   if ((count || 0) >= tankLimit) {
-    const upgradeMessage = tier === 'free' || tier === 'premium'
-      ? 'Upgrade to Super Premium to manage up to 10 tanks!'
+    const upgradeMessage = tier === 'free'
+      ? 'Upgrade to Premium to manage up to 3 tanks, or Super Premium for 5 tanks!'
+      : tier === 'premium'
+      ? 'Upgrade to Super Premium to manage up to 5 tanks!'
       : 'You have reached the maximum number of tanks.';
     return NextResponse.json({ 
       error: `Tank limit reached (${tankLimit}). ${upgradeMessage}` 

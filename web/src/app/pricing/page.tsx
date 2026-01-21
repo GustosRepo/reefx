@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import SiteFooter from "@/components/SiteFooter";
 
 type BillingCycle = "monthly" | "yearly";
@@ -25,6 +25,7 @@ const featureCategories: FeatureCategory[] = [
     name: "Core Features",
     features: [
       { name: "Parameter Logging", free: true, premium: true, superPremium: true, description: "Log temp, salinity, alkalinity, pH, calcium, magnesium, phosphate, nitrate, and more" },
+      { name: "Reef & Freshwater Modes", free: true, premium: true, superPremium: true, description: "Switch between saltwater reef and freshwater/planted tank parameter sets" },
       { name: "Interactive Dashboard", free: true, premium: true, superPremium: true, description: "Real-time overview with status indicators, warnings, and quick actions" },
       { name: "Maintenance Tracking", free: true, premium: true, superPremium: true, description: "Schedule water changes, filter cleanings, dosing reminders with notifications" },
       { name: "Trend Charts", free: "Basic", premium: "Advanced", superPremium: "Advanced", description: "Visualize parameter trends over time with customizable date ranges" },
@@ -165,7 +166,10 @@ export default function PricingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 z-50 w-full border-b backdrop-blur bg-white/80 border-slate-200">
         <div className="flex items-center justify-between max-w-6xl px-4 sm:px-6 py-4 mx-auto">
-          <Link href="/" className="text-xl sm:text-2xl font-bold text-gradient">REEFXONE</Link>
+          <Link href="/" className="text-xl sm:text-2xl font-bold text-gradient flex items-center gap-2">
+            <span>🌊</span>
+            AQUAXONE
+          </Link>
           
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600">
@@ -218,7 +222,7 @@ export default function PricingPage() {
         </AnimatePresence>
       </header>
 
-      <main className="min-h-screen pt-32 pb-24 text-slate-900 bg-slate-50">
+      <main className="min-h-screen pt-32 pb-24 text-slate-900 bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee]">
         <div className="max-w-6xl px-6 mx-auto">
           {/* Header */}
           <motion.div 
@@ -226,11 +230,11 @@ export default function PricingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
               Choose Your Plan
             </h1>
-            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
-              Start free and upgrade when you need more. All plans include our core reef tracking features.
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+              Start free and upgrade when you need more. All plans include reef & freshwater tracking.
             </p>
           </motion.div>
 
@@ -281,6 +285,9 @@ export default function PricingPage() {
                   <span className="text-green-500">✓</span> Basic parameter logging
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
+                  <span className="text-green-500">✓</span> Reef & freshwater modes
+                </li>
+                <li className="flex items-center gap-2 text-slate-600">
                   <span className="text-green-500">✓</span> 30 days history
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
@@ -306,47 +313,47 @@ export default function PricingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-8 rounded-2xl border-2 border-purple-500/50 bg-white shadow-md relative flex flex-col"
+              className="p-8 rounded-2xl border-2 border-[var(--aqua-accent-primary)] bg-white shadow-lg relative flex flex-col"
             >
               <div className="absolute top-4 right-4">
-                <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span className="bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] text-white text-xs font-bold px-3 py-1 rounded-full">
                   POPULAR
                 </span>
               </div>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">👑</div>
-                <h3 className="text-xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text mb-2">Premium</h3>
+                <h3 className="text-xl font-bold text-gradient mb-2">Premium</h3>
                 <div className="text-4xl font-bold text-slate-900 mb-1">
                   ${billingCycle === "monthly" ? prices.premium.monthly : prices.premium.yearly}
                   <span className="text-lg font-normal text-slate-500">/{billingCycle === "monthly" ? "mo" : "yr"}</span>
                 </div>
                 {billingCycle === "yearly" && (
-                  <p className="text-green-400 text-sm">Save {savings.premium}% vs monthly</p>
+                  <p className="text-emerald-500 text-sm">Save {savings.premium}% vs monthly</p>
                 )}
               </div>
               <ul className="space-y-3 mb-8 flex-1 text-sm">
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-purple-500">✓</span> Everything in Free
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> Everything in Free
                 </li>
                 <li className="flex items-center gap-2 text-slate-900 font-semibold">
-                  <span className="text-purple-500">✓</span> No ads
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> No ads
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-purple-500">✓</span> Unlimited history
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> Unlimited history
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-purple-500">✓</span> Up to 3 tanks
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> Up to 3 tanks
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-purple-500">✓</span> 500MB photo storage
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> 500MB photo storage
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-purple-500">✓</span> Data export (CSV/PDF)
+                  <span className="text-[var(--aqua-accent-primary)]">✓</span> Data export (CSV/PDF)
                 </li>
               </ul>
               <Link
                 href="/register"
-                className="block w-full py-3 text-center bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:from-purple-500 hover:to-pink-500 transition"
+                className="block w-full py-3 text-center text-white bg-gradient-to-r from-[var(--aqua-accent-primary)] to-[var(--aqua-accent-tertiary)] rounded-xl font-semibold hover:opacity-90 transition"
               >
                 Start Premium
               </Link>
@@ -357,44 +364,44 @@ export default function PricingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-8 rounded-2xl border-2 border-pink-500/50 bg-white shadow-md relative flex flex-col"
+              className="p-8 rounded-2xl border-2 border-teal-400 bg-white shadow-md relative flex flex-col"
             >
               <div className="absolute top-4 right-4">
-                <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                   ULTIMATE
                 </span>
               </div>
               <div className="text-center mb-6">
                 <div className="text-4xl mb-3">🚀</div>
-                <h3 className="text-xl font-bold text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text mb-2">Super Premium</h3>
+                <h3 className="text-xl font-bold text-transparent bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text mb-2">Super Premium</h3>
                 <div className="text-4xl font-bold text-slate-900 mb-1">
                   ${billingCycle === "monthly" ? prices.superPremium.monthly : prices.superPremium.yearly}
                   <span className="text-lg font-normal text-slate-500">/{billingCycle === "monthly" ? "mo" : "yr"}</span>
                 </div>
                 {billingCycle === "yearly" && (
-                  <p className="text-green-400 text-sm">Save {savings.superPremium}% vs monthly</p>
+                  <p className="text-emerald-500 text-sm">Save {savings.superPremium}% vs monthly</p>
                 )}
               </div>
               <ul className="space-y-3 mb-8 flex-1 text-sm">
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-pink-500">✓</span> Everything in Premium
+                  <span className="text-teal-500">✓</span> Everything in Premium
                 </li>
                 <li className="flex items-center gap-2 text-slate-900 font-semibold">
-                  <span className="text-pink-500">✓</span> Up to 5 tanks
+                  <span className="text-teal-500">✓</span> Up to 5 tanks
                 </li>
                 <li className="flex items-center gap-2 text-slate-900 font-semibold">
-                  <span className="text-pink-500">✓</span> 5GB photo storage
+                  <span className="text-teal-500">✓</span> 5GB photo storage
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-pink-500">✓</span> Equipment tracking
+                  <span className="text-teal-500">✓</span> Equipment tracking
                 </li>
                 <li className="flex items-center gap-2 text-slate-700">
-                  <span className="text-pink-500">✓</span> Livestock inventory
+                  <span className="text-teal-500">✓</span> Livestock inventory
                 </li>
               </ul>
               <Link
                 href="/register"
-                className="block w-full py-3 text-center bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 rounded-xl font-semibold hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 transition"
+                className="block w-full py-3 text-center text-white bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl font-semibold hover:opacity-90 transition"
               >
                 Go Super Premium
               </Link>
@@ -408,25 +415,25 @@ export default function PricingPage() {
             viewport={{ once: true }}
             className="mb-20"
           >
-            <h2 className="text-3xl font-bold text-center mb-4 text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text">
+            <h2 className="text-3xl font-bold text-center mb-4 text-gradient">
               Complete Feature Comparison
             </h2>
-            <p className="text-center text-slate-500 mb-8">Everything you get with each plan, organized by category</p>
+            <p className="text-center text-slate-600 mb-8">Everything you get with each plan, organized by category</p>
             
             <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 sticky top-0">
+                  <tr className="border-b border-slate-200 bg-white/80 sticky top-0">
                     <th className="text-left py-4 px-6 font-medium text-slate-500">Feature</th>
                     <th className="text-center py-4 px-6 font-medium text-slate-500 min-w-[100px]">
                       <div className="text-2xl mb-1">🐚</div>
                       Free
                     </th>
-                    <th className="text-center py-4 px-6 font-medium text-purple-500 min-w-[100px]">
+                    <th className="text-center py-4 px-6 font-medium text-[var(--aqua-accent-primary)] min-w-[100px]">
                       <div className="text-2xl mb-1">👑</div>
                       Premium
                     </th>
-                    <th className="text-center py-4 px-6 font-medium text-pink-500 min-w-[100px]">
+                    <th className="text-center py-4 px-6 font-medium text-teal-500 min-w-[100px]">
                       <div className="text-2xl mb-1">🚀</div>
                       Super Premium
                     </th>
@@ -434,9 +441,9 @@ export default function PricingPage() {
                 </thead>
                 <tbody>
                   {featureCategories.map((category) => (
-                    <>
+                    <Fragment key={category.name}>
                       {/* Category Header */}
-                      <tr key={category.name} className="bg-gradient-to-r from-[var(--aqua-accent-primary)]/10 to-[var(--aqua-accent-tertiary)]/10">
+                      <tr className="bg-gradient-to-r from-[var(--aqua-accent-primary)]/10 to-[var(--aqua-accent-tertiary)]/10">
                         <td colSpan={4} className="py-3 px-6 font-bold text-[var(--aqua-accent-primary)] text-sm uppercase tracking-wide">
                           {category.name}
                         </td>
@@ -468,7 +475,7 @@ export default function PricingPage() {
                           </td>
                         </tr>
                       ))}
-                    </>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -481,7 +488,7 @@ export default function PricingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-center mb-8 text-transparent bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gradient">
               Frequently Asked Questions
             </h2>
             <div className="max-w-3xl mx-auto space-y-4">

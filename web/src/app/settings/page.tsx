@@ -444,7 +444,9 @@ function SettingsPageContent() {
           {tanks.length >= tankLimit && subscription.tier !== 'super-premium' && (
             <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4 mb-4">
               <p className="text-yellow-400 text-sm">
-                🔒 Tank limit reached! <a href="/subscription" className="underline hover:text-yellow-300">Upgrade to Super Premium</a> to manage up to 10 tanks.
+                🔒 Tank limit reached! <a href="/subscription" className="underline hover:text-yellow-300">
+                  {subscription.tier === 'free' ? 'Upgrade to Premium for 3 tanks or Super Premium for 5!' : 'Upgrade to Super Premium for up to 5 tanks!'}
+                </a>
               </p>
             </div>
           )}

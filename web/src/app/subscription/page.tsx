@@ -669,9 +669,9 @@ function SubscriptionPageContent() {
                 <span className="text-purple-400">✓</span>
                 Data export (CSV/PDF)
               </li>
-              <li className="flex items-center gap-2 text-slate-500">
-                <span className="text-slate-400">•</span>
-                1 tank only
+              <li className="flex items-center gap-2 text-slate-900">
+                <span className="text-purple-400">✓</span>
+                Up to 3 tanks
               </li>
             </ul>
 
@@ -728,7 +728,7 @@ function SubscriptionPageContent() {
               </li>
               <li className="flex items-center gap-2 text-slate-900 font-semibold">
                 <span className="text-pink-400">✓</span>
-                Up to 10 tanks
+                Up to 5 tanks
               </li>
               <li className="flex items-center gap-2 text-slate-900">
                 <span className="text-pink-400">✓</span>
