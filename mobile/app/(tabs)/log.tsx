@@ -1,280 +1,210 @@
-// File: app/log.tsx
+import { useState } from 'react';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '@/lib/supabase';
+import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
+import { colors } from '@/constants/theme';
+import Toast from 'react-native-toast-message';
 
-import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Keyboard,
-} from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-
-type ReefForm = {
-  date: string;
-  temp: string;
-  alk: string;
-  ph: string;
-  cal: string;
-  mag: string;
-  po4: string;
-  no3: string;
-  salinity: string;
-};
-
-type FieldErrors = {
-  [K in keyof ReefForm]?: string;
-};
+interface FormData {
+  [key: string]: string;
+}
 
 export default function LogScreen() {
-  // Initialize form with today’s local date
-  const todayDateObj = new Date();
-  todayDateObj.setHours(0, 0, 0, 0);
-  const year = todayDateObj.getFullYear();
-  const month = (todayDateObj.getMonth() + 1).toString().padStart(2, "0");
-  const day = todayDateObj.getDate().toString().padStart(2, "0");
-  const todayString = `${year}-${month}-${day}`;
+  const { user } = useAuth();
+  const { currentTank } = useTank();
+  const { isReefMode, theme, modeIcon } = useAquaMode();
 
-  const [form, setForm] = useState<ReefForm>({
-    date: todayString,
-    temp: "",
-    alk: "",
-    ph: "",
-    cal: "",
-    mag: "",
-    po4: "",
-    no3: "",
-    salinity: "",
+  const parameters = isReefMode ? REEF_PARAMETERS : FRESHWATER_PARAMETERS;
+
+  const [formData, setFormData] = useState<FormData>(() => {
+    const initial: FormData = { date: new Date().toISOString().split('T')[0] };
+    parameters.forEach(p => { initial[p.key] = ''; });
+    return initial;
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [isValid, setIsValid] = useState<boolean>(false);
-
-  const router = useRouter();
-
-  // Utility: Check if a string is a valid non-negative number
-  const isNumber = (val: string) => {
-    const n = parseFloat(val);
-    return !isNaN(n) && isFinite(n) && n >= 0;
+  const updateField = (key: string, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
   };
 
-  // Re-validate fields whenever form changes
-  useEffect(() => {
-    const newErrors: FieldErrors = {};
-
-    // Validate date
-    const dateVal = form.date;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
-      newErrors.date = "Use format YYYY-MM-DD";
-    } else {
-      const [y, m, d] = dateVal.split("-").map(Number);
-      const dt = new Date(y, m - 1, d);
-      dt.setHours(0, 0, 0, 0);
-      if (isNaN(dt.getTime())) {
-        newErrors.date = "Invalid date";
-      } else if (dt.getTime() > todayDateObj.getTime()) {
-        newErrors.date = "Date cannot be in the future";
-      }
-    }
-
-    // Validate numeric fields only if non-empty
-    (Object.keys(form) as (keyof ReefForm)[]).forEach((key) => {
-      if (key !== "date") {
-        const val = form[key];
-        if (val.trim() !== "" && !isNumber(val)) {
-          newErrors[key] = "Enter a valid number ≥ 0";
-        }
-      }
-    });
-
-    setErrors(newErrors);
-
-    // Determine validity: date must be valid, plus no numeric-format errors
-    const dateError = !!newErrors.date;
-    const numericErrorExists = (Object.entries(newErrors) as [keyof ReefForm, string][]).some(
-      ([k, msg]) => k !== "date" && !!msg
-    );
-    setIsValid(!dateError && !numericErrorExists);
-  }, [form]);
-
-  // Handle individual field updates
-  const handleChange = (key: keyof ReefForm, value: string) => {
-    if (key !== "date") {
-      // For numeric fields, strip any non-numeric characters except dot
-      const sanitized = value.replace(/[^0-9.]/g, "");
-      setForm((prev) => ({ ...prev, [key]: sanitized }));
-    } else {
-      setForm((prev) => ({ ...prev, [key]: value }));
-    }
-  };
-
-  // Save log & update per-parameter history
-  const saveLog = async () => {
-    // Final validation: re-check date and numeric fields
-    // (useEffect already did this, but we double-check here)
-    const dateError = !!errors.date;
-    const numErrorExists = (Object.entries(errors) as [keyof ReefForm, string][]).some(
-      ([k, msg]) => k !== "date" && !!msg
-    );
-    if (dateError || numErrorExists) {
-      Alert.alert("Fix errors", "Please correct the highlighted fields.");
+  const handleSubmit = async () => {
+    if (!currentTank || !user) {
+      Toast.show({
+        type: 'error',
+        text1: 'No tank selected',
+        text2: 'Please select a tank first',
+      });
       return;
     }
 
+    // Check if at least one parameter is filled
+    const hasData = parameters.some(p => formData[p.key] && formData[p.key].trim() !== '');
+    if (!hasData) {
+      Toast.show({
+        type: 'error',
+        text1: 'No data entered',
+        text2: 'Please enter at least one parameter',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      const existing: string | null = await AsyncStorage.getItem("reef_logs");
-      const logs: ReefForm[] = existing ? JSON.parse(existing) : [];
+      // Build the log entry
+      const logEntry: any = {
+        tank_id: currentTank.id,
+        user_id: user.id,
+        log_date: formData.date,
+      };
 
-      // Clean the form to exclude empty values from being saved to history
-      const cleanedForm: ReefForm = { ...form };
-      (Object.keys(cleanedForm) as (keyof ReefForm)[]).forEach((key) => {
-        if (key !== "date" && cleanedForm[key].trim() === "") {
-          cleanedForm[key] = ""; // explicitly keep it blank instead of zero
+      // Add non-empty parameters
+      parameters.forEach(p => {
+        const value = formData[p.key];
+        if (value && value.trim() !== '') {
+          logEntry[p.key] = parseFloat(value);
         }
       });
 
-      // Overwrite any existing log with the same date
-      const newLogs: ReefForm[] = [
-        ...logs.filter((log) => log.date !== cleanedForm.date),
-        cleanedForm,
-      ];
-      await AsyncStorage.setItem("reef_logs", JSON.stringify(newLogs));
+      const { error } = await supabase
+        .from('reef_logs')
+        .insert(logEntry);
 
-      // ➤ Update per-parameter history
-      const params: (keyof ReefForm)[] = [
-        "alk",
-        "cal",
-        "mag",
-        "ph",
-        "po4",
-        "no3",
-        "salinity",
-        "temp",
-      ];
-      for (const param of params) {
-        const historyKey = `${param}History`;
-        const existingHistory = await AsyncStorage.getItem(historyKey);
-        const historyArray: { date: string; [key: string]: string }[] = existingHistory
-          ? JSON.parse(existingHistory)
-          : [];
+      if (error) throw error;
 
-        const filteredHistory = historyArray.filter((entry) => entry.date !== cleanedForm.date);
-        if (cleanedForm[param].trim() !== "") {
-          filteredHistory.push({ date: cleanedForm.date, [param]: cleanedForm[param] });
-        }
-        await AsyncStorage.setItem(historyKey, JSON.stringify(filteredHistory));
-      }
-
-      console.log("Saved logs:", newLogs);
-      Alert.alert("Saved!", "Your reef log was saved.");
-      router.push({
-        pathname: "/history",
-        params: { refresh: Date.now().toString() },
+      Toast.show({
+        type: 'success',
+        text1: 'Log saved!',
+        text2: 'Your parameters have been recorded',
       });
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Something went wrong saving your log.");
+
+      // Reset form
+      const reset: FormData = { date: new Date().toISOString().split('T')[0] };
+      parameters.forEach(p => { reset[p.key] = ''; });
+      setFormData(reset);
+
+      // Navigate back to dashboard
+      router.push('/(tabs)');
+    } catch (error: any) {
+      console.error('Error saving log:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Save failed',
+        text2: error.message || 'Could not save log entry',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Log Today's Parameters</Text>
-
-      {[
-        { label: "Date (YYYY-MM-DD)", key: "date" },
-        { label: "Temperature (°C)", key: "temp" },
-        { label: "Salinity (ppt)", key: "salinity" },
-        { label: "Alkalinity (dKH)", key: "alk" },
-        { label: "pH", key: "ph" },
-        { label: "Calcium (ppm)", key: "cal" },
-        { label: "Magnesium (ppm)", key: "mag" },
-        { label: "Phosphate (ppm)", key: "po4" },
-        { label: "Nitrate (ppm)", key: "no3" },
-      ].map(({ label, key }) => (
-        <View key={key} style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{label}</Text>
-          <TextInput
-            style={[
-              styles.input,
-              errors[key as keyof ReefForm] ? styles.inputError : null,
-            ]}
-            keyboardType={key === "date" ? "default" : "numeric"}
-            returnKeyType="done"
-            blurOnSubmit
-            onSubmitEditing={() => Keyboard.dismiss()}
-            value={form[key as keyof ReefForm]}
-            onChangeText={(text) => handleChange(key as keyof ReefForm, text)}
-            placeholder={key === "date" ? "YYYY-MM-DD" : ""}
-            placeholderTextColor="#888"
-          />
-          {errors[key as keyof ReefForm] ? (
-            <Text style={styles.errorText}>
-              {errors[key as keyof ReefForm]}
-            </Text>
-          ) : null}
+  if (!currentTank) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="flex-1 items-center justify-center p-8">
+          <Text className="text-4xl mb-4">🐠</Text>
+          <Text className="text-lg font-semibold text-slate-800 mb-2">No Tank Selected</Text>
+          <Text className="text-slate-500 text-center">
+            Please select or create a tank first
+          </Text>
         </View>
-      ))}
+      </SafeAreaView>
+    );
+  }
 
-      <TouchableOpacity
-        onPress={saveLog}
-        style={[styles.button, !isValid && styles.buttonDisabled]}
-        disabled={!isValid}
+  return (
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
       >
-        <Text style={[styles.buttonText, !isValid && { opacity: 0.6 }]}>
-          Save Log
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <ScrollView 
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View className="px-4 pt-4 pb-2">
+            <View className="flex-row items-center mb-4">
+              <Text className="text-2xl mr-2">{modeIcon}</Text>
+              <View>
+                <Text className="text-2xl font-bold text-slate-800">Log Entry</Text>
+                <Text className="text-slate-500">{currentTank.name}</Text>
+              </View>
+            </View>
+
+            {/* Date Picker */}
+            <View className="bg-white rounded-2xl p-4 border border-aqua-200 mb-4">
+              <Text className="text-slate-500 text-sm mb-2">Date</Text>
+              <View className="flex-row items-center">
+                <Ionicons name="calendar" size={20} color={theme.accentPrimary} />
+                <TextInput
+                  className="flex-1 ml-3 text-slate-800 text-lg"
+                  value={formData.date}
+                  onChangeText={(value) => updateField('date', value)}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={colors.text.muted}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Parameters Form */}
+          <View className="px-4">
+            <Text className="text-lg font-bold text-slate-800 mb-4">
+              {isReefMode ? 'Reef Parameters' : 'Freshwater Parameters'}
+            </Text>
+
+            <View className="gap-3">
+              {parameters.map((param) => (
+                <View 
+                  key={param.key}
+                  className="bg-white rounded-2xl p-4 border border-aqua-200"
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Text className="text-xl mr-2">{param.icon}</Text>
+                    <Text className="text-slate-700 font-medium">{param.label}</Text>
+                    {param.unit && (
+                      <Text className="text-slate-400 ml-1">({param.unit})</Text>
+                    )}
+                  </View>
+                  <TextInput
+                    className="text-2xl font-bold text-slate-800"
+                    value={formData[param.key]}
+                    onChangeText={(value) => updateField(param.key, value)}
+                    placeholder="--"
+                    placeholderTextColor={colors.text.muted}
+                    keyboardType="decimal-pad"
+                    style={{ color: param.color }}
+                  />
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Submit Button */}
+        <View className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-aqua-200">
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={isSubmitting}
+            className="rounded-2xl py-4 items-center"
+            style={{ backgroundColor: theme.accentPrimary }}
+            activeOpacity={0.8}
+          >
+            {isSubmitting ? (
+              <Text className="text-white font-bold text-lg">Saving...</Text>
+            ) : (
+              <View className="flex-row items-center">
+                <Ionicons name="checkmark-circle" size={24} color="white" />
+                <Text className="text-white font-bold text-lg ml-2">Save Log Entry</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#000",
-    flexGrow: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: "#0ff",
-  },
-  label: {
-    color: "#ccc",
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: "#1e293b",
-    color: "white",
-    padding: 12,
-    borderRadius: 8,
-  },
-  inputError: {
-    borderWidth: 1,
-    borderColor: "#f87171",
-  },
-  errorText: {
-    color: "#f87171",
-    marginTop: 4,
-  },
-  button: {
-    backgroundColor: "#0ff",
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    backgroundColor: "#555",
-  },
-  buttonText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-});

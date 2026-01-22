@@ -1,34 +1,38 @@
 {
   "cli": {
-    "appVersionSource": "local"
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
-    "preview": {
+    "development": {
+      "developmentClient": true,
       "distribution": "internal",
-      "developmentClient": false,
-      "android": {
-        "buildType": "apk"
-      },
       "ios": {
         "simulator": true
       }
     },
-    "production": {
-      "distribution": "store",
-      "android": {
-        "buildType": "app-bundle"
-      },
+    "preview": {
+      "distribution": "internal",
       "ios": {
-        "buildConfiguration": "Release",
-        "scheme": "REEFX",
-        "releaseChannel": "prod"
+        "simulator": false
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "apk"
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "admin@code-wrx.com"
+        "appleId": "admin@code-wrx.com",
+        "ascAppId": "6758155921",
+        "appleTeamId": "L9CFTCZ6X5"
       }
     }
   }
