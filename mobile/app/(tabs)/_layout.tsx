@@ -1,79 +1,104 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { StatusBar } from "expo-status-bar";
-import { Image, View, Text, TouchableOpacity } from "react-native";
-import AdBanner from "../../components/AdBanner";
-import { AquaModeProvider, useAquaMode } from "../../context/AquaModeContext";
-import { ModeIndicator } from "../../components/ModeSwitch";
+import { Tabs } from 'expo-router';
+import { View, Text, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context';
+import { Redirect } from 'expo-router';
+import { colors } from '@/constants/theme';
 
-function TabLayoutContent() {
-  const { colors, modeIcon, mode } = useAquaMode();
+type IconName = keyof typeof Ionicons.glyphMap;
 
+function TabBarIcon({ name, color, focused }: { name: IconName; color: string; focused: boolean }) {
   return (
-    <>
-      <StatusBar style="dark" />
-      <View style={{ flex: 1, backgroundColor: colors.background }}>
-        {/* Logo Header with Mode Indicator */}
-        <View style={{ 
-          alignItems: "center", 
-          marginTop: 10, 
-          marginBottom: 0,
-          flexDirection: "row",
-          justifyContent: "center",
-          paddingHorizontal: 16,
-        }}>
-          <View style={{ flex: 1, alignItems: "center" }}>
-            <Image
-              source={require("../../assets/fulllogo.png")}
-              style={{ width: 150, height: 75, resizeMode: "contain" }}
-              onError={() => console.warn("❌ fulllogo.png failed to load")}
-              accessibilityLabel="AQUAXONE Logo"
-            />
-          </View>
-          {/* Mode indicator in top right */}
-          <View style={{ position: "absolute", right: 16, top: 25 }}>
-            <ModeIndicator />
-          </View>
-        </View>
-
-        {/* Tabs */}
-        <Tabs
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ color, size }) => {
-              let iconName: React.ComponentProps<typeof Ionicons>["name"];
-
-              if (route.name === "home") iconName = "home";
-              else if (route.name === "log") iconName = "create";
-              else if (route.name === "history") iconName = "time";
-              else iconName = "alert";
-
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarActiveTintColor: colors.primary,
-            tabBarInactiveTintColor: colors.textMuted,
-            headerShown: false,
-            tabBarStyle: {
-              backgroundColor: colors.card,
-              borderTopColor: colors.border,
-              borderTopWidth: 1,
-            },
-            tabBarLabelStyle: {
-              fontWeight: "600",
-            },
-          })}
-        />
-
-        {/* Banner Ad */}
-        <AdBanner />
-      </View>
-    </>
+    <View className="items-center justify-center">
+      <Ionicons name={name} size={24} color={color} />
+    </View>
   );
 }
 
 export default function TabLayout() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!user) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
   return (
-    <AquaModeProvider>
-      <TabLayoutContent />
-    </AquaModeProvider>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: colors.brand.primary,
+        tabBarInactiveTintColor: colors.text.muted,
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopColor: colors.border.light,
+          borderTopWidth: 1,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          height: Platform.OS === 'ios' ? 88 : 64,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          marginTop: 4,
+        },
+        headerStyle: {
+          backgroundColor: colors.background.primary,
+        },
+        headerTintColor: colors.text.primary,
+        headerTitleStyle: {
+          fontWeight: '700',
+        },
+        headerShadowVisible: false,
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="log"
+        options={{
+          title: 'Log',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'create' : 'create-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'History',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'bar-chart' : 'bar-chart-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="maintenance"
+        options={{
+          title: 'Maint.',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'build' : 'build-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'menu' : 'menu-outline'} color={color} focused={focused} />
+          ),
+        }}
+      />
+    </Tabs>
   );
 }

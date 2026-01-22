@@ -1,172 +1,249 @@
-import { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import EditLogModal from "../../components/EditLogModal";
+import { useState, useEffect, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { LineChart } from 'react-native-chart-kit';
+import { supabase } from '@/lib/supabase';
+import { useTank, useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
+import { LoadingState, EmptyState } from '@/components';
+import { colors } from '@/constants/theme';
+import { ParameterLog } from '@shared/types';
 
-// ReefForm type should match the structure used in log.tsx
-export type ReefForm = {
-    date: string;
-    temp: string | number;
-    alk: string | number;
-    ph: string | number;
-    cal: string | number;
-    mag: string | number;
-    po4: string | number;
-    no3: string | number;
-    salinity?: string | number; // Optional if not used in history
-};
+const screenWidth = Dimensions.get('window').width;
 
 export default function HistoryScreen() {
-    const [logs, setLogs] = useState<ReefForm[]>([]);
-    const router = useRouter();
-    const [editModalVisible, setEditModalVisible] = useState(false);
-    const [selectedLog, setSelectedLog] = useState<ReefForm | null>(null);
-    const { refresh } = useLocalSearchParams();
+  const { currentTank } = useTank();
+  const { isReefMode, theme, modeIcon } = useAquaMode();
 
-    useEffect(() => {
-        const fetchLogs = async () => {
-            const stored = await AsyncStorage.getItem("reef_logs");
-            if (stored) {
-                try {
-                    const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed)) {
-                        const sorted = parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                        setLogs(sorted);
-                    }
-                } catch (err) {
-                    console.error("Failed to parse logs:", err);
-                }
-            }
-        };
-        fetchLogs();
-    }, [refresh]);
+  const [logs, setLogs] = useState<ParameterLog[]>([]);
+  const [selectedParam, setSelectedParam] = useState('temp');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const deleteLog = async (index: number) => {
-        try {
-            const updatedLogs = logs.filter((_, i) => i !== index);
-            setLogs(updatedLogs);
-            await AsyncStorage.setItem("reef_logs", JSON.stringify(updatedLogs));
-        } catch (err) {
-            console.error("Failed to delete log:", err);
-        }
+  const parameters = isReefMode ? REEF_PARAMETERS : FRESHWATER_PARAMETERS;
+
+  const loadHistory = useCallback(async () => {
+    if (!currentTank) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('reef_logs')
+        .select('*')
+        .eq('tank_id', currentTank.id)
+        .order('log_date', { ascending: true })
+        .limit(30);
+
+      if (error) throw error;
+      setLogs(data || []);
+    } catch (error) {
+      console.error('Error loading history:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentTank]);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await loadHistory();
+    setIsRefreshing(false);
+  };
+
+  const getChartData = () => {
+    const filteredLogs = logs.filter(log => {
+      const value = log[selectedParam as keyof ParameterLog];
+      return value !== null && value !== undefined;
+    });
+
+    if (filteredLogs.length === 0) {
+      return null;
+    }
+
+    const labels = filteredLogs.slice(-7).map(log => {
+      const date = new Date(log.log_date);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    });
+
+    const data = filteredLogs.slice(-7).map(log => {
+      const value = log[selectedParam as keyof ParameterLog];
+      return typeof value === 'number' ? value : 0;
+    });
+
+    return {
+      labels,
+      datasets: [{ data }],
     };
+  };
 
+  const selectedParamInfo = parameters.find(p => p.key === selectedParam);
+  const chartData = getChartData();
+
+  if (!currentTank) {
     return (
-        <>
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Past Reef Logs</Text>
-
-
-            {logs.length === 0 ? (
-                <Text style={styles.empty}>No logs found.</Text>
-            ) : (
-                logs.map((log, index) => (
-                  <View key={index} style={styles.card}>
-                    <Text style={styles.date}>{log.date}</Text>
-                    <Text style={styles.label}>Temperature: {log.temp} °C</Text>
-                    <Text style={styles.label}>Salinity: {log.salinity} ppt</Text>
-                    <Text style={styles.label}>ALK: {log.alk} dKH</Text>
-                    <Text style={styles.label}>pH: {log.ph}</Text>
-                    <Text style={styles.label}>Calcium: {log.cal} ppm</Text>
-                    <Text style={styles.label}>Magnesium: {log.mag} ppm</Text>
-                    <Text style={styles.label}>Phosphate: {log.po4} ppm</Text>
-                    <Text style={styles.label}>Nitrate: {log.no3} ppm</Text>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 12 }}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setSelectedLog(log);
-                          setEditModalVisible(true);
-                        }}
-                        style={[styles.deleteButton, { backgroundColor: "#3b82f6", marginRight: 8 }]}
-                      >
-                        <Text style={styles.deleteText}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => deleteLog(index)} style={styles.deleteButton}>
-                        <Text style={styles.deleteText}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))
-            )}
-
-        </ScrollView>
-        {editModalVisible && selectedLog && (
-          <EditLogModal
-            visible={editModalVisible}
-            log={selectedLog}
-            onClose={() => {
-              setEditModalVisible(false);
-              setSelectedLog(null);
-            }}
-            onSave={async (updatedLog) => {
-              const updatedLogs = logs.map((log) =>
-                log.date === updatedLog.date ? updatedLog : log
-              );
-              setLogs(updatedLogs);
-              await AsyncStorage.setItem("reef_logs", JSON.stringify(updatedLogs));
-              setEditModalVisible(false);
-              setSelectedLog(null);
-            }}
-          />
-        )}
-        </>
+      <SafeAreaView className="flex-1 bg-background">
+        <EmptyState
+          icon="🐠"
+          title="No Tank Selected"
+          message="Please select a tank to view history"
+        />
+      </SafeAreaView>
     );
-}
+  }
 
-const styles = StyleSheet.create({
-    container: {
-        padding: 20,
-        backgroundColor: "#000",
-        flexGrow: 1,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#0ff",
-        marginBottom: 20,
-    },
-    homeButton: {
-        backgroundColor: "#334155",
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 20,
-        alignSelf: "flex-start",
-    },
-    homeButtonText: {
-        color: "#0ff",
-        fontWeight: "bold",
-        textAlign: "center",
-    },
-    empty: {
-        color: "#888",
-        fontStyle: "italic",
-    },
-    card: {
-        backgroundColor: "#1e293b",
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 16,
-    },
-    date: {
-        fontWeight: "bold",
-        fontSize: 16,
-        color: "#fff",
-        marginBottom: 8,
-    },
-    label: {
-        color: "#ccc",
-    },
-    deleteButton: {
-        marginTop: 12,
-        backgroundColor: "#ff4d4d",
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        alignSelf: "flex-end",
-    },
-    deleteText: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-});
+  return (
+    <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.brand.primary}
+          />
+        }
+      >
+        {/* Header */}
+        <View className="px-4 pt-4 pb-2">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-2xl mr-2">{modeIcon}</Text>
+            <View>
+              <Text className="text-2xl font-bold text-slate-800">History</Text>
+              <Text className="text-slate-500">{currentTank.name}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Parameter Selector */}
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          className="px-4 mb-4"
+        >
+          {parameters.map((param) => (
+            <TouchableOpacity
+              key={param.key}
+              onPress={() => setSelectedParam(param.key)}
+              className={`mr-2 px-4 py-2 rounded-full ${
+                selectedParam === param.key 
+                  ? 'bg-aqua-600' 
+                  : 'bg-white border border-aqua-200'
+              }`}
+              style={selectedParam === param.key ? { backgroundColor: theme.accentPrimary } : {}}
+            >
+              <View className="flex-row items-center">
+                <Text className="mr-1">{param.icon}</Text>
+                <Text className={selectedParam === param.key ? 'text-white font-semibold' : 'text-slate-700'}>
+                  {param.label}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Chart */}
+        <View className="px-4 mb-6">
+          <View className="bg-white rounded-2xl p-4 border border-aqua-200">
+            <Text className="text-lg font-bold text-slate-800 mb-2">
+              {selectedParamInfo?.label} Trend
+            </Text>
+
+            {isLoading ? (
+              <View className="h-48 items-center justify-center">
+                <LoadingState message="Loading chart..." />
+              </View>
+            ) : !chartData ? (
+              <View className="h-48 items-center justify-center">
+                <Text className="text-4xl mb-2">📊</Text>
+                <Text className="text-slate-500 text-center">
+                  No data for {selectedParamInfo?.label}
+                </Text>
+              </View>
+            ) : (
+              <LineChart
+                data={chartData}
+                width={screenWidth - 64}
+                height={200}
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => selectedParamInfo?.color || theme.accentPrimary,
+                  labelColor: (opacity = 1) => colors.text.muted,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '4',
+                    strokeWidth: '2',
+                    stroke: selectedParamInfo?.color || theme.accentPrimary,
+                  },
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+            )}
+          </View>
+        </View>
+
+        {/* Recent Logs */}
+        <View className="px-4">
+          <Text className="text-lg font-bold text-slate-800 mb-4">Recent Logs</Text>
+
+          {logs.length === 0 ? (
+            <View className="bg-white rounded-2xl p-6 items-center border border-aqua-200">
+              <Text className="text-4xl mb-3">📝</Text>
+              <Text className="text-slate-800 font-semibold mb-1">No Logs Yet</Text>
+              <Text className="text-slate-500 text-center text-sm">
+                Start logging to see your history here
+              </Text>
+            </View>
+          ) : (
+            <View className="gap-2">
+              {logs.slice(-10).reverse().map((log) => (
+                <View
+                  key={log.id}
+                  className="bg-white rounded-xl p-4 border border-aqua-200"
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="font-semibold text-slate-800">
+                      {new Date(log.log_date).toLocaleDateString()}
+                    </Text>
+                    <Ionicons name="document-text" size={16} color={colors.text.muted} />
+                  </View>
+                  <View className="flex-row flex-wrap gap-2">
+                    {parameters.map((param) => {
+                      const value = log[param.key as keyof ParameterLog];
+                      if (value === null || value === undefined) return null;
+                      return (
+                        <View 
+                          key={param.key}
+                          className="bg-slate-50 px-2 py-1 rounded"
+                        >
+                          <Text className="text-xs text-slate-500">{param.label}</Text>
+                          <Text className="font-semibold" style={{ color: param.color }}>
+                            {value}{param.unit ? ` ${param.unit}` : ''}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
