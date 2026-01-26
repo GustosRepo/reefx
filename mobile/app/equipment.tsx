@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useTank, useSubscription } from '@/context';
+import { useTank, useSubscription, useAquaMode } from '@/context';
 import { LoadingState } from '@/components';
 import { colors } from '@/constants/theme';
 import { EquipmentItem } from '@shared/types';
@@ -11,6 +11,7 @@ import { EquipmentItem } from '@shared/types';
 export default function EquipmentScreen() {
   const { currentTank } = useTank();
   const { features } = useSubscription();
+  const { theme } = useAquaMode();
   
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +54,8 @@ export default function EquipmentScreen() {
           </Text>
           <TouchableOpacity
             onPress={() => router.push('/subscription')}
-            className="bg-aqua-600 rounded-xl py-3 px-6"
+            className="rounded-xl py-3 px-6"
+            style={{ backgroundColor: theme.accentPrimary }}
           >
             <Text className="text-white font-bold">Upgrade Now</Text>
           </TouchableOpacity>

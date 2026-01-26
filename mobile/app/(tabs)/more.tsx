@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth, useSubscription, useTank } from '@/context';
+import { useAuth, useSubscription, useTank, useAquaMode } from '@/context';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 
@@ -14,20 +14,24 @@ type MenuItemProps = {
   onPress: () => void;
   locked?: boolean;
   badge?: string;
+  accentColor?: string;
 };
 
-function MenuItem({ icon, iconName, title, subtitle, onPress, locked, badge }: MenuItemProps) {
+function MenuItem({ icon, iconName, title, subtitle, onPress, locked, badge, accentColor }: MenuItemProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={locked}
       className={`flex-row items-center p-4 bg-white rounded-xl border border-aqua-200 mb-3 ${locked ? 'opacity-50' : ''}`}
     >
-      <View className="w-10 h-10 rounded-full bg-aqua-100 items-center justify-center mr-3">
+      <View 
+        className="w-10 h-10 rounded-full items-center justify-center mr-3"
+        style={{ backgroundColor: accentColor ? `${accentColor}20` : undefined }}
+      >
         {icon ? (
           <Text className="text-xl">{icon}</Text>
         ) : iconName ? (
-          <Ionicons name={iconName} size={20} color={colors.brand.primary} />
+          <Ionicons name={iconName} size={20} color={accentColor || colors.brand.primary} />
         ) : null}
       </View>
       <View className="flex-1">
@@ -39,8 +43,8 @@ function MenuItem({ icon, iconName, title, subtitle, onPress, locked, badge }: M
             </View>
           )}
           {badge && (
-            <View className="ml-2 bg-aqua-100 px-2 py-0.5 rounded">
-              <Text className="text-aqua-700 text-xs font-medium">{badge}</Text>
+            <View className="ml-2 px-2 py-0.5 rounded" style={{ backgroundColor: accentColor ? `${accentColor}20` : undefined }}>
+              <Text className="text-xs font-medium" style={{ color: accentColor }}>{badge}</Text>
             </View>
           )}
         </View>
@@ -55,6 +59,7 @@ export default function MoreScreen() {
   const { user, signOut } = useAuth();
   const { subscription, features } = useSubscription();
   const { tanks, deleteTank, currentTank } = useTank();
+  const { theme } = useAquaMode();
 
   const handleLogout = async () => {
     await signOut();
@@ -62,18 +67,13 @@ export default function MoreScreen() {
   };
 
   const handleDeleteTank = (tankId: string, tankName: string) => {
-    // Prevent deleting the last tank
-    if (tanks.length <= 1) {
-      Alert.alert('Cannot Delete', 'You must have at least one tank.');
-      return;
-    }
-
     // Prevent deleting current tank without confirmation
     const isCurrentTank = currentTank?.id === tankId;
+    const isLastTank = tanks.length <= 1;
     
     Alert.alert(
       'Delete Tank',
-      `Are you sure you want to delete "${tankName}"?${isCurrentTank ? '\n\nThis is your current tank. Another tank will be selected automatically.' : ''}\n\nAll logs, maintenance records, and data associated with this tank will be permanently deleted.`,
+      `Are you sure you want to delete "${tankName}"?${isCurrentTank ? '\n\nThis is your current tank.' : ''}${isLastTank ? '\n\nThis is your only tank. You\'ll need to create a new one.' : ''}\n\nAll logs, maintenance records, and data associated with this tank will be permanently deleted.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -112,7 +112,10 @@ export default function MoreScreen() {
         <View className="px-4 mt-4">
           <View className="bg-white rounded-2xl p-4 border border-aqua-200 mb-6">
             <View className="flex-row items-center">
-              <View className="w-14 h-14 rounded-full bg-aqua-600 items-center justify-center mr-4">
+              <View 
+                className="w-14 h-14 rounded-full items-center justify-center mr-4"
+                style={{ backgroundColor: theme.accentPrimary }}
+              >
                 <Text className="text-white text-xl font-bold">
                   {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
                 </Text>
@@ -151,6 +154,7 @@ export default function MoreScreen() {
             subtitle="Photos of your aquarium"
             onPress={() => router.push('/gallery')}
             locked={!features.gallery}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -159,6 +163,7 @@ export default function MoreScreen() {
             subtitle="Track your gear"
             onPress={() => router.push('/equipment')}
             locked={!features.equipment}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -167,6 +172,7 @@ export default function MoreScreen() {
             subtitle="Fish, corals & inverts"
             onPress={() => router.push('/livestock')}
             locked={!features.livestock}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -174,6 +180,7 @@ export default function MoreScreen() {
             title="Guides"
             subtitle="Learn about aquarium keeping"
             onPress={() => router.push('/learn')}
+            accentColor={theme.accentPrimary}
           />
         </View>
 
@@ -194,8 +201,11 @@ export default function MoreScreen() {
                   <View className="flex-row items-center">
                     <Text className="font-semibold text-slate-800">{tank.name}</Text>
                     {currentTank?.id === tank.id && (
-                      <View className="ml-2 bg-aqua-100 px-2 py-0.5 rounded">
-                        <Text className="text-aqua-700 text-xs font-medium">Active</Text>
+                      <View 
+                        className="ml-2 px-2 py-0.5 rounded"
+                        style={{ backgroundColor: `${theme.accentPrimary}20` }}
+                      >
+                        <Text className="text-xs font-medium" style={{ color: theme.accentPrimary }}>Active</Text>
                       </View>
                     )}
                   </View>
@@ -216,10 +226,13 @@ export default function MoreScreen() {
                 onPress={() => router.push('/tank/new')}
                 className="flex-row items-center p-4 border-t border-aqua-100"
               >
-                <View className="w-8 h-8 rounded-full bg-aqua-100 items-center justify-center mr-3">
-                  <Ionicons name="add" size={20} color={colors.brand.primary} />
+                <View 
+                  className="w-8 h-8 rounded-full items-center justify-center mr-3"
+                  style={{ backgroundColor: `${theme.accentPrimary}20` }}
+                >
+                  <Ionicons name="add" size={20} color={theme.accentPrimary} />
                 </View>
-                <Text className="text-aqua-600 font-semibold">Add New Tank</Text>
+                <Text className="font-semibold" style={{ color: theme.accentPrimary }}>Add New Tank</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -239,6 +252,7 @@ export default function MoreScreen() {
             title="Profile"
             subtitle="Edit your account"
             onPress={() => router.push('/profile')}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -247,6 +261,7 @@ export default function MoreScreen() {
             title="Notifications"
             subtitle="Manage alerts"
             onPress={() => router.push('/notifications')}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -255,6 +270,7 @@ export default function MoreScreen() {
             title="Subscription"
             subtitle="Manage your plan"
             onPress={() => router.push('/subscription')}
+            accentColor={theme.accentPrimary}
           />
 
           <MenuItem
@@ -263,6 +279,7 @@ export default function MoreScreen() {
             title="Help & Support"
             subtitle="FAQs and contact"
             onPress={() => router.push('/help')}
+            accentColor={theme.accentPrimary}
           />
         </View>
 

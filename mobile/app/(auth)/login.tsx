@@ -4,8 +4,9 @@ import { Link, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context';
-import { colors } from '@/constants/theme';
+import { colors, modeThemes } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
+import AquaticBackground from '@/components/AquaticBackground';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -41,6 +42,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <AquaticBackground mode="reef" opacity={0.7} />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -52,7 +54,7 @@ export default function LoginScreen() {
           <View className="flex-1 px-6 pt-12 pb-8">
             {/* Logo */}
             <View className="items-center mb-12">
-              <View className="w-24 h-24 rounded-3xl bg-aqua-600 items-center justify-center mb-4 shadow-lg">
+              <View className="w-24 h-24 rounded-3xl items-center justify-center mb-4 shadow-lg" style={{ backgroundColor: modeThemes.reef.accentPrimary }}>
                 <Text className="text-white text-4xl font-bold">AX</Text>
               </View>
               <Text className="text-3xl font-bold text-slate-800">AquaXone</Text>
@@ -103,12 +105,13 @@ export default function LoginScreen() {
 
               <Link href="/(auth)/forgot-password" asChild>
                 <TouchableOpacity className="self-end mt-2">
-                  <Text className="text-aqua-600 font-medium">Forgot password?</Text>
+                  <Text className="font-medium" style={{ color: modeThemes.reef.accentPrimary }}>Forgot password?</Text>
                 </TouchableOpacity>
               </Link>
 
               <TouchableOpacity
-                className="bg-aqua-600 rounded-xl py-4 items-center mt-6 shadow-md"
+                className="rounded-xl py-4 items-center mt-6 shadow-md"
+                style={{ backgroundColor: modeThemes.reef.accentPrimary }}
                 onPress={handleLogin}
                 disabled={isLoading}
                 activeOpacity={0.8}
@@ -126,7 +129,7 @@ export default function LoginScreen() {
               <Text className="text-slate-500">Don't have an account? </Text>
               <Link href="/(auth)/register" asChild>
                 <TouchableOpacity>
-                  <Text className="text-aqua-600 font-bold">Sign Up</Text>
+                  <Text className="font-bold" style={{ color: modeThemes.reef.accentPrimary }}>Sign Up</Text>
                 </TouchableOpacity>
               </Link>
             </View>

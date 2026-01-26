@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTank, useAquaMode } from '@/context';
-import { colors } from '@/constants/theme';
+import { colors, modeThemes } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
 type TankType = 'reef' | 'freshwater';
@@ -132,8 +132,9 @@ export default function NewTankScreen() {
                 key={s}
                 onPress={() => setSize(s)}
                 className={`px-3 py-2 rounded-lg mr-2 mb-2 ${
-                  size === s ? 'bg-aqua-600' : 'bg-slate-100'
+                  size === s ? '' : 'bg-slate-100'
                 }`}
+                style={size === s ? { backgroundColor: type === 'reef' ? modeThemes.reef.accentPrimary : modeThemes.freshwater.accentPrimary } : {}}
               >
                 <Text className={size === s ? 'text-white' : 'text-slate-600'}>
                   {s}g
@@ -159,9 +160,11 @@ export default function NewTankScreen() {
         <TouchableOpacity
           onPress={handleCreate}
           disabled={loading || !name.trim()}
-          className={`py-4 rounded-xl items-center ${
-            loading || !name.trim() ? 'bg-aqua-400' : 'bg-aqua-600'
-          }`}
+          className="py-4 rounded-xl items-center"
+          style={{ 
+            backgroundColor: type === 'reef' ? modeThemes.reef.accentPrimary : modeThemes.freshwater.accentPrimary,
+            opacity: loading || !name.trim() ? 0.6 : 1 
+          }}
         >
           <Text className="text-white font-semibold text-lg">
             {loading ? 'Creating...' : 'Create Tank'}

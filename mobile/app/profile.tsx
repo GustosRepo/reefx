@@ -3,12 +3,13 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/context';
+import { useAuth, useAquaMode } from '@/context';
 import { colors } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const { theme } = useAquaMode();
   const [name, setName] = useState(user?.name || '');
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +46,7 @@ export default function ProfileScreen() {
       <ScrollView className="flex-1 px-4 pt-6">
         {/* Avatar */}
         <View className="items-center mb-8">
-          <View className="w-24 h-24 rounded-full bg-aqua-600 items-center justify-center mb-3">
+          <View className="w-24 h-24 rounded-full items-center justify-center mb-3" style={{ backgroundColor: theme.accentPrimary }}>
             <Text className="text-white text-3xl font-bold">
               {name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
             </Text>
@@ -79,7 +80,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           onPress={handleSave}
           disabled={loading}
-          className={`mt-8 py-4 rounded-xl items-center ${loading ? 'bg-aqua-400' : 'bg-aqua-600'}`}
+          className="mt-8 py-4 rounded-xl items-center"
+          style={{ backgroundColor: theme.accentPrimary, opacity: loading ? 0.6 : 1 }}
         >
           <Text className="text-white font-semibold text-lg">
             {loading ? 'Saving...' : 'Save Changes'}

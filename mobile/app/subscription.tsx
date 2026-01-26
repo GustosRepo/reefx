@@ -3,10 +3,11 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { PurchasesPackage } from 'react-native-purchases';
-import { useSubscription } from '@/context';
+import { PurchasesPackage } from '@/lib/revenuecat';
+import { useSubscription, useAquaMode } from '@/context';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
+import AquaticBackground from '@/components/AquaticBackground';
 
 // Fallback pricing if RevenueCat isn't configured yet
 const FALLBACK_PLANS = [
@@ -46,7 +47,7 @@ const FALLBACK_PLANS = [
     price: '$9.99',
     period: '/month',
     features: [
-      '10 tanks',
+      '5 tanks',
       'Everything in Premium',
       'Equipment tracking',
       'Livestock management',
@@ -75,7 +76,7 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
     'No ads',
   ],
   'super-premium': [
-    '10 tanks',
+    '5 tanks',
     'Everything in Premium',
     'Equipment tracking',
     'Livestock management',
@@ -85,6 +86,7 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
 
 export default function SubscriptionScreen() {
   const { subscription, offerings, isLoadingOfferings, purchase, restore } = useSubscription();
+  const { theme, isReefMode } = useAquaMode();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
 
@@ -147,11 +149,16 @@ export default function SubscriptionScreen() {
     }
   };
 
-  // If RevenueCat offerings available, use them
-  const hasOfferings = offerings?.availablePackages && offerings.availablePackages.length > 0;
+  // Check if we're in Expo Go (RevenueCat preview mode) - offerings will be empty or have preview products
+  const isPreviewMode = !offerings?.availablePackages?.length || 
+    offerings?.availablePackages?.some(pkg => pkg.product?.identifier?.includes('preview'));
+  
+  // Show fallback plans in preview mode or when no real offerings
+  const showFallbackPlans = isPreviewMode || isLoadingOfferings;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.5} />
       <Stack.Screen options={{ title: 'Subscription', headerShown: true }} />
       
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
@@ -191,13 +198,74 @@ export default function SubscriptionScreen() {
           </View>
         </View>
 
-        {/* RevenueCat Packages or Loading */}
+        {/* RevenueCat Packages or Fallback Plans */}
         {isLoadingOfferings ? (
           <View className="py-8 items-center">
-            <ActivityIndicator size="large" color={colors.brand.primary} />
+            <ActivityIndicator size="large" color={theme.accentPrimary} />
             <Text className="text-slate-500 mt-2">Loading plans...</Text>
           </View>
-        ) : hasOfferings ? (
+        ) : showFallbackPlans ? (
+          // Show fallback plans (in Expo Go or when RevenueCat isn't configured)
+          <View className="gap-4">
+            {FALLBACK_PLANS.slice(1).map((plan) => {
+              const isCurrentPlan = subscription.tier === plan.id;
+              
+              return (
+                <View
+                  key={plan.id}
+                  className={`bg-white rounded-2xl p-4 border-2 ${
+                    isCurrentPlan ? 'border-aqua-500' : 'border-aqua-200'
+                  }`}
+                >
+                  {plan.popular && (
+                    <View className="absolute -top-3 left-4 bg-yellow-400 px-3 py-1 rounded-full">
+                      <Text className="text-yellow-900 text-xs font-bold">POPULAR</Text>
+                    </View>
+                  )}
+                  
+                  <View className="flex-row items-center justify-between mb-4 mt-2">
+                    <View>
+                      <Text className="text-xl font-bold text-slate-800">{plan.name}</Text>
+                      <View className="flex-row items-baseline">
+                        <Text className="text-3xl font-bold" style={{ color: plan.color }}>
+                          {plan.price}
+                        </Text>
+                        <Text className="text-slate-500 ml-1">{plan.period}</Text>
+                      </View>
+                    </View>
+                    {isCurrentPlan && (
+                      <View className="bg-aqua-100 px-3 py-1 rounded-full">
+                        <Text className="text-aqua-700 font-semibold text-sm">Current</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View className="gap-2">
+                    {plan.features.map((feature, index) => (
+                      <View key={index} className="flex-row items-center">
+                        <Ionicons name="checkmark-circle" size={18} color={plan.color} />
+                        <Text className="text-slate-600 ml-2">{feature}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {!isCurrentPlan && (
+                    <TouchableOpacity
+                      onPress={() => Alert.alert(
+                        'Expo Go Preview', 
+                        'In-app purchases require a native build. Use "npx expo run:ios" or submit to TestFlight to test real purchases.'
+                      )}
+                      className="mt-4 rounded-xl py-3 items-center"
+                      style={{ backgroundColor: plan.color }}
+                    >
+                      <Text className="text-white font-bold">Subscribe</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        ) : (
           <View className="gap-4">
             {offerings!.availablePackages.map((pkg) => {
               const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
@@ -273,66 +341,6 @@ export default function SubscriptionScreen() {
               );
             })}
           </View>
-        ) : (
-          // Fallback plans when RevenueCat isn't configured
-          <View className="gap-4">
-            {FALLBACK_PLANS.slice(1).map((plan) => {
-              const isCurrentPlan = subscription.tier === plan.id;
-              
-              return (
-                <View
-                  key={plan.id}
-                  className={`bg-white rounded-2xl p-4 border-2 ${
-                    isCurrentPlan ? 'border-aqua-500' : 'border-aqua-200'
-                  }`}
-                >
-                  {plan.popular && (
-                    <View className="absolute -top-3 left-4 bg-yellow-400 px-3 py-1 rounded-full">
-                      <Text className="text-yellow-900 text-xs font-bold">POPULAR</Text>
-                    </View>
-                  )}
-                  
-                  <View className="flex-row items-center justify-between mb-4 mt-2">
-                    <View>
-                      <Text className="text-xl font-bold text-slate-800">{plan.name}</Text>
-                      <View className="flex-row items-baseline">
-                        <Text className="text-3xl font-bold" style={{ color: plan.color }}>
-                          {plan.price}
-                        </Text>
-                        <Text className="text-slate-500 ml-1">{plan.period}</Text>
-                      </View>
-                    </View>
-                    {isCurrentPlan && (
-                      <View className="bg-aqua-100 px-3 py-1 rounded-full">
-                        <Text className="text-aqua-700 font-semibold text-sm">Current</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View className="gap-2">
-                    {plan.features.map((feature, index) => (
-                      <View key={index} className="flex-row items-center">
-                        <Ionicons name="checkmark-circle" size={18} color={plan.color} />
-                        <Text className="text-slate-600 ml-2">{feature}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  {!isCurrentPlan && (
-                    <TouchableOpacity
-                      onPress={() => Alert.alert('Setup Required', 'RevenueCat needs to be configured. See setup instructions.')}
-                      className="mt-4 rounded-xl py-3 items-center"
-                      style={{ backgroundColor: plan.color }}
-                    >
-                      <Text className="text-white font-bold">
-                        {plan.id === 'free' ? 'Downgrade' : 'Upgrade'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            })}
-          </View>
         )}
 
         {/* Restore Purchases */}
@@ -342,9 +350,9 @@ export default function SubscriptionScreen() {
           className="mt-6 py-3 items-center"
         >
           {isRestoring ? (
-            <ActivityIndicator color={colors.brand.primary} />
+            <ActivityIndicator color={theme.accentPrimary} />
           ) : (
-            <Text className="text-aqua-600 font-semibold">Restore Purchases</Text>
+            <Text className="font-semibold" style={{ color: theme.accentPrimary }}>Restore Purchases</Text>
           )}
         </TouchableOpacity>
 
@@ -356,10 +364,10 @@ export default function SubscriptionScreen() {
         {/* Terms */}
         <View className="mt-4 gap-1">
           <TouchableOpacity onPress={() => router.push('/terms')}>
-            <Text className="text-aqua-600 text-center text-sm">Terms of Service</Text>
+            <Text className="text-center text-sm" style={{ color: theme.accentPrimary }}>Terms of Service</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/privacy')}>
-            <Text className="text-aqua-600 text-center text-sm">Privacy Policy</Text>
+            <Text className="text-center text-sm" style={{ color: theme.accentPrimary }}>Privacy Policy</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

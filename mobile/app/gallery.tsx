@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
-import { useTank, useAuth, useSubscription } from '@/context';
+import { useTank, useAuth, useSubscription, useAquaMode } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
 import { colors } from '@/constants/theme';
 import { GalleryImage } from '@shared/types';
@@ -15,6 +15,7 @@ export default function GalleryScreen() {
   const { user } = useAuth();
   const { currentTank } = useTank();
   const { features } = useSubscription();
+  const { theme } = useAquaMode();
   
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,7 +103,8 @@ export default function GalleryScreen() {
           </Text>
           <TouchableOpacity
             onPress={() => router.push('/subscription')}
-            className="bg-aqua-600 rounded-xl py-3 px-6"
+            className="rounded-xl py-3 px-6"
+            style={{ backgroundColor: theme.accentPrimary }}
           >
             <Text className="text-white font-bold">Upgrade Now</Text>
           </TouchableOpacity>
@@ -147,12 +149,12 @@ export default function GalleryScreen() {
           onPress={takePhoto}
           className="w-14 h-14 rounded-full bg-white items-center justify-center shadow-lg border border-aqua-200"
         >
-          <Ionicons name="camera" size={24} color={colors.brand.primary} />
+          <Ionicons name="camera" size={24} color={theme.accentPrimary} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={pickImage}
-          className="w-14 h-14 rounded-full bg-aqua-600 items-center justify-center shadow-lg"
-          style={{ backgroundColor: colors.brand.primary }}
+          className="w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          style={{ backgroundColor: theme.accentPrimary }}
         >
           <Ionicons name="images" size={24} color="white" />
         </TouchableOpacity>

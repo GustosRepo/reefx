@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import Purchases, { CustomerInfo, PurchasesPackage, PurchasesOffering } from 'react-native-purchases';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthContext';
 import { Subscription } from '@shared/types';
@@ -13,6 +12,11 @@ import {
   purchasePackage,
   restorePurchases,
   getTierFromCustomerInfo,
+  addCustomerInfoUpdateListener,
+  removeCustomerInfoUpdateListener,
+  CustomerInfo,
+  PurchasesPackage,
+  PurchasesOffering,
 } from '@/lib/revenuecat';
 
 // Create a union type of all tier features
@@ -86,10 +90,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       updateSubscriptionFromCustomerInfo(info);
     };
 
-    Purchases.addCustomerInfoUpdateListener(listener);
+    addCustomerInfoUpdateListener(listener);
     
     return () => {
-      Purchases.removeCustomerInfoUpdateListener(listener);
+      removeCustomerInfoUpdateListener(listener);
     };
   }, []);
 
