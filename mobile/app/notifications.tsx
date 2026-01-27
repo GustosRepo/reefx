@@ -3,7 +3,8 @@ import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAquaMode } from '@/context';
+import { useAquaMode, useTank } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 
 type NotificationSetting = {
@@ -15,6 +16,8 @@ type NotificationSetting = {
 
 export default function NotificationsScreen() {
   const { theme } = useAquaMode();
+  const { currentTank } = useTank();
+  const isReefMode = currentTank?.type !== 'freshwater';
   const [settings, setSettings] = useState<NotificationSetting[]>([
     {
       id: 'parameter_alerts',
@@ -64,6 +67,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-aqua-100">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">

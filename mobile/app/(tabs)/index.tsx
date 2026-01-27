@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import { StatCard, TankSelector, EmptyState, LoadingState } from '@/components';
@@ -65,9 +65,12 @@ export default function DashboardScreen() {
     }
   }, [currentTank]);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboardData();
+    }, [loadDashboardData])
+  );
 
   const onRefresh = async () => {
     setIsRefreshing(true);

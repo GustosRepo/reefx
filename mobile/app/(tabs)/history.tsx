@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Dimensions } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
+import { useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
@@ -46,9 +47,12 @@ export default function HistoryScreen() {
     }
   }, [currentTank]);
 
-  useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory])
+  );
 
   const onRefresh = async () => {
     setIsRefreshing(true);

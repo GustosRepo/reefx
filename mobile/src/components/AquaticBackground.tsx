@@ -27,12 +27,14 @@ const AnimatedBubble = ({
   size, 
   startX, 
   delay, 
-  duration 
+  duration,
+  color = 'rgba(8, 145, 178, 0.3)',
 }: { 
   size: number; 
   startX: number; 
   delay: number; 
   duration: number;
+  color?: string;
 }) => {
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -97,6 +99,7 @@ const AnimatedBubble = ({
           bottom: 50,
           transform: [{ translateY }, { translateX }],
           opacity,
+          backgroundColor: color,
         },
       ]}
     />
@@ -337,31 +340,35 @@ const FreshwaterPlants = ({ opacity = 0.12 }: { opacity?: number }) => (
 );
 
 // Light Rays Component
-const LightRays = () => (
-  <Svg
-    width={SCREEN_WIDTH}
-    height={SCREEN_HEIGHT}
-    style={styles.lightRays}
-  >
-    <Defs>
-      <LinearGradient id="rayGradient" x1="0" y1="0" x2="0" y2="1">
-        <Stop offset="0" stopColor="#ffffff" stopOpacity={0.15} />
-        <Stop offset="0.3" stopColor="#0891b2" stopOpacity={0.05} />
-        <Stop offset="1" stopColor="#0891b2" stopOpacity={0} />
-      </LinearGradient>
-    </Defs>
-    {[0.15, 0.35, 0.55, 0.75, 0.9].map((pos, i) => (
-      <Path
-        key={i}
-        d={`M${SCREEN_WIDTH * pos} 0 
-            L${SCREEN_WIDTH * (pos - 0.05)} ${SCREEN_HEIGHT * 0.4} 
-            L${SCREEN_WIDTH * (pos + 0.05)} ${SCREEN_HEIGHT * 0.4} Z`}
-        fill="url(#rayGradient)"
-        opacity={0.3 + i * 0.05}
-      />
-    ))}
-  </Svg>
-);
+const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
+  const rayColor = mode === 'reef' ? '#0891b2' : '#059669';
+  
+  return (
+    <Svg
+      width={SCREEN_WIDTH}
+      height={SCREEN_HEIGHT}
+      style={styles.lightRays}
+    >
+      <Defs>
+        <LinearGradient id="rayGradient" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.15} />
+          <Stop offset="0.3" stopColor={rayColor} stopOpacity={0.05} />
+          <Stop offset="1" stopColor={rayColor} stopOpacity={0} />
+        </LinearGradient>
+      </Defs>
+      {[0.15, 0.35, 0.55, 0.75, 0.9].map((pos, i) => (
+        <Path
+          key={i}
+          d={`M${SCREEN_WIDTH * pos} 0 
+              L${SCREEN_WIDTH * (pos - 0.05)} ${SCREEN_HEIGHT * 0.4} 
+              L${SCREEN_WIDTH * (pos + 0.05)} ${SCREEN_HEIGHT * 0.4} Z`}
+          fill="url(#rayGradient)"
+          opacity={0.3 + i * 0.05}
+        />
+      ))}
+    </Svg>
+  );
+};
 
 export default function AquaticBackground({
   mode = 'reef',
@@ -370,6 +377,11 @@ export default function AquaticBackground({
   showLightRays = true,
   opacity = 1,
 }: AquaticBackgroundProps) {
+  // Different bubble colors for reef vs freshwater
+  const bubbleColor = mode === 'reef' 
+    ? 'rgba(8, 145, 178, 0.3)'  // Cyan for reef
+    : 'rgba(5, 150, 105, 0.3)'; // Green for freshwater
+
   const bubbles = [
     { size: 8, startX: SCREEN_WIDTH * 0.15, delay: 0, duration: 6000 },
     { size: 6, startX: SCREEN_WIDTH * 0.3, delay: 1500, duration: 7000 },
@@ -381,11 +393,11 @@ export default function AquaticBackground({
   return (
     <View style={[styles.container, { opacity }]} pointerEvents="none">
       {/* Light rays from surface */}
-      {showLightRays && <LightRays />}
+      {showLightRays && <LightRays mode={mode} />}
 
       {/* Animated bubbles */}
       {showBubbles && bubbles.map((bubble, i) => (
-        <AnimatedBubble key={i} {...bubble} />
+        <AnimatedBubble key={i} {...bubble} color={bubbleColor} />
       ))}
 
       {/* Bottom corals/plants */}

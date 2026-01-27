@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAuth, useAquaMode } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { MaintenanceEntry } from '@shared/types';
 import { MAINTENANCE_TYPES } from '@/constants';
@@ -104,9 +105,12 @@ export default function MaintenanceScreen() {
     return MAINTENANCE_TYPES.find(t => t.value === type) || { label: type, icon: '📝' };
   };
 
+  const isReefMode = currentTank?.type !== 'freshwater';
+
   if (!currentTank) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode="reef" opacity={0.5} />
         <EmptyState
           icon="🐠"
           title="No Tank Selected"
@@ -118,6 +122,7 @@ export default function MaintenanceScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}

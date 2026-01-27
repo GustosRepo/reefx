@@ -28,6 +28,9 @@
         "NSPhotoLibraryUsageDescription": "AquaXone needs photo library access to save and select aquarium photos.",
         "NSPhotoLibraryAddUsageDescription": "AquaXone needs permission to save photos to your library.",
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": []
       }
     },
     "android": {

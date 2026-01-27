@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth, useSubscription, useTank, useAquaMode } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 
@@ -100,8 +101,11 @@ export default function MoreScreen() {
     );
   };
 
+  const isReefMode = currentTank?.type !== 'freshwater';
+
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         {/* Header */}
         <View className="px-4 pt-4 pb-2">

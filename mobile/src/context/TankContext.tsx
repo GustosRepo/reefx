@@ -53,9 +53,11 @@ export function TankProvider({ children }: { children: ReactNode }) {
         setCurrentTankState(tankToSelect);
         
         // Sync mode with tank type
-        if (tankToSelect.type) {
-          setMode(tankToSelect.type as 'reef' | 'freshwater');
-        }
+        // freshwater types: freshwater, planted, community, etc.
+        const freshwaterTypes = ['freshwater', 'planted', 'community', 'cichlid', 'tropical'];
+        const isFreshwater = tankToSelect.type && freshwaterTypes.includes(tankToSelect.type.toLowerCase());
+        const mode = isFreshwater ? 'freshwater' : 'reef';
+        setMode(mode);
       }
     } catch (error) {
       console.error('Error fetching tanks:', error);
@@ -73,9 +75,12 @@ export function TankProvider({ children }: { children: ReactNode }) {
     await storage.set(STORAGE_KEYS.CURRENT_TANK, tank.id);
     
     // Sync mode with tank type
-    if (tank.type) {
-      setMode(tank.type as 'reef' | 'freshwater');
-    }
+    // freshwater types: freshwater, planted, community, etc.
+    // reef types: reef, fowlr, nano, marine, saltwater, etc.
+    const freshwaterTypes = ['freshwater', 'planted', 'community', 'cichlid', 'tropical'];
+    const isFreshwater = tank.type && freshwaterTypes.includes(tank.type.toLowerCase());
+    const mode = isFreshwater ? 'freshwater' : 'reef';
+    setMode(mode);
   }, [setMode]);
 
   const createTank = useCallback(async (

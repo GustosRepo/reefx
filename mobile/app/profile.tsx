@@ -3,15 +3,18 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth, useAquaMode } from '@/context';
+import { useAuth, useAquaMode, useTank } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
   const { theme } = useAquaMode();
+  const { currentTank } = useTank();
   const [name, setName] = useState(user?.name || '');
   const [loading, setLoading] = useState(false);
+  const isReefMode = currentTank?.type !== 'freshwater';
 
   const handleSave = async () => {
     if (!user) return;
@@ -35,6 +38,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-aqua-100">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
