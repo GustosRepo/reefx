@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/context';
+import { useAuth, useAquaMode } from '@/context';
 import { Redirect } from 'expo-router';
 import { colors } from '@/constants/theme';
 
@@ -17,6 +17,7 @@ function TabBarIcon({ name, color, focused }: { name: IconName; color: string; f
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
+  const { theme } = useAquaMode();
 
   if (isLoading) {
     return null;
@@ -29,7 +30,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.brand.primary,
+        tabBarActiveTintColor: theme.accentPrimary,
         tabBarInactiveTintColor: colors.text.muted,
         tabBarStyle: {
           backgroundColor: '#ffffff',

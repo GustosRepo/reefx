@@ -3,10 +3,11 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { PurchasesPackage } from 'react-native-purchases';
-import { useSubscription } from '@/context';
+import { PurchasesPackage } from '@/lib/revenuecat';
+import { useSubscription, useAquaMode } from '@/context';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
+import AquaticBackground from '@/components/AquaticBackground';
 
 // Fallback pricing if RevenueCat isn't configured yet
 const FALLBACK_PLANS = [
@@ -46,7 +47,7 @@ const FALLBACK_PLANS = [
     price: '$9.99',
     period: '/month',
     features: [
-      '10 tanks',
+      '5 tanks',
       'Everything in Premium',
       'Equipment tracking',
       'Livestock management',
@@ -75,7 +76,7 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
     'No ads',
   ],
   'super-premium': [
-    '10 tanks',
+    '5 tanks',
     'Everything in Premium',
     'Equipment tracking',
     'Livestock management',
@@ -84,9 +85,13 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
 };
 
 export default function SubscriptionScreen() {
-  const { subscription, offerings, isLoadingOfferings, purchase, restore } = useSubscription();
+  const { subscription, offerings, isLoadingOfferings, purchase, restore, activeProductId } = useSubscription();
+  const { theme, isReefMode } = useAquaMode();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  // Check if user has a web subscription (has tier but no IAP product)
+  const hasWebSubscription = subscription.tier !== 'free' && !activeProductId;
 
   const handlePurchase = async (pkg: PurchasesPackage) => {
     setIsPurchasing(true);
@@ -147,11 +152,16 @@ export default function SubscriptionScreen() {
     }
   };
 
-  // If RevenueCat offerings available, use them
-  const hasOfferings = offerings?.availablePackages && offerings.availablePackages.length > 0;
+  // Check if we're in Expo Go (RevenueCat preview mode) - offerings will be empty or have preview products
+  const isPreviewMode = !offerings?.availablePackages?.length || 
+    offerings?.availablePackages?.some(pkg => pkg.product?.identifier?.includes('preview'));
+  
+  // Show fallback plans in preview mode or when no real offerings
+  const showFallbackPlans = isPreviewMode || isLoadingOfferings;
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.5} />
       <Stack.Screen options={{ title: 'Subscription', headerShown: true }} />
       
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
@@ -159,6 +169,27 @@ export default function SubscriptionScreen() {
         <Text className="text-slate-500 mb-6">
           Unlock more features with a premium subscription
         </Text>
+
+        {/* Web Subscription Notice */}
+        {hasWebSubscription && (
+          <View className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-6">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="globe-outline" size={24} color="#8b5cf6" />
+              <Text className="text-lg font-bold text-purple-800 ml-2">Web Subscription Active</Text>
+            </View>
+            <Text className="text-purple-700 mb-3">
+              You're currently subscribed to{' '}
+              <Text className="font-bold">
+                {subscription.tier === 'super-premium' ? 'Super Premium' : 'Premium'}
+              </Text>{' '}
+              through our website.
+            </Text>
+            <Text className="text-purple-600 text-sm">
+              To manage, upgrade, or cancel your subscription, visit your account settings at{' '}
+              <Text className="font-semibold">aquaxone.com</Text>
+            </Text>
+          </View>
+        )}
 
         {/* Free Plan - Always show */}
         <View
@@ -191,90 +222,14 @@ export default function SubscriptionScreen() {
           </View>
         </View>
 
-        {/* RevenueCat Packages or Loading */}
+        {/* RevenueCat Packages or Fallback Plans */}
         {isLoadingOfferings ? (
           <View className="py-8 items-center">
-            <ActivityIndicator size="large" color={colors.brand.primary} />
+            <ActivityIndicator size="large" color={theme.accentPrimary} />
             <Text className="text-slate-500 mt-2">Loading plans...</Text>
           </View>
-        ) : hasOfferings ? (
-          <View className="gap-4">
-            {offerings!.availablePackages.map((pkg) => {
-              const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
-              const isPremium = tierName === 'premium';
-              const isSuperPremium = tierName === 'super-premium';
-              const isCurrentPlan = subscription.tier === tierName;
-              const planColor = isSuperPremium ? '#8b5cf6' : '#f59e0b';
-              const features = TIER_FEATURES_MAP[tierName] || TIER_FEATURES_MAP['premium'];
-
-              return (
-                <View
-                  key={pkg.identifier}
-                  className={`bg-white rounded-2xl p-4 border-2 ${
-                    isCurrentPlan ? 'border-aqua-500' : 'border-aqua-200'
-                  }`}
-                >
-                  {isPremium && (
-                    <View className="absolute -top-3 left-4 bg-yellow-400 px-3 py-1 rounded-full">
-                      <Text className="text-yellow-900 text-xs font-bold">POPULAR</Text>
-                    </View>
-                  )}
-
-                  <View className="flex-row items-center justify-between mb-4 mt-2">
-                    <View>
-                      <Text className="text-xl font-bold text-slate-800">
-                        {pkg.product.title.replace(' (AquaXone)', '')}
-                      </Text>
-                      <View className="flex-row items-baseline">
-                        <Text className="text-3xl font-bold" style={{ color: planColor }}>
-                          {pkg.product.priceString}
-                        </Text>
-                        <Text className="text-slate-500 ml-1">
-                          /{pkg.packageType === 'ANNUAL' ? 'year' : 'month'}
-                        </Text>
-                      </View>
-                      {pkg.packageType === 'ANNUAL' && (
-                        <Text className="text-green-600 text-sm font-medium">
-                          Save ~17% vs monthly
-                        </Text>
-                      )}
-                    </View>
-                    {isCurrentPlan && (
-                      <View className="bg-aqua-100 px-3 py-1 rounded-full">
-                        <Text className="text-aqua-700 font-semibold text-sm">Current</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View className="gap-2 mb-4">
-                    {features.map((feature, index) => (
-                      <View key={index} className="flex-row items-center">
-                        <Ionicons name="checkmark-circle" size={18} color={planColor} />
-                        <Text className="text-slate-600 ml-2">{feature}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  {!isCurrentPlan && (
-                    <TouchableOpacity
-                      onPress={() => handlePurchase(pkg)}
-                      disabled={isPurchasing}
-                      className="rounded-xl py-3 items-center"
-                      style={{ backgroundColor: planColor }}
-                    >
-                      {isPurchasing ? (
-                        <ActivityIndicator color="white" />
-                      ) : (
-                        <Text className="text-white font-bold">Subscribe</Text>
-                      )}
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            })}
-          </View>
-        ) : (
-          // Fallback plans when RevenueCat isn't configured
+        ) : showFallbackPlans ? (
+          // Show fallback plans (in Expo Go or when RevenueCat isn't configured)
           <View className="gap-4">
             {FALLBACK_PLANS.slice(1).map((plan) => {
               const isCurrentPlan = subscription.tier === plan.id;
@@ -318,15 +273,95 @@ export default function SubscriptionScreen() {
                     ))}
                   </View>
 
-                  {!isCurrentPlan && (
+                  {!isCurrentPlan && !hasWebSubscription && (
                     <TouchableOpacity
-                      onPress={() => Alert.alert('Setup Required', 'RevenueCat needs to be configured. See setup instructions.')}
+                      onPress={() => Alert.alert(
+                        'Expo Go Preview', 
+                        'In-app purchases require a native build. Use "npx expo run:ios" or submit to TestFlight to test real purchases.'
+                      )}
                       className="mt-4 rounded-xl py-3 items-center"
                       style={{ backgroundColor: plan.color }}
                     >
-                      <Text className="text-white font-bold">
-                        {plan.id === 'free' ? 'Downgrade' : 'Upgrade'}
+                      <Text className="text-white font-bold">Subscribe</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        ) : (
+          <View className="gap-4">
+            {offerings!.availablePackages.map((pkg) => {
+              const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
+              const isPremium = tierName === 'premium';
+              const isSuperPremium = tierName === 'super-premium';
+              // Check if this exact product is the active one (IAP) OR if web subscription matches this tier
+              const isCurrentPlan = activeProductId === pkg.product.identifier || 
+                (hasWebSubscription && subscription.tier === tierName);
+              const planColor = isSuperPremium ? '#8b5cf6' : '#f59e0b';
+              const features = TIER_FEATURES_MAP[tierName] || TIER_FEATURES_MAP['premium'];
+              const isYearly = pkg.packageType === 'ANNUAL' || pkg.identifier.includes('yearly') || pkg.identifier.includes('annual');
+
+              return (
+                <View
+                  key={pkg.identifier}
+                  className={`bg-white rounded-2xl p-4 border-2 ${
+                    isCurrentPlan ? 'border-aqua-500' : 'border-aqua-200'
+                  }`}
+                >
+                  {isPremium && !isYearly && (
+                    <View className="absolute -top-3 left-4 bg-yellow-400 px-3 py-1 rounded-full">
+                      <Text className="text-yellow-900 text-xs font-bold">POPULAR</Text>
+                    </View>
+                  )}
+
+                  <View className="flex-row items-center justify-between mb-4 mt-2">
+                    <View>
+                      <Text className="text-xl font-bold text-slate-800">
+                        {pkg.product.title.replace(' (AquaXone)', '')}
                       </Text>
+                      <View className="flex-row items-baseline">
+                        <Text className="text-3xl font-bold" style={{ color: planColor }}>
+                          {pkg.product.priceString}
+                        </Text>
+                        <Text className="text-slate-500 ml-1">
+                          /{isYearly ? 'year' : 'month'}
+                        </Text>
+                      </View>
+                      {isYearly && (
+                        <Text className="text-green-600 text-sm font-medium">
+                          Save ~17% vs monthly
+                        </Text>
+                      )}
+                    </View>
+                    {isCurrentPlan && (
+                      <View className="bg-aqua-100 px-3 py-1 rounded-full">
+                        <Text className="text-aqua-700 font-semibold text-sm">Current</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View className="gap-2 mb-4">
+                    {features.map((feature, index) => (
+                      <View key={index} className="flex-row items-center">
+                        <Ionicons name="checkmark-circle" size={18} color={planColor} />
+                        <Text className="text-slate-600 ml-2">{feature}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {!isCurrentPlan && !hasWebSubscription && (
+                    <TouchableOpacity
+                      onPress={() => handlePurchase(pkg)}
+                      disabled={isPurchasing}
+                      className="rounded-xl py-3 items-center"
+                      style={{ backgroundColor: planColor }}
+                    >
+                      {isPurchasing ? (
+                        <ActivityIndicator color="white" />
+                      ) : (
+                        <Text className="text-white font-bold">Subscribe</Text>
+                      )}
                     </TouchableOpacity>
                   )}
                 </View>
@@ -342,9 +377,9 @@ export default function SubscriptionScreen() {
           className="mt-6 py-3 items-center"
         >
           {isRestoring ? (
-            <ActivityIndicator color={colors.brand.primary} />
+            <ActivityIndicator color={theme.accentPrimary} />
           ) : (
-            <Text className="text-aqua-600 font-semibold">Restore Purchases</Text>
+            <Text className="font-semibold" style={{ color: theme.accentPrimary }}>Restore Purchases</Text>
           )}
         </TouchableOpacity>
 
@@ -356,10 +391,10 @@ export default function SubscriptionScreen() {
         {/* Terms */}
         <View className="mt-4 gap-1">
           <TouchableOpacity onPress={() => router.push('/terms')}>
-            <Text className="text-aqua-600 text-center text-sm">Terms of Service</Text>
+            <Text className="text-center text-sm" style={{ color: theme.accentPrimary }}>Terms of Service</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/privacy')}>
-            <Text className="text-aqua-600 text-center text-sm">Privacy Policy</Text>
+            <Text className="text-center text-sm" style={{ color: theme.accentPrimary }}>Privacy Policy</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

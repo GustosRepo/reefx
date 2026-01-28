@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
-import { StatCard, TankSelector, EmptyState, LoadingState, ModeSwitch } from '@/components';
+import { StatCard, TankSelector, EmptyState, LoadingState } from '@/components';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { ParameterLog, MaintenanceEntry } from '@shared/types';
 
@@ -64,9 +65,12 @@ export default function DashboardScreen() {
     }
   }, [currentTank]);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [loadDashboardData]);
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboardData();
+    }, [loadDashboardData])
+  );
 
   const onRefresh = async () => {
     setIsRefreshing(true);
@@ -84,6 +88,7 @@ export default function DashboardScreen() {
   if (tanksLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.6} />
         <LoadingState message="Loading your tanks..." />
       </SafeAreaView>
     );
@@ -92,20 +97,58 @@ export default function DashboardScreen() {
   if (!currentTank) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode="reef" opacity={0.8} />
         <View className="flex-1 items-center justify-center p-8">
-          <Text className="text-6xl mb-4">🐠</Text>
-          <Text className="text-xl font-bold text-slate-800 mb-2 text-center">
+          <View className="w-28 h-28 rounded-full items-center justify-center mb-6" style={{ backgroundColor: `${theme.accentPrimary}20` }}>
+            <Text className="text-6xl">🐠</Text>
+          </View>
+          <Text className="text-2xl font-bold text-slate-800 mb-2 text-center">
             Welcome to AquaXone!
           </Text>
-          <Text className="text-slate-500 text-center mb-6">
-            Create your first tank to start tracking your aquarium
+          <Text className="text-slate-500 text-center mb-8 leading-6">
+            Track your water parameters, schedule maintenance, and keep your aquarium thriving.
           </Text>
+          
           <TouchableOpacity
-            onPress={() => router.push('/more')}
-            className="bg-aqua-600 rounded-xl py-3 px-6"
+            onPress={() => router.push('/tank/new')}
+            className="w-full rounded-2xl py-4 items-center mb-4"
+            style={{ backgroundColor: theme.accentPrimary }}
           >
-            <Text className="text-white font-bold">Get Started</Text>
+            <View className="flex-row items-center">
+              <Ionicons name="add-circle" size={24} color="white" />
+              <Text className="text-white font-bold text-lg ml-2">Create Your First Tank</Text>
+            </View>
           </TouchableOpacity>
+
+          <View className="flex-row items-center mt-6">
+            <View className="flex-1 h-px bg-slate-200" />
+            <Text className="text-slate-400 px-4">What you can do</Text>
+            <View className="flex-1 h-px bg-slate-200" />
+          </View>
+
+          <View className="mt-6 w-full gap-4">
+            <View className="flex-row items-center bg-white rounded-xl p-4 border border-aqua-200">
+              <Text className="text-2xl mr-3">📊</Text>
+              <View className="flex-1">
+                <Text className="font-semibold text-slate-800">Log Parameters</Text>
+                <Text className="text-slate-500 text-sm">Track pH, temp, salinity & more</Text>
+              </View>
+            </View>
+            <View className="flex-row items-center bg-white rounded-xl p-4 border border-aqua-200">
+              <Text className="text-2xl mr-3">📈</Text>
+              <View className="flex-1">
+                <Text className="font-semibold text-slate-800">View Trends</Text>
+                <Text className="text-slate-500 text-sm">Charts & history at a glance</Text>
+              </View>
+            </View>
+            <View className="flex-row items-center bg-white rounded-xl p-4 border border-aqua-200">
+              <Text className="text-2xl mr-3">🔧</Text>
+              <View className="flex-1">
+                <Text className="font-semibold text-slate-800">Maintenance Reminders</Text>
+                <Text className="text-slate-500 text-sm">Never miss a water change</Text>
+              </View>
+            </View>
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -113,6 +156,7 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.5} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 24 }}
@@ -120,7 +164,7 @@ export default function DashboardScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={colors.brand.primary}
+            tintColor={theme.accentPrimary}
           />
         }
       >
@@ -133,20 +177,29 @@ export default function DashboardScreen() {
                 {user?.name || 'Aquarist'}
               </Text>
             </View>
-            <ModeSwitch />
+            {/* Mode badge - read from tank type */}
+            <View 
+              className="px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: `${theme.accentPrimary}20` }}
+            >
+              <Text style={{ color: theme.accentPrimary }} className="text-sm font-medium">
+                {modeIcon} {isReefMode ? 'Reef' : 'Freshwater'}
+              </Text>
+            </View>
           </View>
 
           {/* Tank Selector */}
           <TouchableOpacity
             onPress={() => setShowTankSelector(true)}
-            className="flex-row items-center bg-white rounded-2xl p-4 border border-aqua-200"
+            className="flex-row items-center bg-white rounded-2xl p-4 border"
+            style={{ borderColor: `${theme.accentPrimary}40` }}
           >
             <Text className="text-2xl mr-3">{modeIcon}</Text>
             <View className="flex-1">
               <Text className="text-slate-500 text-xs">Current Tank</Text>
               <Text className="text-lg font-bold text-slate-800">{currentTank.name}</Text>
             </View>
-            <Ionicons name="chevron-down" size={20} color={colors.text.muted} />
+            <Ionicons name="chevron-down" size={20} color={theme.accentPrimary} />
           </TouchableOpacity>
         </View>
 

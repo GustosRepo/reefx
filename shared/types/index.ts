@@ -86,7 +86,9 @@ export interface EquipmentItem {
   category: string;
   brand?: string;
   model?: string;
+  cost?: number;
   purchase_date?: string;
+  warranty_until?: string;
   warranty_expiration?: string;
   serial_number?: string;
   power_watts?: number;
@@ -103,7 +105,7 @@ export interface LivestockItem {
   name: string;
   species?: string;
   scientific_name?: string;
-  type: 'fish' | 'coral' | 'invertebrate' | 'plant' | 'other';
+  type: 'fish' | 'coral' | 'invert' | 'invertebrate' | 'plant' | 'other';
   date_added: string;
   source?: string;
   cost?: number;
@@ -118,14 +120,17 @@ export interface LivestockItem {
 
 export interface GalleryImage {
   id: string;
-  tank_id: string;
+  tank_id?: string | null;
   user_id: string;
   storage_path: string;
+  url: string;
   caption?: string;
   tags?: string[];
+  file_size_mb?: number;
   file_size_bytes?: number;
   photo_date?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Subscription {

@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAquaMode } from '@/context';
 import { colors } from '@/constants/theme';
 
 interface EmptyStateProps {
@@ -23,10 +24,11 @@ interface LoadingStateProps {
 }
 
 export function LoadingState({ message = 'Loading...' }: LoadingStateProps) {
+  const { theme } = useAquaMode();
   return (
     <View className="flex-1 items-center justify-center p-8">
-      <View className="w-16 h-16 rounded-full bg-aqua-100 items-center justify-center mb-4">
-        <Ionicons name="fish" size={32} color={colors.brand.primary} />
+      <View className="w-16 h-16 rounded-full items-center justify-center mb-4" style={{ backgroundColor: `${theme.accentPrimary}20` }}>
+        <Ionicons name="fish" size={32} color={theme.accentPrimary} />
       </View>
       <Text className="text-slate-500">{message}</Text>
     </View>

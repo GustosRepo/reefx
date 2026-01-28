@@ -2,6 +2,8 @@ import { View, Text, ScrollView, TouchableOpacity, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAquaMode, useTank } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 
 type FAQItem = {
@@ -37,6 +39,10 @@ const faqs: FAQItem[] = [
 ];
 
 export default function HelpScreen() {
+  const { theme } = useAquaMode();
+  const { currentTank } = useTank();
+  const isReefMode = currentTank?.type !== 'freshwater';
+
   const handleContact = (method: 'email' | 'website') => {
     if (method === 'email') {
       Linking.openURL('mailto:support@aquaxone.com');
@@ -47,6 +53,7 @@ export default function HelpScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-aqua-100">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
@@ -60,7 +67,8 @@ export default function HelpScreen() {
         <View className="flex-row mb-6">
           <TouchableOpacity
             onPress={() => handleContact('email')}
-            className="flex-1 bg-aqua-600 rounded-xl p-4 mr-2 items-center"
+            className="flex-1 rounded-xl p-4 mr-2 items-center"
+            style={{ backgroundColor: theme.accentPrimary }}
           >
             <Ionicons name="mail-outline" size={24} color="white" />
             <Text className="text-white font-semibold mt-2">Email Us</Text>
@@ -70,8 +78,8 @@ export default function HelpScreen() {
             onPress={() => handleContact('website')}
             className="flex-1 bg-white border border-aqua-200 rounded-xl p-4 ml-2 items-center"
           >
-            <Ionicons name="globe-outline" size={24} color={colors.brand.primary} />
-            <Text className="text-aqua-600 font-semibold mt-2">Help Center</Text>
+            <Ionicons name="globe-outline" size={24} color={theme.accentPrimary} />
+            <Text className="font-semibold mt-2" style={{ color: theme.accentPrimary }}>Help Center</Text>
           </TouchableOpacity>
         </View>
 
@@ -86,8 +94,8 @@ export default function HelpScreen() {
             className="bg-white rounded-xl p-4 mb-3 border border-aqua-200"
           >
             <View className="flex-row items-start">
-              <View className="w-6 h-6 rounded-full bg-aqua-100 items-center justify-center mr-3 mt-0.5">
-                <Text className="text-aqua-600 font-bold text-sm">?</Text>
+              <View className="w-6 h-6 rounded-full items-center justify-center mr-3 mt-0.5" style={{ backgroundColor: `${theme.accentPrimary}20` }}>
+                <Text className="font-bold text-sm" style={{ color: theme.accentPrimary }}>?</Text>
               </View>
               <View className="flex-1">
                 <Text className="font-semibold text-slate-800 mb-2">{faq.question}</Text>

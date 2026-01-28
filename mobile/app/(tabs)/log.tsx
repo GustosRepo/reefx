@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 
@@ -103,6 +104,7 @@ export default function LogScreen() {
   if (!currentTank) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.6} />
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-4xl mb-4">🐠</Text>
           <Text className="text-lg font-semibold text-slate-800 mb-2">No Tank Selected</Text>
@@ -116,6 +118,7 @@ export default function LogScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"

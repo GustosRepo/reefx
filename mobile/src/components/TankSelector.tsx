@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Tank } from '@shared/types';
 import { colors } from '@/constants/theme';
+import { useAquaMode } from '@/context';
 
 interface TankSelectorProps {
   tanks: Tank[];
@@ -18,9 +19,13 @@ export function TankSelector({
   onClose,
   onSelectTank,
 }: TankSelectorProps) {
+  const { theme } = useAquaMode();
+
   const renderTank = ({ item }: { item: Tank }) => {
     const isSelected = currentTank?.id === item.id;
     const modeIcon = item.type === 'freshwater' ? '🌿' : '🪸';
+    // Get the accent color based on the tank's type
+    const tankAccent = item.type === 'freshwater' ? '#059669' : '#0891b2';
 
     return (
       <TouchableOpacity
@@ -28,13 +33,22 @@ export function TankSelector({
           onSelectTank(item);
           onClose();
         }}
-        className={`flex-row items-center p-4 rounded-xl mb-2 ${
-          isSelected ? 'bg-aqua-100 border-2 border-aqua-500' : 'bg-white border border-aqua-200'
-        }`}
+        className={`flex-row items-center p-4 rounded-xl mb-2 bg-white`}
+        style={isSelected ? { 
+          backgroundColor: `${tankAccent}15`,
+          borderWidth: 2,
+          borderColor: tankAccent 
+        } : { 
+          borderWidth: 1,
+          borderColor: '#e2e8f0' 
+        }}
       >
         <Text className="text-2xl mr-3">{modeIcon}</Text>
         <View className="flex-1">
-          <Text className={`font-semibold ${isSelected ? 'text-aqua-700' : 'text-slate-800'}`}>
+          <Text 
+            className="font-semibold"
+            style={{ color: isSelected ? tankAccent : colors.text.primary }}
+          >
             {item.name}
           </Text>
           {item.size_gallons && (
@@ -42,7 +56,7 @@ export function TankSelector({
           )}
         </View>
         {isSelected && (
-          <Ionicons name="checkmark-circle" size={24} color={colors.brand.primary} />
+          <Ionicons name="checkmark-circle" size={24} color={tankAccent} />
         )}
       </TouchableOpacity>
     );

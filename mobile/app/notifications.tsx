@@ -3,6 +3,8 @@ import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAquaMode, useTank } from '@/context';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 
 type NotificationSetting = {
@@ -13,6 +15,9 @@ type NotificationSetting = {
 };
 
 export default function NotificationsScreen() {
+  const { theme } = useAquaMode();
+  const { currentTank } = useTank();
+  const isReefMode = currentTank?.type !== 'freshwater';
   const [settings, setSettings] = useState<NotificationSetting[]>([
     {
       id: 'parameter_alerts',
@@ -62,6 +67,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       {/* Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-aqua-100">
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
@@ -73,8 +79,8 @@ export default function NotificationsScreen() {
       <ScrollView className="flex-1 px-4 pt-6">
         {/* Push Notifications Status */}
         <View className="bg-aqua-50 rounded-xl p-4 mb-6 flex-row items-center">
-          <View className="w-10 h-10 rounded-full bg-aqua-100 items-center justify-center mr-3">
-            <Ionicons name="notifications" size={20} color={colors.brand.primary} />
+          <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: `${theme.accentPrimary}20` }}>
+            <Ionicons name="notifications" size={20} color={theme.accentPrimary} />
           </View>
           <View className="flex-1">
             <Text className="font-semibold text-slate-800">Push Notifications</Text>
@@ -101,7 +107,7 @@ export default function NotificationsScreen() {
               <Switch
                 value={setting.enabled}
                 onValueChange={() => toggleSetting(setting.id)}
-                trackColor={{ false: '#e2e8f0', true: colors.brand.primary }}
+                trackColor={{ false: '#e2e8f0', true: theme.accentPrimary }}
                 thumbColor="#ffffff"
               />
             </View>
@@ -120,7 +126,7 @@ export default function NotificationsScreen() {
               </View>
               <Switch
                 value={false}
-                trackColor={{ false: '#e2e8f0', true: colors.brand.primary }}
+                trackColor={{ false: '#e2e8f0', true: theme.accentPrimary }}
                 thumbColor="#ffffff"
               />
             </View>

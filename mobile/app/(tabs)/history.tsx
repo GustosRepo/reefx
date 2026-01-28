@@ -3,9 +3,11 @@ import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Dimensions } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
+import { useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { ParameterLog } from '@shared/types';
 
@@ -45,9 +47,12 @@ export default function HistoryScreen() {
     }
   }, [currentTank]);
 
-  useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
+  // Reload data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory])
+  );
 
   const onRefresh = async () => {
     setIsRefreshing(true);
@@ -87,6 +92,7 @@ export default function HistoryScreen() {
   if (!currentTank) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.6} />
         <EmptyState
           icon="🐠"
           title="No Tank Selected"
@@ -98,6 +104,7 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 24 }}
@@ -105,7 +112,7 @@ export default function HistoryScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={colors.brand.primary}
+            tintColor={theme.accentPrimary}
           />
         }
       >

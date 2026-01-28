@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import Purchases, { CustomerInfo, PurchasesPackage, PurchasesOffering } from 'react-native-purchases';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthContext';
 import { Subscription } from '@shared/types';
@@ -13,6 +12,11 @@ import {
   purchasePackage,
   restorePurchases,
   getTierFromCustomerInfo,
+  addCustomerInfoUpdateListener,
+  removeCustomerInfoUpdateListener,
+  CustomerInfo,
+  PurchasesPackage,
+  PurchasesOffering,
 } from '@/lib/revenuecat';
 
 // Create a union type of all tier features
@@ -30,6 +34,7 @@ interface SubscriptionContextValue {
   purchase: (pkg: PurchasesPackage) => Promise<{ success: boolean; error?: string }>;
   restore: () => Promise<{ success: boolean; error?: string }>;
   customerInfo: CustomerInfo | null;
+  activeProductId: string | null;
 }
 
 const defaultSubscription: Subscription = {
@@ -45,6 +50,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [offerings, setOfferings] = useState<PurchasesOffering | null>(null);
   const [isLoadingOfferings, setIsLoadingOfferings] = useState(true);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
+  const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const { user } = useAuth();
 
   // Initialize RevenueCat on mount
@@ -86,10 +92,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       updateSubscriptionFromCustomerInfo(info);
     };
 
-    Purchases.addCustomerInfoUpdateListener(listener);
+    addCustomerInfoUpdateListener(listener);
     
     return () => {
-      Purchases.removeCustomerInfoUpdateListener(listener);
+      removeCustomerInfoUpdateListener(listener);
     };
   }, []);
 
@@ -97,9 +103,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const updateSubscriptionFromCustomerInfo = useCallback((info: CustomerInfo) => {
     const tier = getTierFromCustomerInfo(info);
     
-    // Find the active entitlement to get expiration info
+    // Find the active entitlement to get expiration info and product ID
     const activeEntitlements = Object.values(info.entitlements.active);
     const mainEntitlement = activeEntitlements[0];
+    
+    // Get the active product identifier from activeSubscriptions
+    const productId = info.activeSubscriptions?.[0] || null;
+    setActiveProductId(productId);
 
     setSubscription({
       tier,
@@ -205,6 +215,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         purchase,
         restore,
         customerInfo,
+        activeProductId,
       }}
     >
       {children}

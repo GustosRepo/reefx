@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context';
-import { colors } from '@/constants/theme';
+import { colors, modeThemes } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 
 export default function ForgotPasswordScreen() {
@@ -82,7 +82,8 @@ export default function ForgotPasswordScreen() {
                   We've sent password reset instructions to {email}
                 </Text>
                 <TouchableOpacity
-                  className="bg-aqua-600 rounded-xl py-4 px-8"
+                  className="rounded-xl py-4 px-8"
+                  style={{ backgroundColor: modeThemes.reef.accentPrimary }}
                   onPress={() => router.replace('/(auth)/login')}
                 >
                   <Text className="text-white font-bold text-lg">Back to Login</Text>
@@ -109,7 +110,8 @@ export default function ForgotPasswordScreen() {
                 </View>
 
                 <TouchableOpacity
-                  className="bg-aqua-600 rounded-xl py-4 items-center mt-6 shadow-md"
+                  className="rounded-xl py-4 items-center mt-6 shadow-md"
+                  style={{ backgroundColor: modeThemes.reef.accentPrimary }}
                   onPress={handleResetPassword}
                   disabled={isLoading}
                   activeOpacity={0.8}

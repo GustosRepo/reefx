@@ -3,8 +3,9 @@ import { View, Text, ScrollView, TouchableOpacity, RefreshControl, TextInput, Mo
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
-import { useTank, useAuth } from '@/context';
+import { useTank, useAuth, useAquaMode } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
+import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { MaintenanceEntry } from '@shared/types';
 import { MAINTENANCE_TYPES } from '@/constants';
@@ -13,6 +14,7 @@ import Toast from 'react-native-toast-message';
 export default function MaintenanceScreen() {
   const { user } = useAuth();
   const { currentTank } = useTank();
+  const { theme } = useAquaMode();
 
   const [entries, setEntries] = useState<MaintenanceEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,9 +105,12 @@ export default function MaintenanceScreen() {
     return MAINTENANCE_TYPES.find(t => t.value === type) || { label: type, icon: '📝' };
   };
 
+  const isReefMode = currentTank?.type !== 'freshwater';
+
   if (!currentTank) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <AquaticBackground mode="reef" opacity={0.5} />
         <EmptyState
           icon="🐠"
           title="No Tank Selected"
@@ -117,6 +122,7 @@ export default function MaintenanceScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
+      <AquaticBackground mode={isReefMode ? 'reef' : 'freshwater'} opacity={0.4} />
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -124,7 +130,7 @@ export default function MaintenanceScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            tintColor={colors.brand.primary}
+            tintColor={theme.accentPrimary}
           />
         }
       >
@@ -179,7 +185,7 @@ export default function MaintenanceScreen() {
       <TouchableOpacity
         onPress={() => setShowAddModal(true)}
         className="absolute bottom-6 right-6 w-14 h-14 rounded-full bg-aqua-600 items-center justify-center shadow-lg"
-        style={{ backgroundColor: colors.brand.primary }}
+        style={{ backgroundColor: theme.accentPrimary }}
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
@@ -212,7 +218,7 @@ export default function MaintenanceScreen() {
                       ? 'bg-aqua-600' 
                       : 'bg-white border border-aqua-200'
                   }`}
-                  style={newEntry.type === type.value ? { backgroundColor: colors.brand.primary } : {}}
+                  style={newEntry.type === type.value ? { backgroundColor: theme.accentPrimary } : {}}
                 >
                   <View className="flex-row items-center">
                     <Text className="mr-1">{type.icon}</Text>
@@ -249,7 +255,7 @@ export default function MaintenanceScreen() {
               onPress={handleAddEntry}
               disabled={isSubmitting}
               className="bg-aqua-600 rounded-xl py-4 items-center"
-              style={{ backgroundColor: colors.brand.primary }}
+              style={{ backgroundColor: theme.accentPrimary }}
             >
               <Text className="text-white font-bold text-lg">
                 {isSubmitting ? 'Saving...' : 'Save Entry'}

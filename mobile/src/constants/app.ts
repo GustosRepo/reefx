@@ -79,7 +79,7 @@ export const TIER_FEATURES = {
     adsEnabled: false,
   },
   'super-premium': {
-    maxTanks: 10,
+    maxTanks: 5,
     gallery: true,
     equipment: true,
     livestock: true,

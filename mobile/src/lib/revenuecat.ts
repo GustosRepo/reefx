@@ -10,13 +10,53 @@
  * 6. Copy your API key below
  */
 
-import Purchases, { 
-  PurchasesPackage, 
-  CustomerInfo,
-  PurchasesOffering,
-  LOG_LEVEL,
-} from 'react-native-purchases';
 import { Platform } from 'react-native';
+
+// Try to import RevenueCat - it may not be installed in development builds
+let Purchases: any = null;
+let LOG_LEVEL: any = { DEBUG: 0 };
+
+try {
+  const revenueCat = require('react-native-purchases');
+  Purchases = revenueCat.default;
+  LOG_LEVEL = revenueCat.LOG_LEVEL;
+} catch (e) {
+  console.log('RevenueCat not available - using mock implementation');
+}
+
+// Type definitions for when RevenueCat isn't available
+export type PurchasesPackage = {
+  identifier: string;
+  packageType: string;
+  product: {
+    identifier: string;
+    priceString: string;
+    price: number;
+    title: string;
+    description: string;
+  };
+  offeringIdentifier: string;
+};
+
+export type CustomerInfo = {
+  entitlements: {
+    active: Record<string, { 
+      identifier: string; 
+      isActive: boolean;
+      expirationDate?: string;
+      willRenew?: boolean;
+    }>;
+  };
+  activeSubscriptions: string[];
+  originalAppUserId: string;
+};
+
+export type PurchasesOffering = {
+  identifier: string;
+  availablePackages: PurchasesPackage[];
+  monthly?: PurchasesPackage;
+  annual?: PurchasesPackage;
+};
 
 // RevenueCat API Keys - Get these from your RevenueCat dashboard
 // App Settings > API Keys
@@ -42,6 +82,11 @@ export const PRODUCT_IDS = {
  * Call this once when app starts (in _layout.tsx or App.tsx)
  */
 export async function initializeRevenueCat(userId?: string): Promise<void> {
+  if (!Purchases) {
+    console.log('RevenueCat not available - skipping initialization');
+    return;
+  }
+  
   try {
     // Enable debug logs in development
     if (__DEV__) {
@@ -67,6 +112,8 @@ export async function initializeRevenueCat(userId?: string): Promise<void> {
  * This links their purchases to your user ID
  */
 export async function loginRevenueCat(userId: string): Promise<CustomerInfo | null> {
+  if (!Purchases) return null;
+  
   try {
     const { customerInfo } = await Purchases.logIn(userId);
     return customerInfo;
@@ -80,6 +127,8 @@ export async function loginRevenueCat(userId: string): Promise<CustomerInfo | nu
  * Logout from RevenueCat (call on sign out)
  */
 export async function logoutRevenueCat(): Promise<void> {
+  if (!Purchases) return;
+  
   try {
     await Purchases.logOut();
   } catch (error) {
@@ -91,6 +140,8 @@ export async function logoutRevenueCat(): Promise<void> {
  * Get current customer info (subscription status)
  */
 export async function getCustomerInfo(): Promise<CustomerInfo | null> {
+  if (!Purchases) return null;
+  
   try {
     return await Purchases.getCustomerInfo();
   } catch (error) {
@@ -103,6 +154,8 @@ export async function getCustomerInfo(): Promise<CustomerInfo | null> {
  * Get available offerings (products/packages)
  */
 export async function getOfferings(): Promise<PurchasesOffering | null> {
+  if (!Purchases) return null;
+  
   try {
     const offerings = await Purchases.getOfferings();
     return offerings.current;
@@ -120,6 +173,10 @@ export async function purchasePackage(pkg: PurchasesPackage): Promise<{
   customerInfo?: CustomerInfo;
   error?: string;
 }> {
+  if (!Purchases) {
+    return { success: false, error: 'RevenueCat not available' };
+  }
+  
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
     return { success: true, customerInfo };
@@ -141,6 +198,10 @@ export async function restorePurchases(): Promise<{
   customerInfo?: CustomerInfo;
   error?: string;
 }> {
+  if (!Purchases) {
+    return { success: false, error: 'RevenueCat not available' };
+  }
+  
   try {
     const customerInfo = await Purchases.restorePurchases();
     return { success: true, customerInfo };
@@ -174,4 +235,29 @@ export function getTierFromCustomerInfo(customerInfo: CustomerInfo | null): 'fre
     return 'premium';
   }
   return 'free';
+}
+
+// Store listeners for when Purchases isn't available
+const mockListeners: Set<(info: CustomerInfo) => void> = new Set();
+
+/**
+ * Add a listener for customer info updates
+ */
+export function addCustomerInfoUpdateListener(listener: (info: CustomerInfo) => void): void {
+  if (Purchases) {
+    Purchases.addCustomerInfoUpdateListener(listener);
+  } else {
+    mockListeners.add(listener);
+  }
+}
+
+/**
+ * Remove a listener for customer info updates
+ */
+export function removeCustomerInfoUpdateListener(listener: (info: CustomerInfo) => void): void {
+  if (Purchases) {
+    Purchases.removeCustomerInfoUpdateListener(listener);
+  } else {
+    mockListeners.delete(listener);
+  }
 }

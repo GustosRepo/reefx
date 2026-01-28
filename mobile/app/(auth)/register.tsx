@@ -4,8 +4,9 @@ import { Link, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context';
-import { colors } from '@/constants/theme';
+import { colors, modeThemes } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
+import AquaticBackground from '@/components/AquaticBackground';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -45,15 +46,28 @@ export default function RegisterScreen() {
     }
 
     setIsLoading(true);
+    
     const { error } = await signUp(email, password, name);
     setIsLoading(false);
 
     if (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Registration failed',
-        text2: error.message || 'Could not create account',
-      });
+      // Check for duplicate email error
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('already registered') || 
+          errorMessage.includes('already exists') ||
+          errorMessage.includes('duplicate')) {
+        Toast.show({
+          type: 'error',
+          text1: 'Email already registered',
+          text2: 'Please sign in instead or use a different email',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Registration failed',
+          text2: error.message || 'Could not create account',
+        });
+      }
     } else {
       Toast.show({
         type: 'success',
@@ -66,6 +80,7 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      <AquaticBackground mode="reef" opacity={0.7} />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -165,7 +180,8 @@ export default function RegisterScreen() {
               </View>
 
               <TouchableOpacity
-                className="bg-aqua-600 rounded-xl py-4 items-center mt-6 shadow-md"
+                className="rounded-xl py-4 items-center mt-6 shadow-md"
+                style={{ backgroundColor: modeThemes.reef.accentPrimary }}
                 onPress={handleRegister}
                 disabled={isLoading}
                 activeOpacity={0.8}
@@ -183,7 +199,7 @@ export default function RegisterScreen() {
               <Text className="text-slate-500">Already have an account? </Text>
               <Link href="/(auth)/login" asChild>
                 <TouchableOpacity>
-                  <Text className="text-aqua-600 font-bold">Sign In</Text>
+                  <Text className="font-bold" style={{ color: modeThemes.reef.accentPrimary }}>Sign In</Text>
                 </TouchableOpacity>
               </Link>
             </View>
