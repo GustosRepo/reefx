@@ -107,11 +107,11 @@ const AnimatedBubble = ({
 };
 
 // Reef Corals SVG
-const ReefCorals = ({ opacity = 0.12 }: { opacity?: number }) => (
+const ReefCorals = ({ opacity = 0.35 }: { opacity?: number }) => (
   <Svg
     width={SCREEN_WIDTH}
-    height={200}
-    viewBox={`0 0 ${SCREEN_WIDTH} 200`}
+    height={280}
+    viewBox={`0 0 ${SCREEN_WIDTH} 280`}
     style={[styles.corals, { opacity }]}
   >
     <Defs>
@@ -145,96 +145,99 @@ const ReefCorals = ({ opacity = 0.12 }: { opacity?: number }) => (
 
     {/* Branching Coral - Left */}
     <G>
-      <Rect x={SCREEN_WIDTH * 0.08} y={80} width={12} height={120} rx={6} fill="url(#coralCyan)" />
-      <Ellipse cx={SCREEN_WIDTH * 0.05} cy={100} rx={8} ry={25} fill="url(#coralCyan)" />
-      <Ellipse cx={SCREEN_WIDTH * 0.12} cy={90} rx={10} ry={30} fill="#06b6d4" />
-      <Ellipse cx={SCREEN_WIDTH * 0.06} cy={120} rx={6} ry={20} fill="#22d3ee" />
+      <Rect x={SCREEN_WIDTH * 0.06} y={60} width={18} height={160} rx={9} fill="url(#coralCyan)" />
+      <Ellipse cx={SCREEN_WIDTH * 0.03} cy={90} rx={14} ry={40} fill="url(#coralCyan)" />
+      <Ellipse cx={SCREEN_WIDTH * 0.12} cy={70} rx={16} ry={45} fill="#06b6d4" />
+      <Ellipse cx={SCREEN_WIDTH * 0.05} cy={120} rx={10} ry={30} fill="#22d3ee" />
+      <Ellipse cx={SCREEN_WIDTH * 0.15} cy={100} rx={12} ry={35} fill="#0891b2" />
     </G>
 
-    {/* Brain Coral */}
-    <Ellipse cx={SCREEN_WIDTH * 0.28} cy={175} rx={35} ry={22} fill="url(#brainCoral)" />
+    {/* Brain Coral - Larger */}
+    <Ellipse cx={SCREEN_WIDTH * 0.28} cy={220} rx={55} ry={35} fill="url(#brainCoral)" />
     
-    {/* Tube Corals - Center */}
+    {/* Tube Corals - Center - Taller */}
     <G>
-      <Rect x={SCREEN_WIDTH * 0.4} y={140} width={8} height={60} rx={4} fill="url(#coralOrange)" />
-      <Rect x={SCREEN_WIDTH * 0.43} y={120} width={10} height={80} rx={5} fill="#f97316" />
-      <Rect x={SCREEN_WIDTH * 0.47} y={150} width={7} height={50} rx={3.5} fill="#fb923c" />
-      <Rect x={SCREEN_WIDTH * 0.5} y={130} width={9} height={70} rx={4.5} fill="url(#coralOrange)" />
+      <Rect x={SCREEN_WIDTH * 0.38} y={100} width={14} height={100} rx={7} fill="url(#coralOrange)" />
+      <Rect x={SCREEN_WIDTH * 0.42} y={70} width={16} height={130} rx={8} fill="#f97316" />
+      <Rect x={SCREEN_WIDTH * 0.47} y={110} width={12} height={90} rx={6} fill="#fb923c" />
+      <Rect x={SCREEN_WIDTH * 0.51} y={80} width={15} height={120} rx={7.5} fill="url(#coralOrange)" />
+      <Rect x={SCREEN_WIDTH * 0.56} y={95} width={13} height={105} rx={6.5} fill="#ea580c" />
     </G>
 
-    {/* Fan Coral - Right */}
+    {/* Fan Coral - Right - Larger */}
     <G>
       <Path
-        d={`M${SCREEN_WIDTH * 0.85} 200 
-            Q${SCREEN_WIDTH * 0.75} 140 ${SCREEN_WIDTH * 0.85} 80
-            Q${SCREEN_WIDTH * 0.95} 140 ${SCREEN_WIDTH * 0.85} 200`}
+        d={`M${SCREEN_WIDTH * 0.85} 280 
+            Q${SCREEN_WIDTH * 0.70} 160 ${SCREEN_WIDTH * 0.85} 40
+            Q${SCREEN_WIDTH * 1.0} 160 ${SCREEN_WIDTH * 0.85} 280`}
         fill="url(#coralPink)"
         opacity={0.4}
       />
-      <Rect x={SCREEN_WIDTH * 0.845} y={175} width={8} height={25} rx={4} fill="url(#coralPink)" />
+      <Rect x={SCREEN_WIDTH * 0.84} y={230} width={12} height={50} rx={6} fill="url(#coralPink)" />
     </G>
 
-    {/* Anemone */}
+    {/* Anemone - Larger */}
     <G>
-      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
         <Ellipse
           key={i}
-          cx={SCREEN_WIDTH * 0.62 + i * 6 - 18}
-          cy={170}
-          rx={2}
-          ry={18 + Math.sin(i) * 5}
+          cx={SCREEN_WIDTH * 0.62 + i * 8 - 36}
+          cy={220}
+          rx={4}
+          ry={30 + Math.sin(i) * 10}
           fill="#f472b6"
-          opacity={0.6}
+          opacity={0.7}
         />
       ))}
     </G>
 
-    {/* Mushroom Corals */}
-    <Ellipse cx={SCREEN_WIDTH * 0.35} cy={188} rx={18} ry={10} fill="url(#coralPurple)" />
-    <Ellipse cx={SCREEN_WIDTH * 0.72} cy={190} rx={15} ry={8} fill="#8b5cf6" opacity={0.8} />
+    {/* Mushroom Corals - Larger */}
+    <Ellipse cx={SCREEN_WIDTH * 0.32} cy={250} rx={30} ry={18} fill="url(#coralPurple)" />
+    <Ellipse cx={SCREEN_WIDTH * 0.72} cy={255} rx={25} ry={15} fill="#8b5cf6" opacity={0.9} />
+    <Ellipse cx={SCREEN_WIDTH * 0.22} cy={265} rx={22} ry={12} fill="#a855f7" opacity={0.8} />
 
-    {/* Seaweed */}
+    {/* Seaweed - Taller */}
     <Path
-      d={`M${SCREEN_WIDTH * 0.18} 200 
-          Q${SCREEN_WIDTH * 0.16} 160 ${SCREEN_WIDTH * 0.19} 130
-          Q${SCREEN_WIDTH * 0.21} 100 ${SCREEN_WIDTH * 0.18} 70
-          Q${SCREEN_WIDTH * 0.15} 50 ${SCREEN_WIDTH * 0.17} 30`}
+      d={`M${SCREEN_WIDTH * 0.18} 280 
+          Q${SCREEN_WIDTH * 0.15} 200 ${SCREEN_WIDTH * 0.19} 150
+          Q${SCREEN_WIDTH * 0.22} 100 ${SCREEN_WIDTH * 0.17} 50
+          Q${SCREEN_WIDTH * 0.14} 20 ${SCREEN_WIDTH * 0.16} 0`}
       stroke="#10b981"
-      strokeWidth={4}
+      strokeWidth={6}
+      fill="none"
+      opacity={0.6}
+    />
+    <Path
+      d={`M${SCREEN_WIDTH * 0.2} 280 
+          Q${SCREEN_WIDTH * 0.23} 180 ${SCREEN_WIDTH * 0.18} 120
+          Q${SCREEN_WIDTH * 0.15} 70 ${SCREEN_WIDTH * 0.2} 20`}
+      stroke="#059669"
+      strokeWidth={5}
       fill="none"
       opacity={0.5}
     />
-    <Path
-      d={`M${SCREEN_WIDTH * 0.2} 200 
-          Q${SCREEN_WIDTH * 0.22} 170 ${SCREEN_WIDTH * 0.19} 140
-          Q${SCREEN_WIDTH * 0.17} 110 ${SCREEN_WIDTH * 0.2} 80`}
-      stroke="#059669"
-      strokeWidth={3}
-      fill="none"
-      opacity={0.4}
-    />
 
-    {/* Sandy bottom */}
+    {/* Sandy bottom - adjusted for taller coral area */}
     <Path
-      d={`M0 200 
-          Q${SCREEN_WIDTH * 0.1} 190 ${SCREEN_WIDTH * 0.2} 195
-          Q${SCREEN_WIDTH * 0.3} 200 ${SCREEN_WIDTH * 0.4} 193
-          Q${SCREEN_WIDTH * 0.5} 186 ${SCREEN_WIDTH * 0.6} 192
-          Q${SCREEN_WIDTH * 0.7} 198 ${SCREEN_WIDTH * 0.8} 190
-          Q${SCREEN_WIDTH * 0.9} 182 ${SCREEN_WIDTH} 195
-          L${SCREEN_WIDTH} 200 Z`}
+      d={`M0 280 
+          Q${SCREEN_WIDTH * 0.1} 265 ${SCREEN_WIDTH * 0.2} 272
+          Q${SCREEN_WIDTH * 0.3} 280 ${SCREEN_WIDTH * 0.4} 268
+          Q${SCREEN_WIDTH * 0.5} 256 ${SCREEN_WIDTH * 0.6} 265
+          Q${SCREEN_WIDTH * 0.7} 275 ${SCREEN_WIDTH * 0.8} 262
+          Q${SCREEN_WIDTH * 0.9} 250 ${SCREEN_WIDTH} 270
+          L${SCREEN_WIDTH} 280 Z`}
       fill="#d4a574"
-      opacity={0.3}
+      opacity={0.4}
     />
   </Svg>
 );
 
 // Freshwater Plants SVG
-const FreshwaterPlants = ({ opacity = 0.12 }: { opacity?: number }) => (
+const FreshwaterPlants = ({ opacity = 0.35 }: { opacity?: number }) => (
   <Svg
     width={SCREEN_WIDTH}
-    height={200}
-    viewBox={`0 0 ${SCREEN_WIDTH} 200`}
+    height={280}
+    viewBox={`0 0 ${SCREEN_WIDTH} 280`}
     style={[styles.corals, { opacity }]}
   >
     <Defs>
@@ -252,94 +255,94 @@ const FreshwaterPlants = ({ opacity = 0.12 }: { opacity?: number }) => (
       </LinearGradient>
     </Defs>
 
-    {/* Tall Plants - Left */}
+    {/* Tall Plants - Left - Larger */}
     {[0.05, 0.12, 0.18].map((pos, i) => (
       <G key={`left-${i}`}>
         <Path
-          d={`M${SCREEN_WIDTH * pos} 200 
-              Q${SCREEN_WIDTH * (pos - 0.02)} 150 ${SCREEN_WIDTH * (pos + 0.01)} 100
-              Q${SCREEN_WIDTH * pos} 60 ${SCREEN_WIDTH * (pos + 0.01)} 20`}
+          d={`M${SCREEN_WIDTH * pos} 280 
+              Q${SCREEN_WIDTH * (pos - 0.02)} 200 ${SCREEN_WIDTH * (pos + 0.01)} 120
+              Q${SCREEN_WIDTH * pos} 60 ${SCREEN_WIDTH * (pos + 0.01)} 0`}
           stroke={i % 2 === 0 ? "url(#plantGreen1)" : "url(#plantGreen2)"}
-          strokeWidth={6 - i}
+          strokeWidth={8 - i}
           fill="none"
         />
-        {/* Leaves */}
+        {/* Leaves - Larger */}
         <Ellipse 
           cx={SCREEN_WIDTH * (pos - 0.02)} 
-          cy={80 + i * 30} 
-          rx={12} 
-          ry={5} 
+          cy={100 + i * 30} 
+          rx={20} 
+          ry={8} 
           fill="#22c55e" 
-          opacity={0.6}
-          transform={`rotate(-30 ${SCREEN_WIDTH * (pos - 0.02)} ${80 + i * 30})`}
+          opacity={0.8}
+          transform={`rotate(-30 ${SCREEN_WIDTH * (pos - 0.02)} ${100 + i * 30})`}
         />
         <Ellipse 
           cx={SCREEN_WIDTH * (pos + 0.02)} 
-          cy={100 + i * 20} 
-          rx={10} 
-          ry={4} 
+          cy={130 + i * 20} 
+          rx={18} 
+          ry={7} 
           fill="#10b981" 
-          opacity={0.5}
-          transform={`rotate(25 ${SCREEN_WIDTH * (pos + 0.02)} ${100 + i * 20})`}
+          opacity={0.7}
+          transform={`rotate(25 ${SCREEN_WIDTH * (pos + 0.02)} ${130 + i * 20})`}
         />
       </G>
     ))}
 
-    {/* Grass Cluster - Center */}
+    {/* Grass Cluster - Center - Taller */}
     {[0.35, 0.38, 0.41, 0.44, 0.47, 0.5].map((pos, i) => (
       <Path
         key={`grass-${i}`}
-        d={`M${SCREEN_WIDTH * pos} 200 
-            Q${SCREEN_WIDTH * (pos + (i % 2 === 0 ? 0.01 : -0.01))} ${140 - i * 8} 
-            ${SCREEN_WIDTH * pos} ${80 - i * 10}`}
+        d={`M${SCREEN_WIDTH * pos} 280 
+            Q${SCREEN_WIDTH * (pos + (i % 2 === 0 ? 0.01 : -0.01))} ${160 - i * 10} 
+            ${SCREEN_WIDTH * pos} ${60 - i * 12}`}
         stroke={i % 3 === 0 ? "#059669" : i % 3 === 1 ? "#10b981" : "#22c55e"}
-        strokeWidth={3}
+        strokeWidth={4}
         fill="none"
-        opacity={0.7}
+        opacity={0.85}
       />
     ))}
 
-    {/* Broad Leaf Plants - Right */}
+    {/* Broad Leaf Plants - Right - Larger */}
     <G>
-      <Ellipse cx={SCREEN_WIDTH * 0.75} cy={140} rx={25} ry={10} fill="#059669" opacity={0.5} transform={`rotate(-20 ${SCREEN_WIDTH * 0.75} 140)`} />
-      <Ellipse cx={SCREEN_WIDTH * 0.78} cy={120} rx={22} ry={9} fill="#10b981" opacity={0.4} transform={`rotate(15 ${SCREEN_WIDTH * 0.78} 120)`} />
-      <Ellipse cx={SCREEN_WIDTH * 0.73} cy={160} rx={20} ry={8} fill="#22c55e" opacity={0.5} transform={`rotate(-35 ${SCREEN_WIDTH * 0.73} 160)`} />
-      <Rect x={SCREEN_WIDTH * 0.755} y={150} width={4} height={50} rx={2} fill="url(#plantGreen1)" />
+      <Ellipse cx={SCREEN_WIDTH * 0.75} cy={160} rx={35} ry={14} fill="#059669" opacity={0.7} transform={`rotate(-20 ${SCREEN_WIDTH * 0.75} 160)`} />
+      <Ellipse cx={SCREEN_WIDTH * 0.78} cy={130} rx={32} ry={12} fill="#10b981" opacity={0.6} transform={`rotate(15 ${SCREEN_WIDTH * 0.78} 130)`} />
+      <Ellipse cx={SCREEN_WIDTH * 0.73} cy={190} rx={28} ry={11} fill="#22c55e" opacity={0.7} transform={`rotate(-35 ${SCREEN_WIDTH * 0.73} 190)`} />
+      <Rect x={SCREEN_WIDTH * 0.755} y={200} width={6} height={80} rx={3} fill="url(#plantGreen1)" />
     </G>
 
-    {/* Tall Plants - Right Side */}
+    {/* Tall Plants - Right Side - Larger */}
     {[0.85, 0.9, 0.95].map((pos, i) => (
       <Path
         key={`right-${i}`}
-        d={`M${SCREEN_WIDTH * pos} 200 
-            Q${SCREEN_WIDTH * (pos + 0.01)} 140 ${SCREEN_WIDTH * (pos - 0.01)} 90
-            Q${SCREEN_WIDTH * pos} 50 ${SCREEN_WIDTH * (pos - 0.01)} 30`}
+        d={`M${SCREEN_WIDTH * pos} 280 
+            Q${SCREEN_WIDTH * (pos + 0.01)} 180 ${SCREEN_WIDTH * (pos - 0.01)} 100
+            Q${SCREEN_WIDTH * pos} 40 ${SCREEN_WIDTH * (pos - 0.01)} 0`}
         stroke={i % 2 === 0 ? "url(#plantTeal)" : "url(#plantGreen2)"}
-        strokeWidth={5 - i}
+        strokeWidth={7 - i}
         fill="none"
-        opacity={0.8}
+        opacity={0.9}
       />
     ))}
 
-    {/* Substrate */}
+    {/* Substrate - Adjusted */}
     <Path
-      d={`M0 200 
-          Q${SCREEN_WIDTH * 0.15} 192 ${SCREEN_WIDTH * 0.3} 196
-          Q${SCREEN_WIDTH * 0.45} 200 ${SCREEN_WIDTH * 0.6} 194
-          Q${SCREEN_WIDTH * 0.75} 188 ${SCREEN_WIDTH * 0.9} 195
-          L${SCREEN_WIDTH} 200 Z`}
+      d={`M0 280 
+          Q${SCREEN_WIDTH * 0.15} 268 ${SCREEN_WIDTH * 0.3} 274
+          Q${SCREEN_WIDTH * 0.45} 280 ${SCREEN_WIDTH * 0.6} 270
+          Q${SCREEN_WIDTH * 0.75} 260 ${SCREEN_WIDTH * 0.9} 272
+          L${SCREEN_WIDTH} 280 Z`}
       fill="#78716c"
-      opacity={0.25}
+      opacity={0.35}
     />
     
-    {/* Small pebbles */}
+    {/* Small pebbles - Larger */}
     {[0.1, 0.25, 0.55, 0.7, 0.88].map((pos, i) => (
-      <Circle key={`pebble-${i}`} cx={SCREEN_WIDTH * pos} cy={196} r={3 + i % 2} fill="#a8a29e" opacity={0.3} />
+      <Circle key={`pebble-${i}`} cx={SCREEN_WIDTH * pos} cy={274} r={5 + i % 3} fill="#a8a29e" opacity={0.4} />
     ))}
   </Svg>
 );
 
-// Light Rays Component
+// Light Rays Component - More Vibrant
 const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
   const rayColor = mode === 'reef' ? '#0891b2' : '#059669';
   
@@ -351,8 +354,8 @@ const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
     >
       <Defs>
         <LinearGradient id="rayGradient" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.15} />
-          <Stop offset="0.3" stopColor={rayColor} stopOpacity={0.05} />
+          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.25} />
+          <Stop offset="0.3" stopColor={rayColor} stopOpacity={0.1} />
           <Stop offset="1" stopColor={rayColor} stopOpacity={0} />
         </LinearGradient>
       </Defs>
@@ -360,10 +363,10 @@ const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
         <Path
           key={i}
           d={`M${SCREEN_WIDTH * pos} 0 
-              L${SCREEN_WIDTH * (pos - 0.05)} ${SCREEN_HEIGHT * 0.4} 
-              L${SCREEN_WIDTH * (pos + 0.05)} ${SCREEN_HEIGHT * 0.4} Z`}
+              L${SCREEN_WIDTH * (pos - 0.07)} ${SCREEN_HEIGHT * 0.5} 
+              L${SCREEN_WIDTH * (pos + 0.07)} ${SCREEN_HEIGHT * 0.5} Z`}
           fill="url(#rayGradient)"
-          opacity={0.3 + i * 0.05}
+          opacity={0.4 + i * 0.06}
         />
       ))}
     </Svg>
@@ -377,17 +380,20 @@ export default function AquaticBackground({
   showLightRays = true,
   opacity = 1,
 }: AquaticBackgroundProps) {
-  // Different bubble colors for reef vs freshwater
+  // Different bubble colors for reef vs freshwater - more vibrant
   const bubbleColor = mode === 'reef' 
-    ? 'rgba(8, 145, 178, 0.3)'  // Cyan for reef
-    : 'rgba(5, 150, 105, 0.3)'; // Green for freshwater
+    ? 'rgba(8, 145, 178, 0.5)'  // Cyan for reef - more vibrant
+    : 'rgba(5, 150, 105, 0.5)'; // Green for freshwater - more vibrant
 
   const bubbles = [
-    { size: 8, startX: SCREEN_WIDTH * 0.15, delay: 0, duration: 6000 },
-    { size: 6, startX: SCREEN_WIDTH * 0.3, delay: 1500, duration: 7000 },
-    { size: 10, startX: SCREEN_WIDTH * 0.5, delay: 500, duration: 5500 },
-    { size: 5, startX: SCREEN_WIDTH * 0.7, delay: 2500, duration: 8000 },
-    { size: 7, startX: SCREEN_WIDTH * 0.85, delay: 1000, duration: 6500 },
+    { size: 14, startX: SCREEN_WIDTH * 0.1, delay: 0, duration: 6000 },
+    { size: 18, startX: SCREEN_WIDTH * 0.25, delay: 1500, duration: 7000 },
+    { size: 22, startX: SCREEN_WIDTH * 0.45, delay: 500, duration: 5500 },
+    { size: 16, startX: SCREEN_WIDTH * 0.65, delay: 2500, duration: 8000 },
+    { size: 20, startX: SCREEN_WIDTH * 0.8, delay: 1000, duration: 6500 },
+    { size: 12, startX: SCREEN_WIDTH * 0.35, delay: 3000, duration: 7500 },
+    { size: 15, startX: SCREEN_WIDTH * 0.55, delay: 2000, duration: 6800 },
+    { size: 10, startX: SCREEN_WIDTH * 0.9, delay: 800, duration: 5800 },
   ];
 
   return (

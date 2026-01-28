@@ -85,7 +85,7 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
 };
 
 export default function SubscriptionScreen() {
-  const { subscription, offerings, isLoadingOfferings, purchase, restore } = useSubscription();
+  const { subscription, offerings, isLoadingOfferings, purchase, restore, activeProductId } = useSubscription();
   const { theme, isReefMode } = useAquaMode();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -271,9 +271,11 @@ export default function SubscriptionScreen() {
               const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
               const isPremium = tierName === 'premium';
               const isSuperPremium = tierName === 'super-premium';
-              const isCurrentPlan = subscription.tier === tierName;
+              // Check if this exact product is the active one
+              const isCurrentPlan = activeProductId === pkg.product.identifier;
               const planColor = isSuperPremium ? '#8b5cf6' : '#f59e0b';
               const features = TIER_FEATURES_MAP[tierName] || TIER_FEATURES_MAP['premium'];
+              const isYearly = pkg.packageType === 'ANNUAL' || pkg.identifier.includes('yearly') || pkg.identifier.includes('annual');
 
               return (
                 <View
@@ -282,7 +284,7 @@ export default function SubscriptionScreen() {
                     isCurrentPlan ? 'border-aqua-500' : 'border-aqua-200'
                   }`}
                 >
-                  {isPremium && (
+                  {isPremium && !isYearly && (
                     <View className="absolute -top-3 left-4 bg-yellow-400 px-3 py-1 rounded-full">
                       <Text className="text-yellow-900 text-xs font-bold">POPULAR</Text>
                     </View>
@@ -298,10 +300,10 @@ export default function SubscriptionScreen() {
                           {pkg.product.priceString}
                         </Text>
                         <Text className="text-slate-500 ml-1">
-                          /{pkg.packageType === 'ANNUAL' ? 'year' : 'month'}
+                          /{isYearly ? 'year' : 'month'}
                         </Text>
                       </View>
-                      {pkg.packageType === 'ANNUAL' && (
+                      {isYearly && (
                         <Text className="text-green-600 text-sm font-medium">
                           Save ~17% vs monthly
                         </Text>
