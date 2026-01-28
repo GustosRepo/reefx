@@ -92,8 +92,9 @@ export const login = async (email: string, password: string): Promise<{ success:
 export const logout = async (): Promise<void> => {
   const supabase = createClient();
   await supabase.auth.signOut();
-  // Clear subscription cache
+  // Clear cached data for the old user
   localStorage.removeItem('aquaxone_subscription');
+  localStorage.removeItem('aquaxone_current_tank');
 };
 
 // Update user profile
