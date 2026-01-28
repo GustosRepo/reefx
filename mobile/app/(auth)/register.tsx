@@ -46,15 +46,28 @@ export default function RegisterScreen() {
     }
 
     setIsLoading(true);
+    
     const { error } = await signUp(email, password, name);
     setIsLoading(false);
 
     if (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Registration failed',
-        text2: error.message || 'Could not create account',
-      });
+      // Check for duplicate email error
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('already registered') || 
+          errorMessage.includes('already exists') ||
+          errorMessage.includes('duplicate')) {
+        Toast.show({
+          type: 'error',
+          text1: 'Email already registered',
+          text2: 'Please sign in instead or use a different email',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Registration failed',
+          text2: error.message || 'Could not create account',
+        });
+      }
     } else {
       Toast.show({
         type: 'success',

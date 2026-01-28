@@ -90,6 +90,9 @@ export default function SubscriptionScreen() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
 
+  // Check if user has a web subscription (has tier but no IAP product)
+  const hasWebSubscription = subscription.tier !== 'free' && !activeProductId;
+
   const handlePurchase = async (pkg: PurchasesPackage) => {
     setIsPurchasing(true);
     try {
@@ -166,6 +169,27 @@ export default function SubscriptionScreen() {
         <Text className="text-slate-500 mb-6">
           Unlock more features with a premium subscription
         </Text>
+
+        {/* Web Subscription Notice */}
+        {hasWebSubscription && (
+          <View className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-6">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="globe-outline" size={24} color="#8b5cf6" />
+              <Text className="text-lg font-bold text-purple-800 ml-2">Web Subscription Active</Text>
+            </View>
+            <Text className="text-purple-700 mb-3">
+              You're currently subscribed to{' '}
+              <Text className="font-bold">
+                {subscription.tier === 'super-premium' ? 'Super Premium' : 'Premium'}
+              </Text>{' '}
+              through our website.
+            </Text>
+            <Text className="text-purple-600 text-sm">
+              To manage, upgrade, or cancel your subscription, visit your account settings at{' '}
+              <Text className="font-semibold">aquaxone.com</Text>
+            </Text>
+          </View>
+        )}
 
         {/* Free Plan - Always show */}
         <View
@@ -249,7 +273,7 @@ export default function SubscriptionScreen() {
                     ))}
                   </View>
 
-                  {!isCurrentPlan && (
+                  {!isCurrentPlan && !hasWebSubscription && (
                     <TouchableOpacity
                       onPress={() => Alert.alert(
                         'Expo Go Preview', 
@@ -271,8 +295,9 @@ export default function SubscriptionScreen() {
               const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
               const isPremium = tierName === 'premium';
               const isSuperPremium = tierName === 'super-premium';
-              // Check if this exact product is the active one
-              const isCurrentPlan = activeProductId === pkg.product.identifier;
+              // Check if this exact product is the active one (IAP) OR if web subscription matches this tier
+              const isCurrentPlan = activeProductId === pkg.product.identifier || 
+                (hasWebSubscription && subscription.tier === tierName);
               const planColor = isSuperPremium ? '#8b5cf6' : '#f59e0b';
               const features = TIER_FEATURES_MAP[tierName] || TIER_FEATURES_MAP['premium'];
               const isYearly = pkg.packageType === 'ANNUAL' || pkg.identifier.includes('yearly') || pkg.identifier.includes('annual');
@@ -325,7 +350,7 @@ export default function SubscriptionScreen() {
                     ))}
                   </View>
 
-                  {!isCurrentPlan && (
+                  {!isCurrentPlan && !hasWebSubscription && (
                     <TouchableOpacity
                       onPress={() => handlePurchase(pkg)}
                       disabled={isPurchasing}
