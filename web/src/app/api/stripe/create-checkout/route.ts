@@ -109,7 +109,12 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      ...(stripeCouponId && { discounts: [{ coupon: stripeCouponId }] }),
+      // Allow promo codes in checkout - if we already have a coupon from our system, apply it
+      // Otherwise let user enter one directly in Stripe
+      ...(stripeCouponId 
+        ? { discounts: [{ coupon: stripeCouponId }] }
+        : { allow_promotion_codes: true }
+      ),
       subscription_data: subscriptionData,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?success=true${promoCode ? `&promo=${promoCode}` : ''}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription?canceled=true`,
