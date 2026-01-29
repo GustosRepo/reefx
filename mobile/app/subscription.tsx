@@ -309,9 +309,9 @@ export default function SubscriptionScreen() {
               const tierName = PACKAGE_TO_TIER[pkg.identifier] || 'premium';
               const isPremium = tierName === 'premium';
               const isSuperPremium = tierName === 'super-premium';
-              // Check if this exact product is the active one (IAP) OR if web subscription matches this tier
+              // Check if this exact product is the active one (IAP) OR if subscription matches this tier
               const isCurrentPlan = activeProductId === pkg.product.identifier || 
-                (hasWebSubscription && subscription.tier === tierName);
+                (subscription.tier === tierName && (hasWebSubscription || hasRevenueCatId));
               const planColor = isSuperPremium ? '#8b5cf6' : '#f59e0b';
               const features = TIER_FEATURES_MAP[tierName] || TIER_FEATURES_MAP['premium'];
               const isYearly = pkg.packageType === 'ANNUAL' || pkg.identifier.includes('yearly') || pkg.identifier.includes('annual');
