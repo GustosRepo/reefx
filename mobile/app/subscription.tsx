@@ -175,18 +175,14 @@ export default function SubscriptionScreen() {
           <View className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-6">
             <View className="flex-row items-center mb-2">
               <Ionicons name="globe-outline" size={24} color="#8b5cf6" />
-              <Text className="text-lg font-bold text-purple-800 ml-2">Web Subscription Active</Text>
+              <Text className="text-lg font-bold text-purple-800 ml-2">Active Subscription</Text>
             </View>
-            <Text className="text-purple-700 mb-3">
+            <Text className="text-purple-700">
               You're currently subscribed to{' '}
               <Text className="font-bold">
                 {subscription.tier === 'super-premium' ? 'Super Premium' : 'Premium'}
-              </Text>{' '}
-              through our website.
-            </Text>
-            <Text className="text-purple-600 text-sm">
-              To manage, upgrade, or cancel your subscription, visit your account settings at{' '}
-              <Text className="font-semibold">aquaxone.com</Text>
+              </Text>
+              . Enjoy all premium features!
             </Text>
           </View>
         )}
