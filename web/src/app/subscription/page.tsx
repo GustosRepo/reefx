@@ -14,6 +14,9 @@ interface UserSubscription {
   tier: SubscriptionTier;
   status: string;
   end_date: string | null;
+  revenuecat_product_id?: string | null;
+  revenuecat_store?: string | null;
+  platform?: string | null;
 }
 
 export default function SubscriptionPage() {
@@ -313,6 +316,7 @@ function SubscriptionPageContent() {
 
   // Computed values for UI
   const isSuperPremium = currentTier === 'super-premium';
+  const hasAppSubscription = subscription?.revenuecat_product_id != null;
   const status = {
     isPremium: currentTier !== 'free',
     daysRemaining: null as number | null,
@@ -527,6 +531,29 @@ function SubscriptionPageContent() {
           )}
         </AnimatePresence>
 
+        {/* App Store Subscription Notice */}
+        {hasAppSubscription && (
+          <motion.div 
+            className="mb-8 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-2 border-blue-500/30 rounded-xl p-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">📱</span>
+              <div className="flex-1">
+                <p className="font-bold text-slate-900 mb-1">App Store Subscription Active</p>
+                <p className="text-sm text-slate-600 mb-2">
+                  You're subscribed via {subscription?.revenuecat_store === 'APP_STORE' ? 'Apple App Store' : subscription?.revenuecat_store === 'PLAY_STORE' ? 'Google Play Store' : 'in-app purchase'}. 
+                  To manage or cancel, use your device's subscription settings.
+                </p>
+                <p className="text-xs text-slate-500">
+                  💡 Web subscriptions are managed separately through Stripe.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Current Plan Status */}
         {status.isPremium && (
           <motion.div 
@@ -681,7 +708,7 @@ function SubscriptionPageContent() {
                   👑 Current Plan
                 </p>
               </div>
-            ) : !status.isPremium ? (
+            ) : !status.isPremium && !hasAppSubscription ? (
               <motion.button
                 onClick={() => handleUpgradePremium(1)}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold transition-all duration-300"
@@ -690,6 +717,10 @@ function SubscriptionPageContent() {
               >
                 Upgrade Now
               </motion.button>
+            ) : hasAppSubscription ? (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 text-center">
+                <p className="text-blue-600 text-sm">📱 Managed via App Store</p>
+              </div>
             ) : null}
           </motion.div>
 
@@ -754,6 +785,10 @@ function SubscriptionPageContent() {
                   🚀 Current Plan
                 </p>
               </div>
+            ) : hasAppSubscription ? (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 text-center">
+                <p className="text-blue-600 text-sm">📱 Managed via App Store</p>
+              </div>
             ) : (
               <motion.button
                 onClick={() => handleUpgradeSuperPremium(1)}
@@ -781,7 +816,7 @@ function SubscriptionPageContent() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Premium Annual - Show for free tier only */}
-            {!status.isPremium && (
+            {!status.isPremium && !hasAppSubscription && (
               <motion.div 
                 className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 border-orange-500/30"
                 whileHover={{ scale: 1.02 }}
@@ -814,7 +849,7 @@ function SubscriptionPageContent() {
             )}
 
             {/* Super Premium Annual - Show for free and premium tiers */}
-            {!isSuperPremium && (
+            {!isSuperPremium && !hasAppSubscription && (
               <motion.div 
                 className={`bg-white border border-slate-200 shadow-sm rounded-2xl p-6 border-pink-500/30 ${status.isPremium && !isSuperPremium ? 'md:col-span-2 max-w-md mx-auto w-full' : ''}`}
                 whileHover={{ scale: 1.02 }}
