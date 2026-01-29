@@ -14,9 +14,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - manifest.json (PWA manifest)
      * - api/stripe/webhook (Stripe webhooks)
-     * - api/revenuecat/webhook (RevenueCat webhooks)
+     * - api/webhooks/revenuecat (RevenueCat webhooks)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|api/stripe/webhook|api/revenuecat/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|api/stripe/webhook|api/webhooks/revenuecat|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)',
   ],
 }
