@@ -11,10 +11,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get subscription
+    // Get subscription (including RevenueCat fields to check for IAP subscriptions)
     const { data: subscription, error } = await supabase
       .from('subscriptions')
-      .select('tier, status, end_date')
+      .select('tier, status, end_date, revenuecat_product_id, revenuecat_store, platform')
       .eq('user_id', user.id)
       .single();
 
