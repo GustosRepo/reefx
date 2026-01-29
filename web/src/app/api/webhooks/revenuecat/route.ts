@@ -206,6 +206,9 @@ export async function POST(request: NextRequest) {
       ? new Date(event.expiration_at_ms).toISOString()
       : null;
 
+    // For expired subscriptions, clear RevenueCat fields so web UI doesn't show app subscription
+    const isExpired = event.type === 'EXPIRATION';
+
     // Upsert subscription record
     const { error: upsertError } = await supabase
       .from('subscriptions')
@@ -213,13 +216,13 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         tier,
         status,
-        platform: 'app', // Mark as app subscription
+        platform: isExpired ? 'web' : 'app', // Clear platform on expiration
         current_period_end: expirationDate,
         cancel_at_period_end: cancelAtPeriodEnd,
-        // Store RevenueCat-specific data
-        revenuecat_product_id: event.product_id,
-        revenuecat_store: event.store,
-        revenuecat_environment: event.environment,
+        // Store RevenueCat-specific data (clear on expiration)
+        revenuecat_product_id: isExpired ? null : event.product_id,
+        revenuecat_store: isExpired ? null : event.store,
+        revenuecat_environment: isExpired ? null : event.environment,
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'user_id',
