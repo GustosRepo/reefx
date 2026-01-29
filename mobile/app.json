@@ -4,7 +4,7 @@
     "slug": "aquaxone",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/iconax.png",
     "scheme": "aquaxone",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
