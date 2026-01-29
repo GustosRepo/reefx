@@ -141,6 +141,7 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         tier,
         status,
+        platform: 'app', // Mark as app subscription
         current_period_end: expirationDate,
         cancel_at_period_end: cancelAtPeriodEnd,
         // Store RevenueCat-specific data
