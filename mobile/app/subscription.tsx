@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { PurchasesPackage } from '@/lib/revenuecat';
-import { useSubscription, useAquaMode } from '@/context';
+import { useSubscription, useAquaMode, useAuth } from '@/context';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 import AquaticBackground from '@/components/AquaticBackground';
+import { supabase } from '@/lib/supabase';
 
 // Fallback pricing if RevenueCat isn't configured yet
 const FALLBACK_PLANS = [
@@ -87,11 +88,28 @@ const TIER_FEATURES_MAP: Record<string, string[]> = {
 export default function SubscriptionScreen() {
   const { subscription, offerings, isLoadingOfferings, purchase, restore, activeProductId } = useSubscription();
   const { theme, isReefMode } = useAquaMode();
+  const { user } = useAuth();
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [hasRevenueCatId, setHasRevenueCatId] = useState(false);
 
-  // Check if user has a web subscription (has tier but no IAP product)
-  const hasWebSubscription = subscription.tier !== 'free' && !activeProductId;
+  // Check Supabase for revenuecat_product_id to determine if it's an IAP subscription
+  useEffect(() => {
+    const checkRevenueCatId = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('revenuecat_product_id')
+        .eq('user_id', user.id)
+        .single();
+      setHasRevenueCatId(!!data?.revenuecat_product_id);
+    };
+    checkRevenueCatId();
+  }, [user, subscription.tier]);
+
+  // Check if user has a web subscription (has premium tier but no IAP product and no revenuecat_product_id)
+  const hasWebSubscription = subscription.tier !== 'free' && !activeProductId && !hasRevenueCatId;
+
 
   const handlePurchase = async (pkg: PurchasesPackage) => {
     setIsPurchasing(true);
