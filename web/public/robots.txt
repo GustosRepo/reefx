@@ -1,0 +1,19 @@
+# AQUAXONE - Smart Aquarium Tracking
+# https://aquaxone.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /log/
+Disallow: /history/
+Disallow: /maintenance/
+Disallow: /equipment/
+Disallow: /livestock/
+Disallow: /gallery/
+Disallow: /auth/
+
+Sitemap: https://aquaxone.app/sitemap.xml

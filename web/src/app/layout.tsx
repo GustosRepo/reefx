@@ -27,7 +27,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://aquaxone.app"),
-  title: "AQUAXONE - Smart Aquarium Tracking",
+  title: {
+    default: "AQUAXONE - Smart Aquarium Tracking",
+    template: "%s | AQUAXONE",
+  },
   description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts. The ultimate app for aquarium hobbyists. Powered by ReefXOne.",
   keywords: [
     "aquarium tracking",
@@ -42,6 +45,9 @@ export const metadata: Metadata = {
     "magnesium",
     "fish tank",
     "aquarium maintenance",
+    "aquarium app",
+    "reef tank app",
+    "aquarium water testing",
   ],
   authors: [
     { name: "AQUAXONE" },
@@ -50,6 +56,12 @@ export const metadata: Metadata = {
   creator: "CODEWERX",
   publisher: "CODEWERX",
   manifest: "/manifest.json",
+  alternates: {
+    canonical: "https://aquaxone.app",
+  },
+  verification: {
+    google: "hCTfInox_UWBUH6XEBumTYi1XxFYLrnZhv7F5p46NO8",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -64,10 +76,10 @@ export const metadata: Metadata = {
     description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "AQUAXONE - Smart Aquarium Tracking",
+        alt: "AQUAXONE - Smart Aquarium Tracking Dashboard",
       },
     ],
   },
@@ -75,7 +87,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AQUAXONE - Smart Aquarium Tracking",
     description: "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
 };
 
@@ -91,6 +103,69 @@ export default function RootLayout({
           async 
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8863066373093222"
           crossOrigin="anonymous"
+        />
+        {/* JSON-LD: WebApplication structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "AQUAXONE",
+              url: "https://aquaxone.app",
+              description:
+                "Track your reef and freshwater aquarium parameters, maintenance, and trends with smart alerts. The ultimate app for aquarium hobbyists.",
+              applicationCategory: "UtilitiesApplication",
+              operatingSystem: "Web, iOS, Android",
+              offers: [
+                {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "USD",
+                  name: "Free",
+                },
+                {
+                  "@type": "Offer",
+                  price: "4.99",
+                  priceCurrency: "USD",
+                  name: "Premium",
+                  priceSpecification: {
+                    "@type": "UnitPriceSpecification",
+                    billingDuration: "P1M",
+                  },
+                },
+                {
+                  "@type": "Offer",
+                  price: "9.99",
+                  priceCurrency: "USD",
+                  name: "Super Premium",
+                  priceSpecification: {
+                    "@type": "UnitPriceSpecification",
+                    billingDuration: "P1M",
+                  },
+                },
+              ],
+              creator: {
+                "@type": "Organization",
+                name: "CODEWERX",
+                url: "https://www.code-werx.com/",
+              },
+            }),
+          }}
+        />
+        {/* JSON-LD: Organization structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AQUAXONE",
+              url: "https://aquaxone.app",
+              logo: "https://aquaxone.app/og-image.jpg",
+              sameAs: [],
+            }),
+          }}
         />
       </head>
       <body
