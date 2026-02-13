@@ -222,7 +222,7 @@ export default function PricingPage() {
         </AnimatePresence>
       </header>
 
-      <main className="min-h-screen pt-32 pb-24 text-slate-900 bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee]">
+      <main className="min-h-screen pt-32 pb-24 text-slate-900 bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0]">
         <div className="max-w-6xl px-6 mx-auto">
           {/* Header */}
           <motion.div 

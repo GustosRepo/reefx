@@ -5,13 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
-import { StatCard, TankSelector, EmptyState, LoadingState } from '@/components';
+import { StatCard, TankSelector, EmptyState, LoadingState, GuestModeBanner } from '@/components';
 import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { ParameterLog, MaintenanceEntry } from '@shared/types';
+import { DEMO_LOGS, DEMO_MAINTENANCE } from '@/constants/demoData';
 
 export default function DashboardScreen() {
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
   const { tanks, currentTank, setCurrentTank, isLoading: tanksLoading } = useTank();
   const { isReefMode, theme, modeIcon } = useAquaMode();
 
@@ -25,6 +26,17 @@ export default function DashboardScreen() {
 
   const loadDashboardData = useCallback(async () => {
     if (!currentTank) {
+      setIsLoadingData(false);
+      return;
+    }
+
+    // Guest mode: use demo data
+    if (isGuestMode) {
+      setLatestLog(DEMO_LOGS[0]);
+      const today = new Date().toISOString().split('T')[0];
+      setOverdueMaintenance(
+        DEMO_MAINTENANCE.filter(m => m.due_date < today && m.status === 'pending')
+      );
       setIsLoadingData(false);
       return;
     }
@@ -168,13 +180,20 @@ export default function DashboardScreen() {
           />
         }
       >
+        {/* Guest Mode Banner */}
+        {isGuestMode && (
+          <View className="px-4 pt-4">
+            <GuestModeBanner message="You're exploring in demo mode. Create an account to start tracking your own aquarium!" />
+          </View>
+        )}
+
         {/* Header */}
         <View className="px-4 pt-4 pb-2">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1">
-              <Text className="text-slate-500 text-sm">Welcome back,</Text>
+              <Text className="text-slate-500 text-sm">{isGuestMode ? 'Exploring as' : 'Welcome back,'}</Text>
               <Text className="text-2xl font-bold text-slate-800">
-                {user?.name || 'Aquarist'}
+                {isGuestMode ? 'Guest' : (user?.name || 'Aquarist')}
               </Text>
             </View>
             {/* Mode badge - read from tank type */}

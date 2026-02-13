@@ -114,7 +114,7 @@ function ResetPasswordContent() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-[var(--aqua-accent-primary)]/30 border-t-[var(--aqua-accent-primary)] rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-500">Verifying reset link...</p>
@@ -125,7 +125,7 @@ function ResetPasswordContent() {
 
   if (error && !isSupabaseRecovery) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -149,7 +149,7 @@ function ResetPasswordContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -176,7 +176,7 @@ function ResetPasswordContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -3,7 +3,8 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useTank, useAquaMode } from '@/context';
+import { useTank, useAquaMode, useAuth } from '@/context';
+import { CreateAccountPrompt } from '@/components';
 import { colors, modeThemes } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
@@ -12,13 +13,20 @@ type TankType = 'reef' | 'freshwater';
 export default function NewTankScreen() {
   const { refreshTanks } = useTank();
   const { mode } = useAquaMode();
+  const { isGuestMode } = useAuth();
   
   const [name, setName] = useState('');
   const [size, setSize] = useState('');
   const [type, setType] = useState<TankType>(mode === 'freshwater' ? 'freshwater' : 'reef');
   const [loading, setLoading] = useState(false);
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
 
   const handleCreate = async () => {
+    if (isGuestMode) {
+      setShowAccountPrompt(true);
+      return;
+    }
+
     if (!name.trim()) {
       Alert.alert('Error', 'Please enter a tank name');
       return;
@@ -171,6 +179,13 @@ export default function NewTankScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <CreateAccountPrompt
+        visible={showAccountPrompt}
+        onClose={() => setShowAccountPrompt(false)}
+        title="Create Your Tank"
+        message="Create a free account to set up tanks, track parameters, and manage your aquarium."
+      />
     </SafeAreaView>
   );
 }

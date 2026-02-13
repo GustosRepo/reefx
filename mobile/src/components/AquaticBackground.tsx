@@ -19,6 +19,8 @@ interface AquaticBackgroundProps {
   showBubbles?: boolean;
   showCorals?: boolean;
   showLightRays?: boolean;
+  showClouds?: boolean;
+  showWaves?: boolean;
   opacity?: number;
 }
 
@@ -107,7 +109,7 @@ const AnimatedBubble = ({
 };
 
 // Reef Corals SVG
-const ReefCorals = ({ opacity = 0.35 }: { opacity?: number }) => (
+const ReefCorals = ({ opacity = 0.55 }: { opacity?: number }) => (
   <Svg
     width={SCREEN_WIDTH}
     height={280}
@@ -233,7 +235,7 @@ const ReefCorals = ({ opacity = 0.35 }: { opacity?: number }) => (
 );
 
 // Freshwater Plants SVG
-const FreshwaterPlants = ({ opacity = 0.35 }: { opacity?: number }) => (
+const FreshwaterPlants = ({ opacity = 0.55 }: { opacity?: number }) => (
   <Svg
     width={SCREEN_WIDTH}
     height={280}
@@ -342,6 +344,179 @@ const FreshwaterPlants = ({ opacity = 0.35 }: { opacity?: number }) => (
   </Svg>
 );
 
+// Animated Surface Waves Component
+const SurfaceWaves = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
+  const wave1 = useRef(new Animated.Value(0)).current;
+  const wave2 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animateWave = (anim: Animated.Value, duration: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: 1,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    };
+    animateWave(wave1, 4000);
+    animateWave(wave2, 5500);
+  }, []);
+
+  const translateX1 = wave1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-30, 30],
+  });
+  const translateX2 = wave2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [20, -20],
+  });
+
+  const waveColor1 = mode === 'reef' ? 'rgba(8, 145, 178, 0.25)' : 'rgba(5, 150, 105, 0.25)';
+  const waveColor2 = mode === 'reef' ? 'rgba(6, 182, 212, 0.20)' : 'rgba(16, 185, 129, 0.20)';
+  const waveColor3 = mode === 'reef' ? 'rgba(34, 211, 238, 0.15)' : 'rgba(52, 211, 153, 0.15)';
+
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+      {/* Wave layer 1 - slowest, deepest */}
+      <Animated.View style={{ transform: [{ translateX: translateX1 }] }}>
+        <Svg width={SCREEN_WIDTH + 60} height={80} viewBox={`0 0 ${SCREEN_WIDTH + 60} 80`}>
+          <Path
+            d={`M-30 50 
+                Q${SCREEN_WIDTH * 0.1} 25 ${SCREEN_WIDTH * 0.25} 45
+                Q${SCREEN_WIDTH * 0.4} 65 ${SCREEN_WIDTH * 0.55} 40
+                Q${SCREEN_WIDTH * 0.7} 15 ${SCREEN_WIDTH * 0.85} 42
+                Q${SCREEN_WIDTH} 70 ${SCREEN_WIDTH + 30} 35
+                L${SCREEN_WIDTH + 60} 0 L-30 0 Z`}
+            fill={waveColor1}
+          />
+        </Svg>
+      </Animated.View>
+
+      {/* Wave layer 2 - medium */}
+      <Animated.View style={{ transform: [{ translateX: translateX2 }], marginTop: -55 }}>
+        <Svg width={SCREEN_WIDTH + 60} height={70} viewBox={`0 0 ${SCREEN_WIDTH + 60} 70`}>
+          <Path
+            d={`M-30 40 
+                Q${SCREEN_WIDTH * 0.15} 55 ${SCREEN_WIDTH * 0.3} 35
+                Q${SCREEN_WIDTH * 0.45} 15 ${SCREEN_WIDTH * 0.6} 40
+                Q${SCREEN_WIDTH * 0.75} 60 ${SCREEN_WIDTH * 0.9} 30
+                Q${SCREEN_WIDTH + 10} 10 ${SCREEN_WIDTH + 30} 38
+                L${SCREEN_WIDTH + 60} 0 L-30 0 Z`}
+            fill={waveColor2}
+          />
+        </Svg>
+      </Animated.View>
+
+      {/* Wave layer 3 - fastest, lightest */}
+      <Animated.View style={{ transform: [{ translateX: translateX1 }], marginTop: -45 }}>
+        <Svg width={SCREEN_WIDTH + 60} height={60} viewBox={`0 0 ${SCREEN_WIDTH + 60} 60`}>
+          <Path
+            d={`M-30 30 
+                Q${SCREEN_WIDTH * 0.12} 50 ${SCREEN_WIDTH * 0.28} 28
+                Q${SCREEN_WIDTH * 0.42} 10 ${SCREEN_WIDTH * 0.58} 35
+                Q${SCREEN_WIDTH * 0.72} 55 ${SCREEN_WIDTH * 0.88} 25
+                Q${SCREEN_WIDTH + 5} 8 ${SCREEN_WIDTH + 30} 30
+                L${SCREEN_WIDTH + 60} 0 L-30 0 Z`}
+            fill={waveColor3}
+          />
+        </Svg>
+      </Animated.View>
+    </View>
+  );
+};
+
+// Animated Clouds Component
+const CloudsOverlay = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
+  const drift1 = useRef(new Animated.Value(0)).current;
+  const drift2 = useRef(new Animated.Value(0)).current;
+  const drift3 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animateDrift = (anim: Animated.Value, duration: number, range: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: range,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: -range,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    };
+    animateDrift(drift1, 12000, 25);
+    animateDrift(drift2, 16000, 35);
+    animateDrift(drift3, 10000, 20);
+  }, []);
+
+  const cloudOpacity = mode === 'reef' ? 0.18 : 0.14;
+
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} pointerEvents="none">
+      {/* Cloud 1 - large, top left */}
+      <Animated.View style={{ position: 'absolute', top: 12, left: -20, transform: [{ translateX: drift1 }] }}>
+        <Svg width={180} height={60} viewBox="0 0 180 60">
+          <Defs>
+            <RadialGradient id="cloud1" cx="50%" cy="50%" rx="50%" ry="50%">
+              <Stop offset="0" stopColor="#ffffff" stopOpacity={1} />
+              <Stop offset="1" stopColor="#ffffff" stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Ellipse cx={60} cy={35} rx={50} ry={22} fill="url(#cloud1)" opacity={cloudOpacity} />
+          <Ellipse cx={100} cy={28} rx={55} ry={26} fill="url(#cloud1)" opacity={cloudOpacity * 1.2} />
+          <Ellipse cx={140} cy={36} rx={40} ry={20} fill="url(#cloud1)" opacity={cloudOpacity * 0.8} />
+        </Svg>
+      </Animated.View>
+
+      {/* Cloud 2 - medium, top right */}
+      <Animated.View style={{ position: 'absolute', top: 30, right: -10, transform: [{ translateX: drift2 }] }}>
+        <Svg width={150} height={50} viewBox="0 0 150 50">
+          <Defs>
+            <RadialGradient id="cloud2" cx="50%" cy="50%" rx="50%" ry="50%">
+              <Stop offset="0" stopColor="#ffffff" stopOpacity={1} />
+              <Stop offset="1" stopColor="#ffffff" stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Ellipse cx={45} cy={30} rx={40} ry={18} fill="url(#cloud2)" opacity={cloudOpacity * 0.9} />
+          <Ellipse cx={85} cy={24} rx={48} ry={22} fill="url(#cloud2)" opacity={cloudOpacity * 1.1} />
+          <Ellipse cx={120} cy={32} rx={35} ry={16} fill="url(#cloud2)" opacity={cloudOpacity * 0.7} />
+        </Svg>
+      </Animated.View>
+
+      {/* Cloud 3 - small wispy, center */}
+      <Animated.View style={{ position: 'absolute', top: 55, left: SCREEN_WIDTH * 0.25, transform: [{ translateX: drift3 }] }}>
+        <Svg width={120} height={40} viewBox="0 0 120 40">
+          <Defs>
+            <RadialGradient id="cloud3" cx="50%" cy="50%" rx="50%" ry="50%">
+              <Stop offset="0" stopColor="#ffffff" stopOpacity={1} />
+              <Stop offset="1" stopColor="#ffffff" stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Ellipse cx={35} cy={22} rx={32} ry={14} fill="url(#cloud3)" opacity={cloudOpacity * 0.7} />
+          <Ellipse cx={70} cy={18} rx={38} ry={16} fill="url(#cloud3)" opacity={cloudOpacity} />
+          <Ellipse cx={100} cy={24} rx={28} ry={12} fill="url(#cloud3)" opacity={cloudOpacity * 0.6} />
+        </Svg>
+      </Animated.View>
+    </View>
+  );
+};
+
 // Light Rays Component - More Vibrant
 const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
   const rayColor = mode === 'reef' ? '#0891b2' : '#059669';
@@ -354,8 +529,8 @@ const LightRays = ({ mode = 'reef' }: { mode?: 'reef' | 'freshwater' }) => {
     >
       <Defs>
         <LinearGradient id="rayGradient" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.25} />
-          <Stop offset="0.3" stopColor={rayColor} stopOpacity={0.1} />
+          <Stop offset="0" stopColor="#ffffff" stopOpacity={0.4} />
+          <Stop offset="0.3" stopColor={rayColor} stopOpacity={0.2} />
           <Stop offset="1" stopColor={rayColor} stopOpacity={0} />
         </LinearGradient>
       </Defs>
@@ -378,12 +553,14 @@ export default function AquaticBackground({
   showBubbles = true,
   showCorals = true,
   showLightRays = true,
+  showClouds = true,
+  showWaves = true,
   opacity = 1,
 }: AquaticBackgroundProps) {
   // Different bubble colors for reef vs freshwater - more vibrant
   const bubbleColor = mode === 'reef' 
-    ? 'rgba(8, 145, 178, 0.5)'  // Cyan for reef - more vibrant
-    : 'rgba(5, 150, 105, 0.5)'; // Green for freshwater - more vibrant
+    ? 'rgba(8, 145, 178, 0.65)'  // Cyan for reef - bolder
+    : 'rgba(5, 150, 105, 0.65)'; // Green for freshwater - bolder
 
   const bubbles = [
     { size: 14, startX: SCREEN_WIDTH * 0.1, delay: 0, duration: 6000 },
@@ -398,6 +575,12 @@ export default function AquaticBackground({
 
   return (
     <View style={[styles.container, { opacity }]} pointerEvents="none">
+      {/* Soft clouds at top */}
+      {showClouds && <CloudsOverlay mode={mode} />}
+
+      {/* Surface waves */}
+      {showWaves && <SurfaceWaves mode={mode} />}
+
       {/* Light rays from surface */}
       {showLightRays && <LightRays mode={mode} />}
 
@@ -436,6 +619,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    opacity: 0.15,
+    opacity: 0.3,
   },
 });

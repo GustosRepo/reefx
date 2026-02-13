@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth, useAquaMode } from '@/context';
 import { Redirect } from 'expo-router';
+import { GuestFloatingBar } from '@/components';
 import { colors } from '@/constants/theme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -16,20 +17,21 @@ function TabBarIcon({ name, color, focused }: { name: IconName; color: string; f
 }
 
 export default function TabLayout() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isGuestMode } = useAuth();
   const { theme } = useAquaMode();
 
   if (isLoading) {
     return null;
   }
 
-  if (!user) {
+  if (!user && !isGuestMode) {
     return <Redirect href="/(auth)/login" />;
   }
 
   return (
-    <Tabs
-      screenOptions={{
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
         tabBarActiveTintColor: theme.accentPrimary,
         tabBarInactiveTintColor: colors.text.muted,
         tabBarStyle: {
@@ -101,5 +103,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+      <GuestFloatingBar />
+    </View>
   );
 }

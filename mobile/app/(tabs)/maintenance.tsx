@@ -4,17 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAuth, useAquaMode } from '@/context';
-import { LoadingState, EmptyState } from '@/components';
+import { LoadingState, EmptyState, CreateAccountPrompt } from '@/components';
 import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { MaintenanceEntry } from '@shared/types';
 import { MAINTENANCE_TYPES } from '@/constants';
+import { DEMO_MAINTENANCE } from '@/constants/demoData';
 import Toast from 'react-native-toast-message';
 
 export default function MaintenanceScreen() {
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
   const { currentTank } = useTank();
   const { theme } = useAquaMode();
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
 
   const [entries, setEntries] = useState<MaintenanceEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,13 @@ export default function MaintenanceScreen() {
 
   const loadMaintenance = useCallback(async () => {
     if (!currentTank) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Guest mode: use demo data
+    if (isGuestMode) {
+      setEntries(DEMO_MAINTENANCE);
       setIsLoading(false);
       return;
     }
@@ -61,6 +70,12 @@ export default function MaintenanceScreen() {
   };
 
   const handleAddEntry = async () => {
+    if (isGuestMode) {
+      setShowAddModal(false);
+      setShowAccountPrompt(true);
+      return;
+    }
+
     if (!currentTank || !user) return;
 
     setIsSubmitting(true);
@@ -264,6 +279,13 @@ export default function MaintenanceScreen() {
           </View>
         </View>
       </Modal>
+
+      <CreateAccountPrompt
+        visible={showAccountPrompt}
+        onClose={() => setShowAccountPrompt(false)}
+        title="Track Your Maintenance"
+        message="Create a free account to schedule maintenance, get reminders, and keep a full history of your tank care."
+      />
     </SafeAreaView>
   );
 }

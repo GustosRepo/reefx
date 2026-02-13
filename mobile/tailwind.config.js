@@ -23,8 +23,8 @@ module.exports = {
         },
         // Background colors
         background: {
-          DEFAULT: '#d4eef4',
-          secondary: '#c5e6ee',
+          DEFAULT: '#b8dfe9',
+          secondary: '#a8d4e0',
         },
         // Reef mode colors
         reef: {

@@ -48,4 +48,22 @@ export const storage = {
   },
 };
 
+/**
+ * Onboarding-specific storage helpers
+ */
+export const onboardingStorage = {
+  async hasCompletedOnboarding(): Promise<boolean> {
+    const completed = await storage.get<boolean>('onboarding_completed');
+    return completed === true;
+  },
+
+  async setOnboardingComplete(): Promise<void> {
+    await storage.set('onboarding_completed', true);
+  },
+
+  async resetOnboarding(): Promise<void> {
+    await storage.remove('onboarding_completed');
+  },
+};
+
 export default storage;

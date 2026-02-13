@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { User } from "@/utils/auth";
 import SiteFooter from "@/components/SiteFooter";
 import FeedbackModal from "@/components/FeedbackModal";
+import AquaticBackground from "@/components/AquaticBackground";
 import { useAquaMode } from "@/context/AquaModeContext";
 
 export default function AppLayout({
@@ -87,7 +88,10 @@ export default function AppLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 relative overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 relative overflow-x-hidden">
+      {/* Animated SVG Background - Clouds, Waves, Bubbles */}
+      <AquaticBackground />
+
       {/* Decorative Aquatic Elements */}
       <div className="aqua-bubbles">
         <div className="bubble bubble-1" />

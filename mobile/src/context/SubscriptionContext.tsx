@@ -51,7 +51,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [isLoadingOfferings, setIsLoadingOfferings] = useState(true);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
+
+  // In guest mode, unlock everything so they experience the full app
+  const features = isGuestMode
+    ? TIER_FEATURES['super-premium']
+    : (TIER_FEATURES[subscription.tier] || TIER_FEATURES.free);
+
+  const effectiveSubscription = isGuestMode
+    ? { ...subscription, tier: 'super-premium' as const }
+    : subscription;
 
   // Initialize RevenueCat on mount
   useEffect(() => {
@@ -196,8 +205,6 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return { success: result.success, error: result.error };
   }, [updateSubscriptionFromCustomerInfo]);
 
-  const features = TIER_FEATURES[subscription.tier] || TIER_FEATURES.free;
-
   const hasFeature = useCallback((feature: keyof TierFeatures): boolean => {
     return !!features[feature];
   }, [features]);
@@ -205,7 +212,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   return (
     <SubscriptionContext.Provider
       value={{
-        subscription,
+        subscription: effectiveSubscription,
         isLoading,
         features,
         refreshSubscription,

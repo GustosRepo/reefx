@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
+import { storage } from '@/lib';
 import { User } from '@shared/types';
 import { Session } from '@supabase/supabase-js';
 
@@ -7,10 +8,13 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isGuestMode: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
+  enterGuestMode: () => Promise<void>;
+  exitGuestMode: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,8 +23,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   useEffect(() => {
+    initAuth();
+  }, []);
+
+  const initAuth = async () => {
+    // Check if user is in guest mode
+    const guestMode = await storage.get<boolean>('guest_mode');
+    if (guestMode) {
+      setIsGuestMode(true);
+      setIsLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -46,6 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: session.user.user_metadata?.name,
             avatar_url: session.user.user_metadata?.avatar_url,
           });
+          // Exit guest mode when user signs in
+          await storage.remove('guest_mode');
+          setIsGuestMode(false);
         } else {
           setUser(null);
         }
@@ -54,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -89,6 +109,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
   };
 
+  const enterGuestMode = async () => {
+    await storage.set('guest_mode', true);
+    setIsGuestMode(true);
+    return new Promise<void>((resolve) => {
+      // Ensure state update completes
+      setTimeout(() => resolve(), 50);
+    });
+  };
+
+  const exitGuestMode = async () => {
+    await storage.remove('guest_mode');
+    setIsGuestMode(false);
+  };
+
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -106,10 +140,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         isLoading,
+        isGuestMode,
         signIn,
         signUp,
         signOut,
         resetPassword,
+        enterGuestMode,
+        exitGuestMode,
       }}
     >
       {children}

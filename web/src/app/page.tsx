@@ -77,7 +77,7 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <main className="relative min-h-screen px-6 pt-48 pb-24 overflow-hidden text-slate-800 bg-gradient-to-b from-[#b8dfe9] via-[#c5e6ee] to-[#d4eef4]">
+      <main className="relative min-h-screen px-6 pt-48 pb-24 overflow-hidden text-slate-800 bg-gradient-to-b from-[#9ccbd8] via-[#a8d4e0] to-[#b8dfe9]">
         {/* Decorative Aquatic Elements */}
         <div className="aqua-bubbles">
           <div className="bubble bubble-1" />
@@ -275,7 +275,7 @@ export default function Home() {
       </main>
 
       {/* Features */}
-      <section id="features" className="py-24 text-slate-900 bg-[#d4eef4] relative overflow-hidden">
+      <section id="features" className="py-24 text-slate-900 bg-[#b8dfe9] relative overflow-hidden">
         {/* Decorative bubbles for this section */}
         <div className="absolute bottom-10 left-10 w-6 h-6 rounded-full bg-[var(--aqua-accent-primary)]/20 animate-ping" style={{ animationDuration: '3s' }} />
         <div className="absolute top-20 right-20 w-4 h-4 rounded-full bg-[var(--aqua-accent-tertiary)]/20 animate-ping" style={{ animationDuration: '4s' }} />
@@ -321,7 +321,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 text-slate-900 bg-[#c5e6ee] border-t border-slate-200 relative overflow-hidden">
+      <section className="py-24 text-slate-900 bg-[#a8d4e0] border-t border-slate-200 relative overflow-hidden">
         {/* Decorative coral/plant silhouette */}
         <div className="aqua-decor opacity-30" style={{ bottom: 0, height: '120px' }} />
         
@@ -530,7 +530,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 text-slate-900 bg-[#c5e6ee] border-t border-slate-200 relative overflow-hidden">
+      <section className="py-24 text-slate-900 bg-[#a8d4e0] border-t border-slate-200 relative overflow-hidden">
         {/* Water surface effect at top */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-[var(--aqua-accent-primary)]/10 to-transparent" />
         <div className="absolute bottom-10 left-20 w-4 h-4 rounded-full bg-[var(--aqua-accent-primary)]/20 animate-ping" style={{ animationDuration: '4s' }} />

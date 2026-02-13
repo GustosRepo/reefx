@@ -5,9 +5,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useTank, useSubscription, useAquaMode, useAuth } from '@/context';
-import { LoadingState } from '@/components';
+import { LoadingState, CreateAccountPrompt } from '@/components';
 import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
+import { DEMO_EQUIPMENT } from '@/constants/demoData';
 import { EquipmentItem } from '@shared/types';
 import Toast from 'react-native-toast-message';
 
@@ -23,7 +24,7 @@ const EQUIPMENT_CATEGORIES = [
 ];
 
 export default function EquipmentScreen() {
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
   const { currentTank } = useTank();
   const { features } = useSubscription();
   const { theme } = useAquaMode();
@@ -34,6 +35,7 @@ export default function EquipmentScreen() {
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<EquipmentItem | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -48,6 +50,13 @@ export default function EquipmentScreen() {
   });
 
   const loadEquipment = useCallback(async () => {
+    if (isGuestMode) {
+      setEquipment(DEMO_EQUIPMENT);
+      setIsLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
     if (!currentTank) {
       setIsLoading(false);
       return;
@@ -68,7 +77,7 @@ export default function EquipmentScreen() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, [currentTank]);
+  }, [currentTank, isGuestMode]);
 
   useEffect(() => {
     loadEquipment();
@@ -114,6 +123,13 @@ export default function EquipmentScreen() {
   };
 
   const handleSave = async () => {
+    if (isGuestMode) {
+      setShowModal(false);
+      resetForm();
+      setShowAccountPrompt(true);
+      return;
+    }
+
     if (!formData.name.trim()) {
       Toast.show({ type: 'error', text1: 'Name is required' });
       return;
@@ -411,6 +427,12 @@ export default function EquipmentScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <CreateAccountPrompt
+        visible={showAccountPrompt}
+        onClose={() => setShowAccountPrompt(false)}
+        message="Create a free account to save your equipment and track warranties."
+      />
     </SafeAreaView>
   );
 }

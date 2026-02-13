@@ -13,8 +13,8 @@ export const colors = {
 
   // Background colors
   background: {
-    primary: '#d4eef4',
-    secondary: '#c5e6ee',
+    primary: '#b8dfe9',
+    secondary: '#a8d4e0',
     surface: '#ffffff',
   },
 

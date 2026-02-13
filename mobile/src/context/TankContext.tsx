@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext';
 import { useAquaMode } from './AquaModeContext';
 import { Tank } from '@shared/types';
 import { STORAGE_KEYS } from '@/constants';
+import { DEMO_TANKS, DEMO_TANK } from '@/constants/demoData';
 
 interface TankContextValue {
   tanks: Tank[];
@@ -22,10 +23,19 @@ export function TankProvider({ children }: { children: ReactNode }) {
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [currentTank, setCurrentTankState] = useState<Tank | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
   const { setMode } = useAquaMode();
 
   const refreshTanks = useCallback(async () => {
+    // Guest mode: use demo data
+    if (isGuestMode) {
+      setTanks(DEMO_TANKS);
+      setCurrentTankState(DEMO_TANK);
+      setMode('reef');
+      setIsLoading(false);
+      return;
+    }
+
     if (!user) {
       setTanks([]);
       setCurrentTankState(null);

@@ -5,17 +5,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import { useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { useTank, useAquaMode, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
+import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import { LoadingState, EmptyState } from '@/components';
 import AquaticBackground from '@/components/AquaticBackground';
 import { colors } from '@/constants/theme';
 import { ParameterLog } from '@shared/types';
+import { DEMO_LOGS } from '@/constants/demoData';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function HistoryScreen() {
   const { currentTank } = useTank();
   const { isReefMode, theme, modeIcon } = useAquaMode();
+  const { isGuestMode } = useAuth();
 
   const [logs, setLogs] = useState<ParameterLog[]>([]);
   const [selectedParam, setSelectedParam] = useState('temp');
@@ -26,6 +28,13 @@ export default function HistoryScreen() {
 
   const loadHistory = useCallback(async () => {
     if (!currentTank) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Guest mode: use demo data
+    if (isGuestMode) {
+      setLogs([...DEMO_LOGS].sort((a, b) => a.log_date.localeCompare(b.log_date)));
       setIsLoading(false);
       return;
     }

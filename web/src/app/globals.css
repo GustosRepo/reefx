@@ -7,17 +7,17 @@
      ═══════════════════════════════════════════════════════════════════════════ */
   
   /* Base Theme Colors - Deeper aquatic tint */
-  --background: #d4eef4;          /* Deeper cyan tint */
-  --background-secondary: #c5e6ee; /* Richer aqua */
+  --background: #b8dfe9;          /* Deeper cyan tint */
+  --background-secondary: #a8d4e0; /* Richer aqua */
   --foreground: #1a3340;          /* Deep ocean text */
   --foreground-muted: #4a6b7a;    /* Muted aqua-gray */
   
   /* Card & Surface Colors */
   --surface-primary: #ffffff;
-  --surface-secondary: #c5e6ee;   /* Deeper aqua surface */
+  --surface-secondary: #a8d4e0;   /* Deeper aqua surface */
   --surface-elevated: #ffffff;
-  --border-light: #a8d4e0;        /* Aqua border */
-  --border-medium: #8bc4d4;       /* Medium aqua border */
+  --border-light: #8bc4d4;        /* Aqua border */
+  --border-medium: #6fb3c5;       /* Medium aqua border */
   
   /* ─────────────────────────────────────────────────────────────────────────
      AQUAXONE SHARED PALETTE
@@ -200,16 +200,16 @@ body {
 }
 
 .aqua-bubbles::before {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   bottom: 15%;
   left: 10%;
   animation: float-bubble 8s ease-in-out infinite;
 }
 
 .aqua-bubbles::after {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   bottom: 25%;
   right: 15%;
   animation: float-bubble 6s ease-in-out infinite 1s;
@@ -219,16 +219,16 @@ body {
 .bubble {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(8, 145, 178, 0.2));
-  border: 1px solid rgba(8, 145, 178, 0.15);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(8, 145, 178, 0.3));
+  border: 1px solid rgba(8, 145, 178, 0.25);
   animation: float-bubble-slow 10s ease-in-out infinite;
 }
 
-.bubble-1 { width: 6px; height: 6px; bottom: 20%; left: 25%; animation-delay: 0s; }
-.bubble-2 { width: 10px; height: 10px; bottom: 30%; left: 60%; animation-delay: 2s; }
-.bubble-3 { width: 4px; height: 4px; bottom: 40%; left: 80%; animation-delay: 4s; }
-.bubble-4 { width: 8px; height: 8px; bottom: 10%; left: 45%; animation-delay: 1s; }
-.bubble-5 { width: 5px; height: 5px; bottom: 50%; left: 15%; animation-delay: 3s; }
+.bubble-1 { width: 10px; height: 10px; bottom: 20%; left: 25%; animation-delay: 0s; }
+.bubble-2 { width: 16px; height: 16px; bottom: 30%; left: 60%; animation-delay: 2s; }
+.bubble-3 { width: 8px; height: 8px; bottom: 40%; left: 80%; animation-delay: 4s; }
+.bubble-4 { width: 14px; height: 14px; bottom: 10%; left: 45%; animation-delay: 1s; }
+.bubble-5 { width: 9px; height: 9px; bottom: 50%; left: 15%; animation-delay: 3s; }
 
 /* Coral/Plant Decorative Silhouettes */
 .aqua-decor {
@@ -239,7 +239,7 @@ body {
   height: 200px;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.06;
+  opacity: 0.12;
   overflow: hidden;
 }
 
@@ -301,6 +301,76 @@ body {
   50% { transform: translateY(-8px) scale(1.1); opacity: 0.7; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANIMATED SVG BACKGROUND - Waves, Clouds, Bubbles
+   Matches the mobile app AquaticBackground component
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Surface Wave Animations */
+@keyframes wave-drift-1 {
+  0%, 100% { transform: translateX(-25px); }
+  50% { transform: translateX(25px); }
+}
+@keyframes wave-drift-2 {
+  0%, 100% { transform: translateX(20px); }
+  50% { transform: translateX(-20px); }
+}
+
+.animate-wave-drift-1 {
+  animation: wave-drift-1 4s ease-in-out infinite;
+}
+.animate-wave-drift-2 {
+  animation: wave-drift-2 5.5s ease-in-out infinite;
+}
+
+/* Cloud Drift Animations */
+@keyframes cloud-drift-1 {
+  0%, 100% { transform: translateX(-25px); }
+  50% { transform: translateX(25px); }
+}
+@keyframes cloud-drift-2 {
+  0%, 100% { transform: translateX(35px); }
+  50% { transform: translateX(-35px); }
+}
+@keyframes cloud-drift-3 {
+  0%, 100% { transform: translateX(-20px); }
+  50% { transform: translateX(20px); }
+}
+
+.animate-cloud-drift-1 {
+  animation: cloud-drift-1 12s ease-in-out infinite;
+}
+.animate-cloud-drift-2 {
+  animation: cloud-drift-2 16s ease-in-out infinite;
+}
+.animate-cloud-drift-3 {
+  animation: cloud-drift-3 10s ease-in-out infinite;
+}
+
+/* Bubble Rise Animation */
+@keyframes bubble-rise {
+  0%, 100% { 
+    transform: translateY(0) translateX(0); 
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-15px) translateX(8px);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translateY(-30px) translateX(-5px); 
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-15px) translateX(10px);
+    opacity: 0.6;
+  }
+}
+
+.animate-bubble-rise {
+  animation: bubble-rise 8s ease-in-out infinite;
+}
+
 /* Light Rays from Surface */
 .light-rays {
   position: fixed;
@@ -310,7 +380,7 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.03;
+  opacity: 0.08;
   background: 
     linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 30%),
     repeating-linear-gradient(

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import AquaticBackground from '@/components/AquaticBackground';
+import { CreateAccountPrompt } from '@/components';
 import { colors } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
 
@@ -14,9 +15,10 @@ interface FormData {
 }
 
 export default function LogScreen() {
-  const { user } = useAuth();
+  const { user, isGuestMode } = useAuth();
   const { currentTank } = useTank();
   const { isReefMode, theme, modeIcon } = useAquaMode();
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
 
   const parameters = isReefMode ? REEF_PARAMETERS : FRESHWATER_PARAMETERS;
 
@@ -32,6 +34,11 @@ export default function LogScreen() {
   };
 
   const handleSubmit = async () => {
+    if (isGuestMode) {
+      setShowAccountPrompt(true);
+      return;
+    }
+
     if (!currentTank || !user) {
       Toast.show({
         type: 'error',
@@ -208,6 +215,13 @@ export default function LogScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      <CreateAccountPrompt
+        visible={showAccountPrompt}
+        onClose={() => setShowAccountPrompt(false)}
+        title="Save Your Water Tests"
+        message="Create a free account to log water parameters, track trends over time, and get alerts when levels are off."
+      />
     </SafeAreaView>
   );
 }

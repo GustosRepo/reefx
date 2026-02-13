@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
         <div className="aqua-bubbles"><div className="bubble bubble-1" /><div className="bubble bubble-2" /><div className="bubble bubble-3" /></div>
         <div className="light-rays" />
         <div className="aqua-decor" />
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#c5e6ee] via-[#d4eef4] to-[#c5e6ee] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#a8d4e0] via-[#b8dfe9] to-[#a8d4e0] text-slate-800 flex items-center justify-center px-4 relative overflow-hidden">
       <div className="aqua-bubbles"><div className="bubble bubble-1" /><div className="bubble bubble-2" /><div className="bubble bubble-3" /></div>
       <div className="light-rays" />
       <div className="aqua-decor" />

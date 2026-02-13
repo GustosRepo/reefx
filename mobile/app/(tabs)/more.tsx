@@ -4,7 +4,9 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth, useSubscription, useTank, useAquaMode } from '@/context';
 import AquaticBackground from '@/components/AquaticBackground';
+import { GuestModeBanner } from '@/components';
 import { colors } from '@/constants/theme';
+import { onboardingStorage } from '@/lib';
 import Toast from 'react-native-toast-message';
 
 type MenuItemProps = {
@@ -57,7 +59,7 @@ function MenuItem({ icon, iconName, title, subtitle, onPress, locked, badge, acc
 }
 
 export default function MoreScreen() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isGuestMode } = useAuth();
   const { subscription, features } = useSubscription();
   const { tanks, deleteTank, currentTank } = useTank();
   const { theme } = useAquaMode();
@@ -65,6 +67,32 @@ export default function MoreScreen() {
   const handleLogout = async () => {
     await signOut();
     router.replace('/(auth)/login');
+  };
+
+  const handleResetOnboarding = async () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will clear all app data and restart. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await onboardingStorage.resetOnboarding();
+            await signOut();
+            Toast.show({
+              type: 'success',
+              text1: 'Reset Complete',
+              text2: 'App will reload...',
+            });
+            setTimeout(() => {
+              router.replace('/');
+            }, 500);
+          },
+        },
+      ]
+    );
   };
 
   const handleDeleteTank = (tankId: string, tankName: string) => {
@@ -112,8 +140,15 @@ export default function MoreScreen() {
           <Text className="text-2xl font-bold text-slate-800">More</Text>
         </View>
 
+        {/* Guest Mode Banner */}
+        {isGuestMode && (
+          <View className="px-4 mt-4">
+            <GuestModeBanner />
+          </View>
+        )}
+
         {/* User Profile Section */}
-        <View className="px-4 mt-4">
+        <View className="px-4 mt-4">{!isGuestMode ? (
           <View className="bg-white rounded-2xl p-4 border border-aqua-200 mb-6">
             <View className="flex-row items-center">
               <View 
@@ -146,6 +181,24 @@ export default function MoreScreen() {
               </View>
             </View>
           </View>
+        ) : (
+          <View className="bg-white rounded-2xl p-4 border border-aqua-200 mb-6">
+            <View className="flex-row items-center">
+              <View 
+                className="w-14 h-14 rounded-full items-center justify-center mr-4"
+                style={{ backgroundColor: theme.accentPrimary }}
+              >
+                <Text className="text-white text-xl font-bold">👤</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="font-bold text-slate-800 text-lg">
+                  Demo Mode
+                </Text>
+                <Text className="text-slate-500">Exploring with sample data</Text>
+              </View>
+            </View>
+          </View>
+        )}
         </View>
 
         {/* Features Section */}
@@ -301,6 +354,9 @@ export default function MoreScreen() {
         {/* App Version */}
         <View className="items-center mt-6 pb-4">
           <Text className="text-slate-400 text-sm">AquaXone v1.0.0</Text>
+          <TouchableOpacity onPress={handleResetOnboarding} className="mt-2">
+            <Text className="text-slate-400 text-xs underline">Reset Onboarding (Debug)</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
