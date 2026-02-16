@@ -1,0 +1,48 @@
+# EAS Build ignore file
+# Based on .gitignore but INCLUDES .env for build-time env vars
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native - don't ignore ios/android since we prebuild
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# NOTE: .env is NOT ignored here - it's needed for EXPO_PUBLIC_* vars at build time
+
+# local env overrides only
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# EAS
+eas-credentials/
+google-services.json
+GoogleService-Info.plist
+
+# Build artifacts
+build-*.ipa
+*.tar.gz
+logs/

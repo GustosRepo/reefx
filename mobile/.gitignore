@@ -45,3 +45,19 @@ GoogleService-Info.plist
 
 expo-env.d.ts
 # @end expo-cli
+# Build artifacts
+*.ipa
+*.apk
+*.aab
+build-*.ipa
+
+# iOS
+ios/Pods/
+ios/build/
+ios/**/*.xcworkspace/xcuserdata/
+ios/**/*.xcodeproj/xcuserdata/
+ios/**/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/.xcode.env.local
+
+# Editor
+.vscode/
