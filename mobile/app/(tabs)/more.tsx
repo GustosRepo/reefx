@@ -69,32 +69,6 @@ export default function MoreScreen() {
     router.replace('/(auth)/login');
   };
 
-  const handleResetOnboarding = async () => {
-    Alert.alert(
-      'Reset Onboarding',
-      'This will clear all app data and restart. Continue?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            await onboardingStorage.resetOnboarding();
-            await signOut();
-            Toast.show({
-              type: 'success',
-              text1: 'Reset Complete',
-              text2: 'App will reload...',
-            });
-            setTimeout(() => {
-              router.replace('/');
-            }, 500);
-          },
-        },
-      ]
-    );
-  };
-
   const handleDeleteTank = (tankId: string, tankName: string) => {
     // Prevent deleting current tank without confirmation
     const isCurrentTank = currentTank?.id === tankId;
@@ -322,6 +296,15 @@ export default function MoreScreen() {
           />
 
           <MenuItem
+            iconName="speedometer-outline"
+            icon=""
+            title="Parameter Thresholds"
+            subtitle="Set min/max alert ranges"
+            onPress={() => router.push('/thresholds')}
+            accentColor={theme.accentPrimary}
+          />
+
+          <MenuItem
             iconName="card-outline"
             icon=""
             title="Subscription"
@@ -354,9 +337,6 @@ export default function MoreScreen() {
         {/* App Version */}
         <View className="items-center mt-6 pb-4">
           <Text className="text-slate-400 text-sm">AquaXone v1.0.0</Text>
-          <TouchableOpacity onPress={handleResetOnboarding} className="mt-2">
-            <Text className="text-slate-400 text-xs underline">Reset Onboarding (Debug)</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

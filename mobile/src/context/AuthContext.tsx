@@ -26,55 +26,80 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isGuestMode, setIsGuestMode] = useState(false);
 
   useEffect(() => {
-    initAuth();
-  }, []);
+    let subscription: { unsubscribe: () => void } | undefined;
 
-  const initAuth = async () => {
-    // Check if user is in guest mode
-    const guestMode = await storage.get<boolean>('guest_mode');
-    if (guestMode) {
-      setIsGuestMode(true);
-      setIsLoading(false);
-      return;
-    }
+    const initAuth = async () => {
+      try {
+        // Check if user is in guest mode
+        const guestMode = await storage.get<boolean>('guest_mode');
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          name: session.user.user_metadata?.name,
-          avatar_url: session.user.user_metadata?.avatar_url,
-        });
-      }
-      setIsLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email!,
-            name: session.user.user_metadata?.name,
-            avatar_url: session.user.user_metadata?.avatar_url,
-          });
-          // Exit guest mode when user signs in
-          await storage.remove('guest_mode');
-          setIsGuestMode(false);
-        } else {
-          setUser(null);
+        // Get initial session (check even in guest mode so login clears demo)
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            // User has a valid session - exit guest mode if active
+            if (guestMode) {
+              await storage.remove('guest_mode');
+            }
+            setSession(session);
+            setUser({
+              id: session.user.id,
+              email: session.user.email!,
+              name: session.user.user_metadata?.name,
+              avatar_url: session.user.user_metadata?.avatar_url,
+            });
+            setIsGuestMode(false);
+          } else if (guestMode) {
+            // No session but guest mode is active
+            setIsGuestMode(true);
+          }
+        } catch (error) {
+          console.warn('Failed to get session:', error);
+          // Fall back to guest mode if it was set
+          if (guestMode) {
+            setIsGuestMode(true);
+          }
+        } finally {
+          setIsLoading(false);
         }
+
+        // Listen for auth changes
+        try {
+          const { data } = supabase.auth.onAuthStateChange(
+            async (_event, session) => {
+              setSession(session);
+              if (session?.user) {
+                setUser({
+                  id: session.user.id,
+                  email: session.user.email!,
+                  name: session.user.user_metadata?.name,
+                  avatar_url: session.user.user_metadata?.avatar_url,
+                });
+                // Exit guest mode when user signs in
+                await storage.remove('guest_mode');
+                setIsGuestMode(false);
+              } else {
+                setUser(null);
+              }
+              setIsLoading(false);
+            }
+          );
+          subscription = data.subscription;
+        } catch (error) {
+          console.warn('Failed to set up auth listener:', error);
+        }
+      } catch (error) {
+        console.warn('Auth initialization failed:', error);
         setIsLoading(false);
       }
-    );
+    };
 
-    return () => subscription.unsubscribe();
-  };
+    initAuth();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {

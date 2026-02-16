@@ -19,6 +19,13 @@
     },
     "production": {
       "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://lpukoklzaozkqbbyhznk.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_AyWuBn5SBL1VpdvmKsY0-g_IocpL34u",
+        "EXPO_PUBLIC_APP_URL": "https://aquaxone.app",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_gJEDRNEDYCdeyYnXWWmXxkgDThi",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY": "your_android_api_key_here"
+      },
       "ios": {
         "resourceClass": "m-medium"
       },

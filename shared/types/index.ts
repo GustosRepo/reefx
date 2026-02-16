@@ -86,13 +86,12 @@ export interface EquipmentItem {
   category: string;
   brand?: string;
   model?: string;
-  cost?: number;
+  purchase_price?: number;
   purchase_date?: string;
-  warranty_until?: string;
-  warranty_expiration?: string;
-  serial_number?: string;
-  power_watts?: number;
-  is_active?: boolean;
+  warranty_expires?: string;
+  status?: 'active' | 'maintenance' | 'retired';
+  last_maintenance?: string;
+  next_maintenance?: string;
   notes?: string;
   created_at: string;
   updated_at?: string;

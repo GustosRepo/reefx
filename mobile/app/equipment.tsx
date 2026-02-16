@@ -114,9 +114,9 @@ export default function EquipmentScreen() {
       category: item.category || 'filtration',
       brand: item.brand || '',
       model: item.model || '',
-      cost: item.cost?.toString() || '',
+      cost: item.purchase_price?.toString() || '',
       purchase_date: item.purchase_date || '',
-      warranty_until: item.warranty_until || '',
+      warranty_until: item.warranty_expires || '',
       notes: item.notes || '',
     });
     setShowModal(true);
@@ -143,9 +143,9 @@ export default function EquipmentScreen() {
         category: formData.category,
         brand: formData.brand.trim() || null,
         model: formData.model.trim() || null,
-        cost: formData.cost ? parseFloat(formData.cost) : null,
+        purchase_price: formData.cost ? parseFloat(formData.cost) : null,
         purchase_date: formData.purchase_date || null,
-        warranty_until: formData.warranty_until || null,
+        warranty_expires: formData.warranty_until || null,
         notes: formData.notes.trim() || null,
         tank_id: currentTank.id,
         user_id: user.id,
@@ -282,7 +282,7 @@ export default function EquipmentScreen() {
                         {item.brand}{item.model ? ` - ${item.model}` : ''}
                       </Text>
                     )}
-                    {item.cost && <Text className="text-slate-400 text-sm">${item.cost}</Text>}
+                    {item.purchase_price && <Text className="text-slate-400 text-sm">${item.purchase_price}</Text>}
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
                 </View>

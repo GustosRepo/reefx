@@ -17,6 +17,7 @@ dist/
 logs/
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*mobile/ios/
-mobile/android/
-mobile/.vscode/
+yarn-error.log*
+
+# Root level files (monorepo management only)
+package-lock.json

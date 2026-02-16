@@ -69,13 +69,17 @@ export function TankProvider({ children }: { children: ReactNode }) {
         const isFreshwater = tankToSelect.type && freshwaterTypes.includes(tankToSelect.type.toLowerCase());
         const mode = isFreshwater ? 'freshwater' : 'reef';
         setMode(mode);
+      } else {
+        // No tanks yet - clear demo tank and storage
+        setCurrentTankState(null);
+        await storage.remove(STORAGE_KEYS.CURRENT_TANK);
       }
     } catch (error) {
       console.error('Error fetching tanks:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [user, setMode]);
+  }, [user, isGuestMode, setMode]);
 
   useEffect(() => {
     refreshTanks();

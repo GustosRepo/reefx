@@ -4,6 +4,12 @@
       "eas": {
         "projectId": "72f1f0e0-1fd7-4bcf-a189-202fd92282ee"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.aquaxone.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     }
   }
 }

@@ -19,45 +19,21 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const onboardingData = [
   {
     id: 1,
-    icon: '🐠',
-    title: 'Welcome to AquaXone',
-    description: 'Your complete aquarium management companion. Track, monitor, and maintain your aquatic ecosystem with ease.',
+    icon: '🚨',
+    title: 'Your Tank Crashed. What Went Wrong?',
+    description: 'Track every parameter so you catch problems before they kill your livestock. Know exactly what\'s happening in your $5,000+ reef.',
   },
   {
     id: 2,
-    icon: '💧',
-    title: 'Water Parameter Tracking',
-    description: 'Log pH, ammonia, nitrite, nitrate, and more. View trends over time and get alerts when levels are out of range.',
+    icon: '🔔',
+    title: 'Get Alerts Before It\'s Too Late',
+    description: 'Smart thresholds notify you the moment pH, ammonia, or nitrates spike - not after your coral dies. Automated reminders for water changes.',
   },
   {
     id: 3,
-    icon: '📊',
-    title: 'Visual Insights',
-    description: 'Beautiful charts and graphs show your tank\'s health at a glance. Identify patterns and make data-driven decisions.',
-  },
-  {
-    id: 4,
-    icon: '🪸',
-    title: 'Reef & Freshwater',
-    description: 'Specialized modes for saltwater reef tanks and freshwater setups. Get parameter recommendations for your specific tank type.',
-  },
-  {
-    id: 5,
-    icon: '🔔',
-    title: 'Smart Reminders',
-    description: 'Never miss a water change, filter cleaning, or feeding. Set custom maintenance schedules tailored to your tank.',
-  },
-  {
-    id: 6,
-    icon: '📱',
-    title: 'All-in-One Solution',
-    description: 'Track livestock, equipment, gallery photos, and complete maintenance history. Everything you need in one app.',
-  },
-  {
-    id: 7,
-    icon: '🚀',
-    title: 'Ready to Dive In?',
-    description: 'Try the app with demo data or create your account to start tracking your own aquarium today!',
+    icon: '🌟',
+    title: 'Join 10,000+ Successful Aquarists',
+    description: '📊 Beautiful charts & trends\n🪸 Reef & freshwater modes\n📱 Track livestock & equipment\n🔬 Complete test history',
   },
 ];
 
@@ -153,25 +129,23 @@ export default function Onboarding() {
         <Pagination data={onboardingData} currentIndex={currentIndex} />
         
         {currentIndex === onboardingData.length - 1 ? (
-          // Last slide - show both options
           <View style={styles.finalButtonsContainer}>
             <TouchableOpacity
               onPress={handleTryDemo}
-              style={styles.demoButton}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.demoButtonText}>Try Demo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleComplete}
               style={styles.nextButton}
               activeOpacity={0.8}
             >
-              <Text style={styles.nextButtonText}>Create Account</Text>
+              <Text style={styles.nextButtonText}>Try Free Demo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleComplete}
+              style={styles.secondaryButton}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.secondaryButtonText}>Create Account</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          // Other slides - show next button
           <TouchableOpacity
             onPress={handleNext}
             style={styles.nextButton}
@@ -302,22 +276,9 @@ const styles = StyleSheet.create({
   finalButtonsContainer: {
     gap: 12,
   },
-  demoButton: {
-    backgroundColor: colors.background.surface,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.brand.primary,
-  },
-  demoButtonText: {
-    color: colors.brand.primary,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   nextButton: {
     backgroundColor: colors.brand.primary,
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: 12,
     alignItems: 'center',
     shadowColor: colors.brand.primary,
@@ -330,5 +291,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: colors.text.secondary,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

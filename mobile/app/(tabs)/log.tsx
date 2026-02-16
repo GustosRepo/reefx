@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
+import { fetchThresholds, checkThresholds, getCachedThresholds } from '@/lib/thresholds';
+import { scheduleParameterAlert } from '@/hooks/usePushNotifications';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import AquaticBackground from '@/components/AquaticBackground';
 import { CreateAccountPrompt } from '@/components';
@@ -48,6 +50,16 @@ export default function LogScreen() {
       return;
     }
 
+    // Prevent saving demo tank data to real database
+    if (currentTank.id?.startsWith('demo-')) {
+      Toast.show({
+        type: 'error',
+        text1: 'Demo tank detected',
+        text2: 'Please create your own tank to save logs',
+      });
+      return;
+    }
+
     // Check if at least one parameter is filled
     const hasData = parameters.some(p => formData[p.key] && formData[p.key].trim() !== '');
     if (!hasData) {
@@ -88,6 +100,42 @@ export default function LogScreen() {
         text1: 'Log saved!',
         text2: 'Your parameters have been recorded',
       });
+
+      // Check thresholds and fire alerts
+      try {
+        const thresholds = user ? await fetchThresholds(user.id) : await getCachedThresholds();
+        const paramKeys = parameters.map(p => p.key);
+        const warnings = checkThresholds(logEntry, thresholds, paramKeys);
+
+        if (warnings.length > 0) {
+          // Show toast warning
+          const warningNames = warnings.map(w => w.label).join(', ');
+          Toast.show({
+            type: 'error',
+            text1: '⚠️ Parameters Out of Range',
+            text2: `${warningNames} ${warnings.length === 1 ? 'is' : 'are'} outside your thresholds`,
+            visibilityTime: 5000,
+          });
+
+          // Check if parameter alerts are enabled before firing notifications
+          const { storage } = await import('@/lib/storage');
+          const { STORAGE_KEYS } = await import('@/constants/app');
+          const notifSettings = await storage.get<Record<string, boolean>>(STORAGE_KEYS.NOTIFICATION_SETTINGS);
+          const alertsEnabled = notifSettings?.parameter_alerts !== false; // default true
+
+          if (alertsEnabled) {
+            for (const warning of warnings) {
+              const direction = warning.type === 'low' ? 'below minimum' : 'above maximum';
+              await scheduleParameterAlert(
+                `⚠️ ${warning.label} Alert`,
+                `${warning.label} is ${warning.value} — ${direction} (${warning.min}–${warning.max})`
+              );
+            }
+          }
+        }
+      } catch (err) {
+        console.log('Threshold check failed:', err);
+      }
 
       // Reset form
       const reset: FormData = { date: new Date().toISOString().split('T')[0] };

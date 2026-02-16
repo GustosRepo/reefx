@@ -41,18 +41,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleResetOnboarding = async () => {
-    await onboardingStorage.resetOnboarding();
-    Toast.show({
-      type: 'success',
-      text1: 'Reset!',
-      text2: 'Reloading app...',
-    });
-    setTimeout(() => {
-      router.replace('/');
-    }, 500);
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-background">
       <AquaticBackground mode="reef" opacity={0.7} />
@@ -146,11 +134,6 @@ export default function LoginScreen() {
                 </TouchableOpacity>
               </Link>
             </View>
-
-            {/* Debug reset button */}
-            <TouchableOpacity onPress={handleResetOnboarding} className="mt-4">
-              <Text className="text-slate-400 text-xs text-center underline">Reset Onboarding (Debug)</Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -16,6 +16,7 @@ export const STORAGE_KEYS = {
   MAINTENANCE_MUTED: 'aquaxone_maintenance_muted',
   PUSH_TOKEN: 'aquaxone_push_token',
   UNIT_PREFERENCES: 'aquaxone_unit_preferences',
+  NOTIFICATION_SETTINGS: 'aquaxone_notification_settings',
 } as const;
 
 // API endpoints (relative to your Supabase/API)

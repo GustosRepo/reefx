@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { fetchThresholds, checkThresholds, getCachedThresholds, type ParameterWarning, type Thresholds, REEF_DEFAULTS } from '@/lib/thresholds';
 import { useTank, useAquaMode, useAuth, REEF_PARAMETERS, FRESHWATER_PARAMETERS } from '@/context';
 import { StatCard, TankSelector, EmptyState, LoadingState, GuestModeBanner } from '@/components';
 import AquaticBackground from '@/components/AquaticBackground';
@@ -21,6 +22,8 @@ export default function DashboardScreen() {
   const [overdueMaintenance, setOverdueMaintenance] = useState<MaintenanceEntry[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [paramWarnings, setParamWarnings] = useState<ParameterWarning[]>([]);
+  const [thresholds, setThresholds] = useState<Thresholds>(REEF_DEFAULTS);
 
   const parameters = isReefMode ? REEF_PARAMETERS : FRESHWATER_PARAMETERS;
 
@@ -53,6 +56,17 @@ export default function DashboardScreen() {
 
       if (!logError && logData) {
         setLatestLog(logData);
+
+        // Check thresholds
+        try {
+          const userThresholds = user ? await fetchThresholds(user.id) : await getCachedThresholds();
+          setThresholds(userThresholds);
+          const paramKeys = parameters.map(p => p.key);
+          const warnings = checkThresholds(logData, userThresholds, paramKeys);
+          setParamWarnings(warnings);
+        } catch {
+          setParamWarnings([]);
+        }
       } else {
         setLatestLog(null);
       }
@@ -243,6 +257,32 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {/* Parameter Alerts */}
+        {paramWarnings.length > 0 && (
+          <View className="mx-4 mt-4 bg-red-50 border border-red-200 rounded-2xl p-4">
+            <View className="flex-row items-center mb-3">
+              <Ionicons name="alert-circle" size={20} color="#ef4444" />
+              <Text className="text-red-800 font-bold ml-2">
+                Parameter Alerts ({paramWarnings.length})
+              </Text>
+            </View>
+            {paramWarnings.map((warning) => (
+              <View key={warning.key} className="flex-row items-center mb-2">
+                <View className={`w-2 h-2 rounded-full mr-2 ${warning.type === 'high' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                <Text className="text-red-700 text-sm flex-1">
+                  {warning.label}: {warning.value} — {warning.type === 'low' ? `below min (${warning.min})` : `above max (${warning.max})`}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              onPress={() => router.push('/thresholds')}
+              className="mt-2"
+            >
+              <Text className="text-red-800 font-semibold">Configure Thresholds →</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Quick Actions */}
         <View className="flex-row px-4 mt-6 gap-3">
           <TouchableOpacity
@@ -292,16 +332,21 @@ export default function DashboardScreen() {
             </View>
           ) : (
             <View className="flex-row flex-wrap gap-3">
-              {parameters.map((param) => (
-                <View key={param.key} style={{ width: '48%' }}>
-                  <StatCard
-                    title={param.label}
-                    value={`${getParamValue(param.key)}${param.unit ? ` ${param.unit}` : ''}`}
-                    icon={param.icon}
-                    paramType={param.key}
-                  />
-                </View>
-              ))}
+              {parameters.map((param) => {
+                const warning = paramWarnings.find(w => w.key === param.key);
+                return (
+                  <View key={param.key} style={{ width: '48%' }}>
+                    <StatCard
+                      title={param.label}
+                      value={`${getParamValue(param.key)}${param.unit ? ` ${param.unit}` : ''}`}
+                      icon={param.icon}
+                      paramType={param.key}
+                      warning={!!warning}
+                      danger={warning?.type === 'high'}
+                    />
+                  </View>
+                );
+              })}
             </View>
           )}
         </View>
